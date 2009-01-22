@@ -10,6 +10,9 @@ use 5.010;
 use Data::Dumper;
 use File::Find;
 use Image::ExifTool qw(:Public);
+use SDL::App;
+use SDL::Constants;
+use SDL::Event;
 
 #>
 
@@ -22,6 +25,93 @@ my %args = (
 		verbose => 1,
 #>
 );
+
+#< GUI mode
+
+sub display ($)
+{#<
+	my $pic = shift;
+
+	#TODO
+	say $pic->{path};
+}#>
+
+sub gui ($)
+{#<
+
+	my $pics = shift;
+	my @keys = sort keys %$pics  or die;
+	my $cursor = 0;
+
+	my $app = SDL::App->new (
+		-title => 'bapho',
+	);
+
+	display ($pics->{$keys[$cursor]});
+
+	$app->loop(
+	{#<
+
+		SDL_QUIT() => sub { exit(0); },
+
+		SDL_KEYDOWN() => sub
+		{#<
+			my $e = shift;
+			my $k = $e->key_name;
+			my $oldcursor = $cursor;
+
+			given ($k) {
+				when (/^q$/) { exit(0); }
+				when (/^(space|down|right)$/)  { $cursor++; }
+				when (/^(backspace|up|left)$/) { $cursor--; }
+				default { say "[$k]"; }
+			}
+			$cursor = 0       if $cursor < 0;
+			$cursor = $#keys  if $cursor > $#keys;
+
+			if ($oldcursor != $cursor) {
+				display ($pics->{$keys[$cursor]});
+				$oldcursor = $cursor;
+				$app->sync;
+			}
+		},#>
+
+	}#>
+	);
+
+}#>
+
+sub load_files()
+{#<
+	my %pics = ();
+
+	die if $args{dir_fmt} =~ m{\.};
+
+	find (
+		{
+			no_chdir => 1,
+			wanted => sub
+			{
+				my $_ = $File::Find::name;
+				return if -d;
+				unless (m|$args{basedir}/([^.]+?)\.\w+$|) {
+					warn "strange filename ($_)";
+					return;
+				}
+
+				$pics{$1} = {
+					path => $_,
+				};
+			},
+		},
+		$args{basedir}.'/'
+	);
+
+	die 'no pictures found'  unless scalar keys %pics;
+	return \%pics;
+}#>
+
+#>
 
 #< import mode
 
@@ -110,6 +200,9 @@ sub main()
 {#<
 	if (@ARGV) {
 		find ({ no_chdir => 1, wanted => sub { move_file ($_) } }, @ARGV);
+	}
+	else {
+		gui (load_files);
 	}
 }#>
 main;
