@@ -13,6 +13,7 @@ use Image::ExifTool qw(:Public);
 use SDL::App;
 use SDL::Constants;
 use SDL::Event;
+use SDL::Surface;
 
 #>
 
@@ -28,12 +29,22 @@ my %args = (
 
 #< GUI mode
 
-sub display ($)
+sub display ($$)
 {#<
-	my $pic = shift;
+	my ($app, $pic) = @_;
 
-	#TODO
-	say $pic->{path};
+	print Dumper $pic;
+
+	unless ($pic->{loaded}) {
+		say "loading $pic->{path}";
+		$pic->{loaded} = 1;
+		$pic->{surface} = SDL::Surface->new (-name => $pic->{path});
+	}
+
+	if ($pic->{surface}) {
+		$pic->{surface}->blit (0, $app, 0);
+	}
+
 }#>
 
 sub gui ($)
@@ -47,7 +58,7 @@ sub gui ($)
 		-title => 'bapho',
 	);
 
-	display ($pics->{$keys[$cursor]});
+	display ($app, $pics->{$keys[$cursor]});
 
 	$app->loop(
 	{#<
@@ -70,7 +81,7 @@ sub gui ($)
 			$cursor = $#keys  if $cursor > $#keys;
 
 			if ($oldcursor != $cursor) {
-				display ($pics->{$keys[$cursor]});
+				display ($app, $pics->{$keys[$cursor]});
 				$oldcursor = $cursor;
 				$app->sync;
 			}
