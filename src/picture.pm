@@ -31,7 +31,7 @@ sub new ($$)
 	};
 }#>
 
-sub surface ($)
+sub get_surface ($)
 {#<
 	my $self = shift;
 

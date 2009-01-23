@@ -31,7 +31,17 @@ sub display ($$)
 {#<
 	my ($app, $pic) = @_;
 
-	$pic->surface()->blit (0, $app, 0);
+	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
+	$app->fill (0, $bg);
+
+	my $surf = $pic->get_surface;
+	my $dest = SDL::Rect->new (
+		-x => ($app->width-$surf->width)/2,
+		-y => ($app->height-$surf->height)/2,
+		-width => $surf->width,
+		-height => $surf->height,
+	);
+	$surf->blit (0, $app, $dest);
 }#>
 
 sub load_files()
