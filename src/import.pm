@@ -43,8 +43,8 @@ sub exif2path ($)
 
 	my $exif = ImageInfo ($source_file);
 	unless (defined $exif->{DateTimeOriginal}) {
-		warn "bad exif in \"$source_file\":";
-		say Dumper $exif;
+		warn "bad exif in \"$source_file\": ".($exif->{Error} // Dumper $exif)
+			if $args->{verbose};
 		return undef;
 	}
 
@@ -62,28 +62,26 @@ sub exif2path ($)
 	die;
 }#>
 
-sub import_file ($$)
+sub import_file ($)
 {#<
-	$args = shift;
 	my $file = shift;
-	return if -d $file;
 
 	my $dir = exif2path ($file)  or return;
 
 	# check for duplicated files
 	if (-e $dir) {
-		if (0 == system "cmp \"$_[0]\" \"$dir\"") {
-			say "skipping $_[0] == $dir";
-			unlink $_[0];
+		if (0 == system "cmp \"$file\" \"$dir\"") {
+			say "skipping $file == $dir";
+			unlink $file;
 		}
 		else {
-			say "WARNING: $_[0] != $dir";
+			say "WARNING: $file != $dir";
 		}
 		return undef;
 	}
 
 	# move the file to it's new place/name
-	my $cmd = join ' ', ($args->{mv} ? 'mv' : 'cp'), $_[0], $dir;
+	my $cmd = join ' ', ($args->{mv} ? 'mv' : 'cp'), $file, $dir;
 	$cmd .= ' -v'  if $args->{verbose};
 	if ($args->{nop}) {
 		say $cmd;
@@ -93,6 +91,18 @@ sub import_file ($$)
 	}
 
 	return $dir;
+}#>
+
+sub import_files ($@)
+{#<
+	$args = shift;
+	find (
+		{
+			no_chdir => 1,
+			wanted => sub { import_file ($_) unless -d },
+		},
+		@_
+	);
 }#>
 
 1;

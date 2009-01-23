@@ -75,7 +75,7 @@ sub load_files()
 sub main (@)
 {#<
 	if (@_) {
-		find ({ no_chdir => 1, wanted => sub { import::import_file (\%args, $_) } }, @_);
+		import::import_files (\%args, @_);
 		return;
 	}
 
