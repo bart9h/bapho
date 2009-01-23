@@ -24,6 +24,7 @@ my %args = (
 		jpeg_quality => 80,
 		mv => 1,
 		verbose => 1,
+		geometry => '1280x960',
 #>
 );
 
@@ -42,6 +43,7 @@ sub display ($$)
 		-height => $surf->height,
 	);
 	$surf->blit (0, $app, $dest);
+	$app->update;
 }#>
 
 sub load_files()
@@ -78,8 +80,25 @@ sub main (@)
 	my @keys = sort keys %$pics  or die;
 	my $cursor = 0;
 
+	my ($w, $h) = $args{geometry} =~ /(\d+)x(\d+)/ ? ($1, $2) : (0, 0);
+	unless ($w) {
+		($w, $h) = `xdpyinfo` =~ /\b(\d{2,})x(\d{2,})\b/s ? ($1, $2) : (0, 0);
+		for (2 .. 10)
+		{#<  fix multi-monitor
+			$_ = 12 - $_;
+			say;
+			if ($w > $_*$h) {
+				$w = int ($w/$_);
+				last;
+			}
+		}#>
+	}
+
 	my $app = SDL::App->new (
 		-title => 'bapho',
+		-width => $w,
+		-height => $h,
+		-fullscreen => 0,
 	);
 
 	display ($app, $pics->{$keys[$cursor]});
