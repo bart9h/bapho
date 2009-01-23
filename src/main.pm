@@ -1,5 +1,6 @@
 package main;
 use import;
+use picture;
 
 #< use
 
@@ -30,16 +31,7 @@ sub display ($$)
 {#<
 	my ($app, $pic) = @_;
 
-	unless ($pic->{loaded}) {
-		say "loading $pic->{path}";
-		$pic->{loaded} = 1;
-		$pic->{surface} = SDL::Surface->new (-name => $pic->{path});
-	}
-
-	if ($pic->{surface}) {
-		$pic->{surface}->blit (0, $app, 0);
-	}
-
+	$pic->surface()->blit (0, $app, 0);
 }#>
 
 sub load_files()
@@ -53,16 +45,9 @@ sub load_files()
 			no_chdir => 1,
 			wanted => sub
 			{
-				my $_ = $File::Find::name;
 				return if -d;
-				unless (m|$args{basedir}/([^.]+?)\.\w+$|) {
-					warn "strange filename ($_)";
-					return;
-				}
-
-				$pics{$1} = {
-					path => $_,
-				};
+				my $pic = picture::new (\%args, $_);
+				$pics{$pic->{key}} = $pic  if $pic;
 			},
 		},
 		$args{basedir}.'/'
