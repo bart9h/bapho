@@ -1,0 +1,4 @@
+#!/usr/bin/perl
+BEGIN { unshift @INC, qw(src) }
+use main;
+main (@ARGV);

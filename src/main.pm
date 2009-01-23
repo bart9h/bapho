@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-# vim600:fdm=marker:fmr=#<,#>:
+package main;
 
 #< use
 
@@ -207,14 +206,14 @@ sub move_file ($)
 
 #>
 
-sub main()
+sub main (@)
 {#<
-	if (@ARGV) {
-		find ({ no_chdir => 1, wanted => sub { move_file ($_) } }, @ARGV);
+	if (@_) {
+		find ({ no_chdir => 1, wanted => sub { move_file ($_) } }, @_);
 	}
 	else {
 		gui (load_files);
 	}
 }#>
-main;
 
+# vim600:fdm=marker:fmr=#<,#>:
