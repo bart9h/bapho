@@ -1,4 +1,5 @@
 package main;
+use import;
 
 #< use
 
@@ -8,7 +9,6 @@ use 5.010;
 
 use Data::Dumper;
 use File::Find;
-use Image::ExifTool qw(:Public);
 use SDL::App;
 use SDL::Constants;
 use SDL::Event;
@@ -26,13 +26,9 @@ my %args = (
 #>
 );
 
-#< GUI mode
-
 sub display ($$)
 {#<
 	my ($app, $pic) = @_;
-
-	print Dumper $pic;
 
 	unless ($pic->{loaded}) {
 		say "loading $pic->{path}";
@@ -43,51 +39,6 @@ sub display ($$)
 	if ($pic->{surface}) {
 		$pic->{surface}->blit (0, $app, 0);
 	}
-
-}#>
-
-sub gui ($)
-{#<
-
-	my $pics = shift;
-	my @keys = sort keys %$pics  or die;
-	my $cursor = 0;
-
-	my $app = SDL::App->new (
-		-title => 'bapho',
-	);
-
-	display ($app, $pics->{$keys[$cursor]});
-
-	$app->loop(
-	{#<
-
-		SDL_QUIT() => sub { exit(0); },
-
-		SDL_KEYDOWN() => sub
-		{#<
-			my $e = shift;
-			my $k = $e->key_name;
-			my $oldcursor = $cursor;
-
-			given ($k) {
-				when (/^q$/) { exit(0); }
-				when (/^(space|down|right)$/)  { $cursor++; }
-				when (/^(backspace|up|left)$/) { $cursor--; }
-				default { say "[$k]"; }
-			}
-			$cursor = 0       if $cursor < 0;
-			$cursor = $#keys  if $cursor > $#keys;
-
-			if ($oldcursor != $cursor) {
-				display ($app, $pics->{$keys[$cursor]});
-				$oldcursor = $cursor;
-				$app->sync;
-			}
-		},#>
-
-	}#>
-	);
 
 }#>
 
@@ -121,99 +72,52 @@ sub load_files()
 	return \%pics;
 }#>
 
-#>
-
-#< import mode
-
-sub x($)
-{#<
-	my $cmd = shift;
-	say $cmd;
-	system $cmd  unless $args{nop};
-}#>
-
-sub do_mkdir($)
-{#<
-	-d $_[0]  and return $_[0];
-	my $cmd = "mkdir -p \"$_[0]\"";
-	$cmd .= ' -v' if $args{verbose};
-	x $cmd;
-	-d $_[0]  or die "$cmd: $!"  unless $args{nop};
-	return $_[0];
-}#>
-
-sub exif2path ($)
-{#<
-	my ($source_file) = @_;
-
-	my ($ext) = $source_file =~ /\.([^.]+)$/;
-	unless (defined $ext) {
-		warn "no extension in \"$source_file\"";
-		return undef;
-	}
-
-	my $exif = ImageInfo ($source_file);
-	unless (defined $exif->{DateTimeOriginal}) {
-		warn "bad exif in \"$source_file\":";
-		say Dumper $exif;
-		return undef;
-	}
-
-	my ($year, $mon, $mday, $hour, $min, $sec) =
-		$exif->{DateTimeOriginal}
-		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
-
-	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
-	do_mkdir $dir;
-
-	foreach ('a' .. 'z') {
-		my $path = sprintf '%s/%02d%02d%02d%s.%s', $dir, $hour, $min, $sec, $_, lc $ext;
-		return $path unless -e $path;
-	}
-	die;
-}#>
-
-sub move_file ($)
-{#<
-	return if -d $_[0];
-
-	my $path = exif2path ($_[0])  or return;
-
-	# check for duplicated files
-	if (-e $path) {
-		if (0 == system "cmp \"$_[0]\" \"$path\"") {
-			say "skipping $_[0] == $path";
-			unlink $_[0];
-		}
-		else {
-			say "WARNING: $_[0] != $path";
-		}
-		return undef;
-	}
-
-	# move the file to it's new place/name
-	my $cmd = join ' ', ($args{mv} ? 'mv' : 'cp'), $_[0], $path;
-	$cmd .= ' -v'  if $args{verbose};
-	if ($args{nop}) {
-		say $cmd;
-	}
-	else {
-		x $cmd;
-	}
-
-	return $path;
-}#>
-
-#>
-
 sub main (@)
 {#<
 	if (@_) {
-		find ({ no_chdir => 1, wanted => sub { move_file ($_) } }, @_);
+		find ({ no_chdir => 1, wanted => sub { import::import_file (\%args, $_) } }, @_);
+		return;
 	}
-	else {
-		gui (load_files);
-	}
+
+	my $pics = load_files;
+	my @keys = sort keys %$pics  or die;
+	my $cursor = 0;
+
+	my $app = SDL::App->new (
+		-title => 'bapho',
+	);
+
+	display ($app, $pics->{$keys[$cursor]});
+
+	$app->loop({
+
+		SDL_QUIT() => sub { exit(0); },
+
+		SDL_KEYDOWN() => sub
+		{#<
+			my $e = shift;
+			my $k = $e->key_name;
+			my $oldcursor = $cursor;
+
+			given ($k) {
+				when (/^q$/) { exit(0); }
+				when (/^(space|down|right)$/)  { $cursor++; }
+				when (/^(backspace|up|left)$/) { $cursor--; }
+				default { say "[$k]"; }
+			}
+			$cursor = 0       if $cursor < 0;
+			$cursor = $#keys  if $cursor > $#keys;
+
+			if ($oldcursor != $cursor) {
+				display ($app, $pics->{$keys[$cursor]});
+				$oldcursor = $cursor;
+				$app->sync;
+			}
+		},#>
+
+	});
+
 }#>
 
+1;
 # vim600:fdm=marker:fmr=#<,#>:
