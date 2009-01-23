@@ -31,6 +31,22 @@ sub new ($$)
 	};
 }#>
 
+sub dummy
+{#<
+	state $surf;
+
+	unless ($surf) {
+		say ':(';
+		$surf = SDL::Surface->new (-width => 256, -height => 256);
+		$surf->fill (
+			SDL::Rect->new (-width => 128, -height => 128, -x => 64, -y => 64),
+			SDL::Color->new (-r => 200, -g => 0, -b => 0),
+		);
+	}
+
+	$surf;
+}#>
+
 sub get_surface ($)
 {#<
 	my $self = shift;
@@ -38,7 +54,12 @@ sub get_surface ($)
 	unless ($self->{loaded}) {
 		say "loading $self->{path}";
 		$self->{loaded} = 1;
-		$self->{surface} = SDL::Surface->new (-name => $self->{path});
+		eval {
+			$self->{surface} = SDL::Surface->new (-name => $self->{path});
+		};
+		if ($@) {
+			$self->{surface} = dummy;
+		}
 	}
 
 	return $self->{surface};

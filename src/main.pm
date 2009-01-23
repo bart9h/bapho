@@ -101,6 +101,8 @@ sub main (@)
 		-fullscreen => 0,
 	);
 
+	SDL::Event->set_key_repeat (200, 30);
+
 	display ($app, $pics->{$keys[$cursor]});
 
 	$app->loop({
@@ -119,8 +121,8 @@ sub main (@)
 				when (/^(backspace|up|left)$/) { $cursor--; }
 				default { say "[$k]"; }
 			}
-			$cursor = 0       if $cursor < 0;
-			$cursor = $#keys  if $cursor > $#keys;
+			$cursor = $#keys  if $cursor < 0;
+			$cursor = 0       if $cursor > $#keys;
 
 			if ($oldcursor != $cursor) {
 				display ($app, $pics->{$keys[$cursor]});
