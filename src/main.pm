@@ -1,5 +1,6 @@
 package main;
 use import;
+use args qw/%args/;
 use picture;
 
 #< use
@@ -16,17 +17,6 @@ use SDL::Event;
 use SDL::Surface;
 
 #>
-
-my %args = (
-#<
-		basedir => $ENV{HOME}.'/fotos',
-		dir_fmt => '%04d/%02d-%02d',
-		jpeg_quality => 80,
-		mv => 1,
-		verbose => 1,
-		geometry => '1280x960',
-#>
-);
 
 sub display ($$)
 {#<
@@ -58,7 +48,7 @@ sub load_files()
 			wanted => sub
 			{
 				return if -d;
-				my $pic = picture::new (\%args, $_);
+				my $pic = picture::new ($_);
 				$pics{$pic->{key}} = $pic  if $pic;
 			},
 		},
@@ -72,7 +62,7 @@ sub load_files()
 sub main (@)
 {#<
 	if (@_) {
-		import::import_files (\%args, @_);
+		import::import_files (@_);
 		return;
 	}
 

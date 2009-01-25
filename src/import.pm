@@ -10,24 +10,24 @@ use Data::Dumper;
 use File::Find;
 use Image::ExifTool qw(:Public);
 
-#>
+use args qw/%args/;
 
-my $args;
+#>
 
 sub x($)
 {#<
 	my $cmd = shift;
 	say $cmd;
-	system $cmd  unless $args->{nop};
+	system $cmd  unless $args{nop};
 }#>
 
 sub do_mkdir($)
 {#<
 	-d $_[0]  and return $_[0];
 	my $cmd = "mkdir -p \"$_[0]\"";
-	$cmd .= ' -v' if $args->{verbose};
+	$cmd .= ' -v' if $args{verbose};
 	x $cmd;
-	-d $_[0]  or die "$cmd: $!"  unless $args->{nop};
+	-d $_[0]  or die "$cmd: $!"  unless $args{nop};
 	return $_[0];
 }#>
 
@@ -44,7 +44,7 @@ sub exif2path ($)
 	my $exif = ImageInfo ($source_file);
 	unless (defined $exif->{DateTimeOriginal}) {
 		warn "bad exif in \"$source_file\": ".($exif->{Error} // Dumper $exif)
-			if $args->{verbose};
+			if $args{verbose};
 		return undef;
 	}
 
@@ -52,7 +52,7 @@ sub exif2path ($)
 		$exif->{DateTimeOriginal}
 		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
 
-	my $dir = $args->{basedir}.'/'.sprintf $args->{dir_fmt}, $year, $mon, $mday;
+	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
 	do_mkdir $dir;
 
 	foreach ('a' .. 'z') {
@@ -81,9 +81,9 @@ sub import_file ($)
 	}
 
 	# move the file to it's new place/name
-	my $cmd = join ' ', ($args->{mv} ? 'mv' : 'cp'), $file, $dir;
-	$cmd .= ' -v'  if $args->{verbose};
-	if ($args->{nop}) {
+	my $cmd = join ' ', ($args{mv} ? 'mv' : 'cp'), $file, $dir;
+	$cmd .= ' -v'  if $args{verbose};
+	if ($args{nop}) {
 		say $cmd;
 	}
 	else {
@@ -93,9 +93,8 @@ sub import_file ($)
 	return $dir;
 }#>
 
-sub import_files ($@)
+sub import_files (@)
 {#<
-	$args = shift;
 	find (
 		{
 			no_chdir => 1,

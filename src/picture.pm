@@ -9,16 +9,15 @@ use 5.010;
 use Data::Dumper;
 use SDL::Surface;
 
+use args qw/%args/;
+
 #>
 
-my $args;
-
-sub new ($$)
+sub new ($)
 {#<
-	$args = shift;
 	my $path = shift;
 
-	unless ($path =~ m|$args->{basedir}/([^.]+?)\.\w+$|) {
+	unless ($path =~ m|$args{basedir}/([^.]+?)\.\w+$|) {
 		warn "strange filename ($path)";
 		return undef;
 	}
