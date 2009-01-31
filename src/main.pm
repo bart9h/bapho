@@ -59,6 +59,34 @@ sub load_files()
 	return \%pics;
 }#>
 
+sub geometry()
+{#<
+	my ($w, $h) = (0, 0);
+
+	if (defined $args{geometry}) {
+		($w, $h) = $args{geometry} =~ /(\d+)x(\d+)/ ? ($1, $2) : (0, 0)
+	}
+
+	if ($args{fullscreen}) {
+		if ($w == 0) {
+			($w, $h) = `xdpyinfo` =~ /\b(\d{2,})x(\d{2,})\b/s ? ($1, $2) : (0, 0);
+			for (2 .. 10)
+			{#<  fix multi-monitor
+				$_ = 12 - $_;
+				if ($w > $_*$h) {
+					$w = int ($w/$_);
+					last;
+				}
+			}#>
+		}
+	}
+	else {
+
+	}
+
+	($w, $h);
+}#>
+
 sub main (@)
 {#<
 	if (@_) {
@@ -70,25 +98,13 @@ sub main (@)
 	my @keys = sort keys %$pics  or die;
 	my $cursor = 0;
 
-	my ($w, $h) = $args{geometry} =~ /(\d+)x(\d+)/ ? ($1, $2) : (0, 0);
-	unless ($w) {
-		($w, $h) = `xdpyinfo` =~ /\b(\d{2,})x(\d{2,})\b/s ? ($1, $2) : (0, 0);
-		for (2 .. 10)
-		{#<  fix multi-monitor
-			$_ = 12 - $_;
-			say;
-			if ($w > $_*$h) {
-				$w = int ($w/$_);
-				last;
-			}
-		}#>
-	}
+	my ($w, $h) = geometry();
 
 	my $app = SDL::App->new (
 		-title => 'bapho',
 		-width => $w,
 		-height => $h,
-		-fullscreen => 0,
+		($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 	);
 
 	SDL::Event->set_key_repeat (200, 30);

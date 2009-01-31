@@ -5,8 +5,8 @@ package picture;
 use strict;
 use warnings;
 use 5.010;
-
 use Data::Dumper;
+
 use SDL::Surface;
 
 use args qw/%args/;
@@ -17,7 +17,7 @@ sub new ($)
 {#<
 	my $path = shift;
 
-	unless ($path =~ m|$args{basedir}/([^.]+?)\.\w+$|) {
+	unless ($path =~ m{$args{basedir}/([^.]+?)\.\w+$}) {
 		warn "strange filename ($path)";
 		return undef;
 	}
@@ -30,7 +30,7 @@ sub new ($)
 	};
 }#>
 
-sub dummy
+sub get_dummy_surface
 {#<
 	state $surf;
 
@@ -57,7 +57,7 @@ sub get_surface ($)
 			$self->{surface} = SDL::Surface->new (-name => $self->{path});
 		};
 		if ($@) {
-			$self->{surface} = dummy;
+			$self->{surface} = get_dummy_surface;
 		}
 	}
 

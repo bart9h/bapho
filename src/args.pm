@@ -9,6 +9,7 @@ our %args = (
 		jpeg_quality => 80,
 		mv => 1,
 		verbose => 1,
-		geometry => '1280x960',
+		geometry => undef,
+		fullscreen => 0,
 );
 
