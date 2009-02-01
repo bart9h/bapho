@@ -1,6 +1,5 @@
 package main;
 use import;
-use args qw/%args/;
 use picture;
 
 #< use
@@ -8,32 +7,37 @@ use picture;
 use strict;
 use warnings;
 use 5.010;
-
 use Data::Dumper;
+
 use File::Find;
+
 use SDL::App;
 use SDL::Constants;
 use SDL::Event;
 use SDL::Surface;
 
+use args qw/%args/;
+
 #>
 
-sub display ($$)
+sub display ($)
 {#<
-	my ($app, $pic) = @_;
+	my ($self, $idx) = @_;
+
+	my $pic = $self->{pics}->{$self->{keys}->[$idx]};
 
 	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
-	$app->fill (0, $bg);
+	$self->{app}->fill (0, $bg);
 
 	my $surf = $pic->get_surface;
 	my $dest = SDL::Rect->new (
-		-x => ($app->width-$surf->width)/2,
-		-y => ($app->height-$surf->height)/2,
+		-x => ($self->{app}->width-$surf->width)/2,
+		-y => ($self->{app}->height-$surf->height)/2,
 		-width => $surf->width,
 		-height => $surf->height,
 	);
-	$surf->blit (0, $app, $dest);
-	$app->update;
+	$surf->blit (0, $self->{app}, $dest);
+	$self->{app}->update;
 }#>
 
 sub load_files()
@@ -59,7 +63,7 @@ sub load_files()
 	return \%pics;
 }#>
 
-sub geometry()
+sub get_window_geometry()
 {#<
 	my ($w, $h) = (0, 0);
 
@@ -81,10 +85,34 @@ sub geometry()
 		}
 	}
 	else {
-
 	}
 
 	($w, $h);
+}#>
+
+sub do ($)
+{#<
+	my ($self, $event) = @_;
+	return unless defined $event;
+
+	state $cursor = 0;
+	my $oldcursor = $cursor;
+
+	given ($event) {
+		when (/image_go_next/)     { $cursor++; }
+		when (/image_go_previous/) { $cursor--; }
+		default { die }
+	}
+
+	my $last = (scalar @{$self->{keys}}) - 1;
+	$cursor = $last  if $cursor < 0;
+	$cursor = 0      if $cursor > $last;
+
+	if ($oldcursor != $cursor) {
+		$self->display ($cursor);
+		$oldcursor = $cursor;
+		$self->{app}->sync;
+	}
 }#>
 
 sub main (@)
@@ -94,13 +122,13 @@ sub main (@)
 		return;
 	}
 
-	my $pics = load_files;
-	my @keys = sort keys %$pics  or die;
-	my $cursor = 0;
+	bless my $self = {};
 
-	my ($w, $h) = geometry();
+	$self->{pics} = load_files;
+	$self->{keys} = [ sort keys %{$self->{pics}} ];
 
-	my $app = SDL::App->new (
+	my ($w, $h) = get_window_geometry;
+	$self->{app} = SDL::App->new (
 		-title => 'bapho',
 		-width => $w,
 		-height => $h,
@@ -108,33 +136,29 @@ sub main (@)
 	);
 
 	SDL::Event->set_key_repeat (200, 30);
-
-	display ($app, $pics->{$keys[$cursor]});
-
-	$app->loop({
+	$self->display (0);
+	$self->{app}->loop({
 
 		SDL_QUIT() => sub { exit(0); },
 
 		SDL_KEYDOWN() => sub
 		{#<
-			my $e = shift;
-			my $k = $e->key_name;
-			my $oldcursor = $cursor;
-
-			given ($k) {
+			my $event = shift;
+			given ($event->key_name) {
 				when (/^q$/) { exit(0); }
-				when (/^(space|down|right)$/)  { $cursor++; }
-				when (/^(backspace|up|left)$/) { $cursor--; }
-				default { say "[$k]"; }
+				when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
+				when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
+				default { say "[$event->key_name]"; }
 			}
-			$cursor = $#keys  if $cursor < 0;
-			$cursor = 0       if $cursor > $#keys;
+		},#>
 
-			if ($oldcursor != $cursor) {
-				display ($app, $pics->{$keys[$cursor]});
-				$oldcursor = $cursor;
-				$app->sync;
-			}
+		SDL_MOUSEBUTTONDOWN() => sub
+		{#<
+			my $event = shift;
+			$self->do ({
+					4 => 'image_go_next',
+					5 => 'image_go_previous',
+				}->{$event->button});
 		},#>
 
 	});
