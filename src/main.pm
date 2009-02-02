@@ -208,7 +208,11 @@ sub main (@)
 	$self->display;
 
 	while(1) {
-		$self->handle_event ($event)  while ($event->poll);
+		$event->wait;
+		do {
+			$self->handle_event ($event);
+		} while ($event->poll);
+
 		$self->display  if $self->{dirty};
 	}
 
