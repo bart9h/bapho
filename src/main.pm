@@ -110,7 +110,13 @@ sub display
 	$surf->blit (0, $self->{app}, $dest);
 
 	if ($self->{display_info}) {
-		$self->{font1}->print ($self->{app}, 8, 8, $key);
+		my ($x, $y) = (8, 8);
+
+		$self->{font1}->print ($self->{app}, $x, $y, $key);
+		$y += $self->{font1}->height;
+
+		my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
+		$self->{font2}->print ($self->{app}, $x, $y, $str);
 	}
 
 	$self->{app}->update;
@@ -192,7 +198,7 @@ sub main (@)
 
 	$self->{display_info} = 0;
 	$self->{font1} = get_font ('Bitstream Vera Sans Mono', 18);
-	$self->{font2} = get_font ('Bitstream Vera Sans', 14);
+	$self->{font2} = get_font ('Bitstream Vera Sans Mono', 14);
 
 	use SDL::Event;
 	use SDL::Constants;
