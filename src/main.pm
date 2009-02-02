@@ -125,6 +125,7 @@ sub main (@)
 	);
 
 	use SDL::Event;
+	use SDL::Constants;
 	my $event = new SDL::Event;
 	SDL::Event->set_key_repeat (200, 30);
 	$self->{cursor} = 0;
@@ -137,25 +138,27 @@ sub main (@)
 		while ($event->poll)
 		{# handle events
 
-			if ($event->type == SDL_QUIT()) {
-				exit (0);
-			}
-			elsif ($event->type == SDL_KEYDOWN())
-			{#
-				given ($event->key_name) {
-					when (/^q$/) { exit(0); }
-					when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
-					when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
-					default { say "[$event->key_name]"; }
+			given ($event->type) {
+				when ($_ == SDL_KEYDOWN())
+				{#
+					given ($event->key_name) {
+						when (/^q$/) { exit(0); }
+						when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
+						when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
+						default { say "[$event->key_name]"; }
+					}
+				}#
+				when ($_ == SDL_MOUSEBUTTONDOWN())
+				{#
+					$self->do ({
+							4 => 'image_go_next',
+							5 => 'image_go_prev',
+						}->{$event->button});
+				}#
+				when ($_ == SDL_QUIT()) {
+					exit (0);
 				}
-			}#
-			elsif ($event->type == SDL_MOUSEBUTTONDOWN())
-			{#
-				$self->do ({
-						4 => 'image_go_next',
-						5 => 'image_go_prev',
-					}->{$event->button});
-			}#
+			}
 
 		}#
 
