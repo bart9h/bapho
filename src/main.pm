@@ -109,10 +109,13 @@ sub display
 
 	$surf->blit (0, $self->{app}, $dest);
 
-	$self->{font1}->print ($self->{app}, 8, 8, $key);
+	if ($self->{display_info}) {
+		$self->{font1}->print ($self->{app}, 8, 8, $key);
+	}
 
 	$self->{app}->update;
 	$self->{app}->sync;
+	$self->{dirty} = 0;
 }#
 
 sub do ($)
@@ -121,8 +124,9 @@ sub do ($)
 	return unless defined $event;
 
 	given ($event) {
-		when (/image_go_next/)     { $self->{cursor}++; }
-		when (/image_go_prev/) { $self->{cursor}--; }
+		when (/image_go_next/)  { $self->{cursor}++; }
+		when (/image_go_prev/)  { $self->{cursor}--; }
+		when (/display_info/)   { $self->{display_info} = !$self->{display_info}; }
 		default { die }
 	}
 
@@ -136,13 +140,19 @@ sub handle_event ($)
 {#
 	my ($self, $event) = @_;
 
+	$self->{dirty} = 1;
+
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
 			given ($event->key_name) {
 				when (/^(q|escape)$/) { exit(0); }
 				when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
 				when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
-				default { say 'unhandled key ['.$event->key_name.']'; }
+				when (/^(i)$/)                 { $self->do ('display_info');  }
+				default {
+					$self->{dirty} = 0;
+					say 'unhandled key ['.$event->key_name.']';
+				}
 			}
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
@@ -153,6 +163,9 @@ sub handle_event ($)
 		}
 		when ($_ == SDL_QUIT()) {
 			exit (0);
+		}
+		default {
+			$self->{dirty} = 0;
 		}
 	}
 }#
@@ -177,6 +190,7 @@ sub main (@)
 		($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 	);
 
+	$self->{display_info} = 0;
 	$self->{font1} = get_font ('Bitstream Vera Sans Mono', 18);
 	$self->{font2} = get_font ('Bitstream Vera Sans', 14);
 
@@ -187,16 +201,9 @@ sub main (@)
 	$self->{cursor} = 0;
 	$self->display;
 
-	while(1)
-	{
-		my $oldcursor = $self->{cursor};
-
+	while(1) {
 		$self->handle_event ($event)  while ($event->poll);
-
-		if ($oldcursor != $self->{cursor}) {
-			$oldcursor = $self->{cursor};
-			$self->display;
-		}
+		$self->display  if $self->{dirty};
 	}
 
 }#
