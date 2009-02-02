@@ -1,7 +1,3 @@
-package main;
-use import;
-use picture;
-
 #{# use
 
 use strict;
@@ -10,31 +6,13 @@ use 5.010;
 use Data::Dumper;
 
 use SDL::App;
+use SDL::TTFont;
 
 use args qw/%args/;
+use picture;
+use import;
 
 #}#
-
-sub display
-{#
-	my ($self) = @_;
-
-	my $pic = $self->{pics}->{$self->{keys}->[$self->{cursor}]};
-
-	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
-	$self->{app}->fill (0, $bg);
-
-	my $surf = $pic->get_surface;
-	my $dest = SDL::Rect->new (
-		-x => ($self->{app}->width-$surf->width)/2,
-		-y => ($self->{app}->height-$surf->height)/2,
-		-width => $surf->width,
-		-height => $surf->height,
-	);
-	$surf->blit (0, $self->{app}, $dest);
-	$self->{app}->update;
-	$self->{app}->sync;
-}#
 
 sub load_files
 {#
@@ -87,6 +65,56 @@ sub get_window_geometry
 	($w, $h);
 }#
 
+sub get_font ($$)
+{#
+	my ($name, $size) = @_;
+
+	$_ = `which fc-match`;
+	chomp;
+	-x or die 'fc-match not found.  fontconfig is required.';
+
+	$_ = `fc-match -v '$name' | grep file: | cut -d \\\" -f 2`;
+	chomp;
+	-f or die "$_ not found";
+
+	SDL::TTFont->new (
+		-name => $_,
+		-size => $size,
+		-bg => $SDL::Color::black,
+		-fg => $SDL::Color::white,
+	);
+
+}#
+
+
+package main;
+
+sub display
+{#
+	my ($self) = @_;
+
+	my $key = $self->{keys}->[$self->{cursor}];
+	my $pic = $self->{pics}->{$key};
+
+	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
+	$self->{app}->fill (0, $bg);
+
+	my $surf = $pic->get_surface;
+	my $dest = SDL::Rect->new (
+		-x => ($self->{app}->width-$surf->width)/2,
+		-y => ($self->{app}->height-$surf->height)/2,
+		-width => $surf->width,
+		-height => $surf->height,
+	);
+
+	$surf->blit (0, $self->{app}, $dest);
+
+	$self->{font1}->print ($self->{app}, 8, 8, $key);
+
+	$self->{app}->update;
+	$self->{app}->sync;
+}#
+
 sub do ($)
 {#
 	my ($self, $event) = @_;
@@ -102,6 +130,31 @@ sub do ($)
 	$self->{cursor} = $last  if $self->{cursor} < 0;
 	$self->{cursor} = 0      if $self->{cursor} > $last;
 
+}#
+
+sub handle_event ($)
+{#
+	my ($self, $event) = @_;
+
+	given ($event->type) {
+		when ($_ == SDL_KEYDOWN()) {
+			given ($event->key_name) {
+				when (/^(q|escape)$/) { exit(0); }
+				when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
+				when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
+				default { say 'unhandled key ['.$event->key_name.']'; }
+			}
+		}
+		when ($_ == SDL_MOUSEBUTTONDOWN()) {
+			$self->do ({
+					4 => 'image_go_next',
+					5 => 'image_go_prev',
+				}->{$event->button});
+		}
+		when ($_ == SDL_QUIT()) {
+			exit (0);
+		}
+	}
 }#
 
 sub main (@)
@@ -124,50 +177,27 @@ sub main (@)
 		($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 	);
 
+	$self->{font1} = get_font ('Bitstream Vera Sans Mono', 18);
+	$self->{font2} = get_font ('Bitstream Vera Sans', 14);
+
 	use SDL::Event;
 	use SDL::Constants;
 	my $event = new SDL::Event;
 	SDL::Event->set_key_repeat (200, 30);
 	$self->{cursor} = 0;
 	$self->display;
-	while(1)
-	{# main loop
 
+	while(1)
+	{
 		my $oldcursor = $self->{cursor};
 
-		while ($event->poll)
-		{# handle events
-
-			given ($event->type) {
-				when ($_ == SDL_KEYDOWN())
-				{#
-					given ($event->key_name) {
-						when (/^q$/) { exit(0); }
-						when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
-						when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
-						default { say "[$event->key_name]"; }
-					}
-				}#
-				when ($_ == SDL_MOUSEBUTTONDOWN())
-				{#
-					$self->do ({
-							4 => 'image_go_next',
-							5 => 'image_go_prev',
-						}->{$event->button});
-				}#
-				when ($_ == SDL_QUIT()) {
-					exit (0);
-				}
-			}
-
-		}#
+		$self->handle_event ($event)  while ($event->poll);
 
 		if ($oldcursor != $self->{cursor}) {
 			$oldcursor = $self->{cursor};
 			$self->display;
 		}
-
-	}#
+	}
 
 }#
 
