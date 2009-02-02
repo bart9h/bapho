@@ -1,6 +1,6 @@
 package picture;
 
-#< use
+#{# use
 
 use strict;
 use warnings;
@@ -11,10 +11,10 @@ use SDL::Surface;
 
 use args qw/%args/;
 
-#>
+#}#
 
 sub new ($)
-{#<
+{#
 	my $path = shift;
 
 	unless ($path =~ m{$args{basedir}/([^.]+?)\.\w+$}) {
@@ -28,10 +28,10 @@ sub new ($)
 		loaded => 0,
 		surface => undef,
 	};
-}#>
+}#
 
 sub get_dummy_surface
-{#<
+{#
 	state $surf;
 
 	unless ($surf) {
@@ -44,10 +44,10 @@ sub get_dummy_surface
 	}
 
 	$surf;
-}#>
+}#
 
 sub get_surface ($)
-{#<
+{#
 	my $self = shift;
 
 	unless ($self->{loaded}) {
@@ -62,7 +62,7 @@ sub get_surface ($)
 	}
 
 	return $self->{surface};
-}#>
+}#
 
 1;
-# vim600:fdm=marker:fmr=#<,#>:
+# vim600:fdm=marker:fmr={#,}#:

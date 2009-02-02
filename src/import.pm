@@ -1,38 +1,36 @@
 package import;
 
-#< use
+#{# use
 
 use strict;
 use warnings;
 use 5.010;
 
 use Data::Dumper;
-use File::Find;
-use Image::ExifTool qw(:Public);
 
 use args qw/%args/;
 
-#>
+#}#
 
-sub x($)
-{#<
+sub x ($)
+{#
 	my $cmd = shift;
 	say $cmd;
 	system $cmd  unless $args{nop};
-}#>
+}#
 
 sub do_mkdir($)
-{#<
+{#
 	-d $_[0]  and return $_[0];
 	my $cmd = "mkdir -p \"$_[0]\"";
 	$cmd .= ' -v' if $args{verbose};
 	x $cmd;
 	-d $_[0]  or die "$cmd: $!"  unless $args{nop};
 	return $_[0];
-}#>
+}#
 
 sub exif2path ($)
-{#<
+{#
 	my ($source_file) = @_;
 
 	my ($ext) = $source_file =~ /\.([^.]+)$/;
@@ -41,6 +39,7 @@ sub exif2path ($)
 		return undef;
 	}
 
+	use Image::ExifTool qw(:Public);
 	my $exif = ImageInfo ($source_file);
 	unless (defined $exif->{DateTimeOriginal}) {
 		warn "bad exif in \"$source_file\": ".($exif->{Error} // Dumper $exif)
@@ -60,10 +59,10 @@ sub exif2path ($)
 		return $path unless -e $path;
 	}
 	die;
-}#>
+}#
 
 sub import_file ($)
-{#<
+{#
 	my $file = shift;
 
 	my $dir = exif2path ($file)  or return;
@@ -91,10 +90,11 @@ sub import_file ($)
 	}
 
 	return $dir;
-}#>
+}#
 
 sub import_files (@)
-{#<
+{#
+	use File::Find;
 	find (
 		{
 			no_chdir => 1,
@@ -102,7 +102,7 @@ sub import_files (@)
 		},
 		@_
 	);
-}#>
+}#
 
 1;
-# vim600:fdm=marker:fmr=#<,#>:
+# vim600:fdm=marker:fmr={#,}#:
