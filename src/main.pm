@@ -1,18 +1,12 @@
-#{# use
-
 use strict;
 use warnings;
 use 5.010;
-use Data::Dumper;
-
-use SDL::App;
-use SDL::TTFont;
 
 use args qw/%args/;
 use picture;
-use import;
+use text;
 
-#}#
+use SDL::App;
 
 sub load_files
 {#
@@ -65,27 +59,6 @@ sub get_window_geometry
 	($w, $h);
 }#
 
-sub get_font ($$)
-{#
-	my ($name, $size) = @_;
-
-	$_ = `which fc-match`;
-	chomp;
-	-x or die 'fc-match not found.  fontconfig is required.';
-
-	$_ = `fc-match -v '$name' | grep file: | cut -d \\\" -f 2`;
-	chomp;
-	-f or die "$_ not found";
-
-	SDL::TTFont->new (
-		-name => $_,
-		-size => $size,
-		-bg => $SDL::Color::black,
-		-fg => $SDL::Color::white,
-	);
-
-}#
-
 
 package main;
 
@@ -110,13 +83,13 @@ sub display
 	$surf->blit (0, $self->{app}, $dest);
 
 	if ($self->{display_info}) {
-		my ($x, $y) = (8, 8);
 
-		$self->{font1}->print ($self->{app}, $x, $y, $key);
-		$y += $self->{font1}->height;
+		$self->{text}->reset;
+
+		$self->{text}->print ($self->{app}, 0, $key);
 
 		my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
-		$self->{font2}->print ($self->{app}, $x, $y, $str);
+		$self->{text}->print ($self->{app}, 1, $str);
 	}
 
 	$self->{app}->update;
@@ -197,8 +170,10 @@ sub main (@)
 	);
 
 	$self->{display_info} = 0;
-	$self->{font1} = get_font ('Bitstream Vera Sans Mono', 18);
-	$self->{font2} = get_font ('Bitstream Vera Sans Mono', 14);
+	$self->{text} = text::new (
+		'Bitstream Vera Sans Mono:18',
+		':14',
+	);
 
 	use SDL::Event;
 	use SDL::Constants;
