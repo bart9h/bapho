@@ -84,12 +84,17 @@ sub display
 
 	if ($self->{display_info}) {
 
-		$self->{text}->reset;
+		$self->{text}->home;
 
-		$self->{text}->print ($self->{app}, 0, $key);
+		$self->{text}->print ($self->{app},
+			font => 0,
+			text => $key,
+			font => 1,
+			text => ".$pic->{ext}",
+		);
 
 		my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
-		$self->{text}->print ($self->{app}, 1, $str);
+		$self->{text}->print ($self->{app}, text => $str);
 	}
 
 	$self->{app}->update;

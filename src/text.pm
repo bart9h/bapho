@@ -5,7 +5,7 @@ use 5.010;
 
 use SDL::TTFont;
 
-sub reset
+sub home
 {#
 	my $self = shift;
 	$self->{x} = $self->{y} = $self->{border};
@@ -16,9 +16,10 @@ sub new (@)
 	bless my $self = {
 		border => 8,
 		fonts => [],
+		font => 0,
 	};
 
-	$self->reset;
+	$self->home;
 
 	my ($name, $size);
 	foreach (@_) {
@@ -35,7 +36,8 @@ sub new (@)
 		chomp $file;
 		-f $file  or die "$file not found";
 
-		push @{$self->{fonts}}, SDL::TTFont->new (
+		my $f;
+		push @{$self->{fonts}}, $f=SDL::TTFont->new (
 			-name => $file,
 			-size => $size,
 			-bg => $SDL::Color::black,
@@ -48,12 +50,38 @@ sub new (@)
 
 sub print ($$$)
 {#
-	my ($self, $surf, $font_idx, $text) = @_;
+	my $self = shift;
+	my $surf = shift;
 
-	my $font = $self->{fonts}->[$font_idx]  or die;
+	my $big;
+	foreach my $mode ('layout', 'draw') {
+		for (my $i = 0;  $i < $#_;  $i += 2) {
+			my ($cmd, $arg) = ($_[$i], $_[$i+1]);
+			given ($cmd) {
+				when (/font/) {
+					$self->{font} = $arg;
+				}
+				when (/text/) {
+					my $font = $self->{fonts}->[$self->{font}]  or die;
 
-	$font->print ($surf, $self->{x}, $self->{y}, $text);
-	$self->{y} += $font->height;
+					if ($mode eq 'layout') {
+						$big = $font  if not defined $big or $big->height > $font->height;
+					}
+					else {
+						$font->print ($surf,
+							$self->{x},
+							$self->{y} +$big->height +$big->descent -$font->descent -$font->height,
+							$arg);
+						$self->{x} += $font->width ($arg);
+					}
+				}
+				default { die }
+			}
+		}
+	}
+
+	$self->{y} += $big->height;
+	$self->{x} = $self->{border};
 
 }#
 

@@ -17,13 +17,14 @@ sub new ($)
 {#
 	my $path = shift;
 
-	unless ($path =~ m{$args{basedir}/([^.]+?)\.\w+$}) {
+	unless ($path =~ m{$args{basedir}/([^.]+?)\.([^.]+)$}) {
 		warn "strange filename ($path)";
 		return undef;
 	}
 
 	bless {
 		key => $1,
+		ext => $2,
 		path => $path,
 		loaded => 0,
 		surface => undef,
