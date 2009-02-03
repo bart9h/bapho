@@ -47,16 +47,38 @@ sub get_dummy_surface
 	$surf;
 }#
 
-sub get_surface ($)
+sub get_surface ($$)
 {#
-	my $self = shift;
+	my ($self, $width, $height) = @_;
 
 	unless ($self->{loaded}) {
 		say "loading $self->{path}";
 		$self->{loaded} = 1;
 		eval {
-			$self->{surface} = SDL::Surface->new (-name => $self->{path});
+			if ($self->{ext} =~ m/^cr2$/i) {
+
+				use Image::ExifTool;
+				my $exif = Image::ExifTool->new;
+				$exif->Options (Binary => 1);
+
+				my $info = $exif->ImageInfo ($self->{path});
+				if (defined $info->{ThumbnailImage}) {
+
+					my $tmp = '/tmp/bapho.jpg';
+					open F, '>', $tmp or die $!;
+					print F ${$info->{ThumbnailImage}};
+					close F;
+
+					$self->{surface} = SDL::Surface->new (-name => $tmp);
+
+					unlink $tmp;
+				}
+			}
+			else {
+				$self->{surface} = SDL::Surface->new (-name => $self->{path});
+			}
 		};
+
 		if ($@) {
 			$self->{surface} = get_dummy_surface;
 		}

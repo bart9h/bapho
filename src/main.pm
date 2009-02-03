@@ -72,7 +72,7 @@ sub display
 	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
 	$self->{app}->fill (0, $bg);
 
-	my $surf = $pic->get_surface;
+	my $surf = $pic->get_surface ($self->{app}->width, $self->{app}->height);
 	my $dest = SDL::Rect->new (
 		-x => ($self->{app}->width-$surf->width)/2,
 		-y => ($self->{app}->height-$surf->height)/2,
