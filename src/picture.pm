@@ -47,44 +47,64 @@ sub get_dummy_surface
 	$surf;
 }#
 
+sub load_file ($)
+{#
+	my ($path) = @_;
+
+	say "loading $path";
+
+	if ($path =~ m/\.cr2$/i)
+	{# load preview or thumbnail image from exif
+
+		use Image::ExifTool;
+		my $exif = Image::ExifTool->new;
+		$exif->Options (Binary => 1);
+
+		my $info = $exif->ImageInfo ($path);
+
+		my $tag = 'PreviewImage';
+		if (defined $info->{$tag}) {
+
+			my $tmp = '/tmp/bapho.jpg';
+
+			open F, '>', $tmp or die $!;
+			print F ${$info->{$tag}};
+			close F;
+
+			my $surf = SDL::Surface->new (-name => $tmp);
+
+			unlink $tmp;
+
+			return $surf;
+		}
+	}#
+	else {
+		return SDL::Surface->new (-name => $path);
+	}
+}#
+
 sub get_surface ($$)
 {#
 	my ($self, $width, $height) = @_;
 
 	unless ($self->{loaded}) {
-		say "loading $self->{path}";
 		$self->{loaded} = 1;
-		eval {
-			if ($self->{ext} =~ m/^cr2$/i) {
-
-				use Image::ExifTool;
-				my $exif = Image::ExifTool->new;
-				$exif->Options (Binary => 1);
-
-				my $info = $exif->ImageInfo ($self->{path});
-				if (defined $info->{ThumbnailImage}) {
-
-					my $tmp = '/tmp/bapho.jpg';
-					open F, '>', $tmp or die $!;
-					print F ${$info->{ThumbnailImage}};
-					close F;
-
-					$self->{surface} = SDL::Surface->new (-name => $tmp);
-
-					unlink $tmp;
-				}
-			}
-			else {
-				$self->{surface} = SDL::Surface->new (-name => $self->{path});
-			}
-		};
-
-		if ($@) {
-			$self->{surface} = get_dummy_surface;
-		}
+		$self->{surface} = load_file ($self->{path}) or get_dummy_surface;
 	}
 
-	return $self->{surface};
+	my $res = "${width}x${height}";
+	if (not $self->{res} or $self->{res} ne $res) {
+		$self->{res} = $res;
+
+		my $zoom_x = $width/$self->{surface}->width;
+		my $zoom_y = $height/$self->{surface}->height;
+		$self->{zoom} = (sort $zoom_x, $zoom_y)[0];
+		use SDL::Tool::Graphic;
+		return SDL::Tool::Graphic->zoom ($self->{surface}, $self->{zoom}, $self->{zoom}, 1);
+	}
+	else {
+		return $self->{surface};
+	}
 }#
 
 1;
