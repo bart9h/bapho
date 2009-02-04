@@ -110,7 +110,7 @@ sub do ($)
 	given ($event) {
 		when (/image_go_next/)  { $self->{cursor}++; }
 		when (/image_go_prev/)  { $self->{cursor}--; }
-		when (/display_info/)   { $self->{display_info} = !$self->{display_info}; }
+		when (/toggle_info/)    { $self->{display_info} = !$self->{display_info}; }
 		default { die }
 	}
 
@@ -118,21 +118,21 @@ sub do ($)
 	$self->{cursor} = $last  if $self->{cursor} < 0;
 	$self->{cursor} = 0      if $self->{cursor} > $last;
 
+	1;
 }#
 
 sub handle_event ($)
 {#
 	my ($self, $event) = @_;
 
-	$self->{dirty} = 1;
-
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
+			$self->{dirty} = 1;
 			given ($event->key_name) {
 				when (/^(q|escape)$/) { exit(0); }
 				when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
 				when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
-				when (/^(i)$/)                 { $self->do ('display_info');  }
+				when (/^(i)$/)                 { $self->do ('toggle_info');  }
 				default {
 					$self->{dirty} = 0;
 					say 'unhandled key ['.$event->key_name.']';
@@ -140,16 +140,16 @@ sub handle_event ($)
 			}
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
-			$self->do ({
+			$self->{dirty} = $self->do (
+				{
+					3 => 'toggle_info',
 					4 => 'image_go_next',
 					5 => 'image_go_prev',
-				}->{$event->button});
+				}->{$event->button}
+			);
 		}
 		when ($_ == SDL_QUIT()) {
 			exit (0);
-		}
-		default {
-			$self->{dirty} = 0;
 		}
 	}
 }#
