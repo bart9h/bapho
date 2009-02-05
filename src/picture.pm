@@ -83,6 +83,17 @@ sub load_file ($)
 	}
 }#
 
+sub zoom ($$)
+{#
+	my ($surface, $zoom) = @_;
+	die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
+		unless ( ref($surface) && $surface->isa('SDL::Surface'));
+
+	my $tmp = SDL::Surface->new;
+	$$tmp = SDL::GFXZoom ($$surface, $zoom, $zoom, 1);
+	return $tmp;
+}#
+
 sub get_surface ($$)
 {#
 	my ($self, $width, $height) = @_;
@@ -99,11 +110,12 @@ sub get_surface ($$)
 		my $zoom_x = $width/$self->{surface}->width;
 		my $zoom_y = $height/$self->{surface}->height;
 		$self->{zoom} = (sort $zoom_x, $zoom_y)[0];
-		use SDL::Tool::Graphic;
-		return SDL::Tool::Graphic->zoom ($self->{surface}, $self->{zoom}, $self->{zoom}, 1);
+
+		return $self->{zoomed} = zoom ($self->{surface}, $self->{zoom});
 	}
 	else {
-		return $self->{surface};
+		die unless defined $self->{zoomed};
+		return $self->{zoomed};
 	}
 }#
 
