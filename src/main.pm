@@ -96,6 +96,7 @@ sub display
 		my $n = -$self->{zoom};    # number of pictures across that dimention
 		my ($nx, $ny) = (int($W/($d/$n)), int($H/($d/$n)));  # grid size
 		my ($w,  $h)  = (int($W/$nx),     int($H/$ny));      # thumbnail size
+		$self->{page_size} = $nx * $ny;
 
 		my $i = $self->{cursor};
 		THUMB: foreach my $y (0 .. $ny-1) {
@@ -108,6 +109,7 @@ sub display
 		}
 	}#
 	else {
+		$self->{page_size} = 1;
 		$self->display_pic ($pic, $W, $H, 0, 0);
 	}
 
@@ -138,8 +140,8 @@ sub do ($)
 	return unless defined $event;
 
 	given ($event) {
-		when (/image_go_next/)  { $self->{cursor}++; }
-		when (/image_go_prev/)  { $self->{cursor}--; }
+		when (/image_go_next/)  { $self->{cursor} += $self->{page_size}; }
+		when (/image_go_prev/)  { $self->{cursor} -= $self->{page_size}; }
 		when (/toggle_info/)    { $self->{display_info} = !$self->{display_info}; }
 		when (/zoom_in/)        { $self->{zoom}++; $self->{zoom} =  0 if $self->{zoom} == -1; }
 		when (/zoom_out/)       { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
@@ -148,8 +150,8 @@ sub do ($)
 	}
 
 	my $last = (scalar @{$self->{keys}}) - 1;
-	$self->{cursor} = $last  if $self->{cursor} < 0;
-	$self->{cursor} = 0      if $self->{cursor} > $last;
+	$self->{cursor} = $last - ($self->{page_size}-1)  if $self->{cursor} < 0;
+	$self->{cursor} = 0                               if $self->{cursor} > $last;
 
 	1;
 }#
@@ -201,6 +203,7 @@ sub main (@)
 	$self->{pics} = load_files;
 	$self->{keys} = [ sort keys %{$self->{pics}} ];
 	$self->{zoom} = 1;
+	$self->{page_size} = 1;
 
 	my ($w, $h) = get_window_geometry;
 	$self->{app} = SDL::App->new (
