@@ -62,25 +62,54 @@ sub get_window_geometry
 
 package main;
 
-sub display
+sub display_pic ($$$$$)
 {#
-	my ($self) = @_;
+	my ($self, $pic, $w, $h, $x, $y) = @_;
 
-	my $key = $self->{keys}->[$self->{cursor}];
-	my $pic = $self->{pics}->{$key};
+	my $surf = $pic->get_surface ($w, $h);
 
-	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
-	$self->{app}->fill (0, $bg);
-
-	my $surf = $pic->get_surface ($self->{app}->width, $self->{app}->height);
 	my $dest = SDL::Rect->new (
-		-x => ($self->{app}->width-$surf->width)/2,
-		-y => ($self->{app}->height-$surf->height)/2,
+		-x => $x + ($w - $surf->width)/2,
+		-y => $y + ($h - $surf->height)/2,
 		-width => $surf->width,
 		-height => $surf->height,
 	);
 
 	$surf->blit (0, $self->{app}, $dest);
+}#
+
+sub display
+{#
+	my ($self) = @_;
+	my ($W, $H) = ($self->{app}->width, $self->{app}->height);
+
+	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
+	$self->{app}->fill (0, $bg);
+
+	my $key = $self->{keys}->[$self->{cursor}];
+	my $pic = $self->{pics}->{$key};
+
+	if ($self->{zoom} < -1)
+	{# thumbnails
+
+		my $d = (sort $W, $H)[0];  # smallest window dimention
+		my $n = -$self->{zoom};    # number of pictures across that dimention
+		my ($nx, $ny) = (int($W/($d/$n)), int($H/($d/$n)));  # grid size
+		my ($w,  $h)  = (int($W/$nx),     int($H/$ny));      # thumbnail size
+
+		my $i = $self->{cursor};
+		THUMB: foreach my $y (0 .. $ny-1) {
+			foreach my $x (0 .. $nx-1) {
+				my $key = $self->{keys}->[$i++];
+				my $pic = $self->{pics}->{$key};
+				$self->display_pic ($pic, $w, $h, $x*$w, $y*$h);
+				last THUMB if $i >= scalar @{$self->{keys}};
+			}
+		}
+	}#
+	else {
+		$self->display_pic ($pic, $W, $H, 0, 0);
+	}
 
 	if ($self->{display_info}) {
 
@@ -112,6 +141,9 @@ sub do ($)
 		when (/image_go_next/)  { $self->{cursor}++; }
 		when (/image_go_prev/)  { $self->{cursor}--; }
 		when (/toggle_info/)    { $self->{display_info} = !$self->{display_info}; }
+		when (/zoom_in/)        { $self->{zoom}++; $self->{zoom} =  0 if $self->{zoom} == -1; }
+		when (/zoom_out/)       { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
+		when (/zoom_reset/)     { $self->{zoom} = 1; }
 		default { die }
 	}
 
@@ -133,7 +165,9 @@ sub handle_event ($)
 				when (/^(q|escape)$/) { exit(0); }
 				when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
 				when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
-				when (/^(i)$/)                 { $self->do ('toggle_info');  }
+				when (/^(i)$/)                 { $self->do ('toggle_info'); }
+				when (/^(-)$/)                 { $self->do ('zoom_out'); }
+				when (/^(=)$/)                 { $self->do ('zoom_in'); }
 				default {
 					$self->{dirty} = 0;
 					say 'unhandled key ['.$event->key_name.']';
@@ -166,6 +200,7 @@ sub main (@)
 
 	$self->{pics} = load_files;
 	$self->{keys} = [ sort keys %{$self->{pics}} ];
+	$self->{zoom} = 1;
 
 	my ($w, $h) = get_window_geometry;
 	$self->{app} = SDL::App->new (
