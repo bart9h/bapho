@@ -63,9 +63,9 @@ sub get_window_geometry
 
 package main;
 
-sub display_pic ($$$$$)
+sub display_pic ($$$$$;$)
 {#
-	my ($self, $pic, $w, $h, $x, $y) = @_;
+	my ($self, $pic, $w, $h, $x, $y, $is_selected) = @_;
 
 	my $surf = $pic->get_surface ($w, $h);
 
@@ -77,6 +77,22 @@ sub display_pic ($$$$$)
 	);
 
 	$surf->blit (0, $self->{app}, $dest);
+
+	if ($is_selected)
+	{#  draw cursor
+
+		my $b = 2;
+		$self->{app}->fill (
+			SDL::Rect->new (-x => $_->[0], -y => $_->[1], -width => $_->[2], -height => $_->[3]),
+			SDL::Color->new (-r => 0xff, -g => 0xff, -b => 0xff),
+		)
+		foreach (
+			[ $x,       $y,       $w, $b      ],  # top
+			[ $x,       $y+$h-$b, $w, $b      ],  # bottom
+			[ $x,       $y+$b,    $b, $h-2*$b ],  # left
+			[ $x+$w-$b, $y+$b,    $b, $h-2*$b ],  # right
+		);
+	}#
 }#
 
 sub display
@@ -102,10 +118,11 @@ sub display
 		my $i = $self->{cursor};
 		THUMB: foreach my $y (0 .. $ny-1) {
 			foreach my $x (0 .. $nx-1) {
-				my $key = $self->{keys}->[$i++];
+				my $key = $self->{keys}->[$i];
 				my $pic = $self->{pics}->{$key};
-				$self->display_pic ($pic, $w, $h, $x*$w, $y*$h);
+				$self->display_pic ($pic, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
 				last THUMB if $i >= scalar @{$self->{keys}};
+				++$i;
 			}
 		}
 	}#
