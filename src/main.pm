@@ -18,6 +18,7 @@ sub load_files
 	find (
 		{
 			no_chdir => 1,
+			follow => 1,
 			wanted => sub
 			{
 				return if -d;
