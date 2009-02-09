@@ -103,7 +103,7 @@ sub display
 	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
 	$self->{app}->fill (0, $bg);
 
-	my $key = $self->{keys}->[$self->{cursor}];
+	my $key = $self->{keys}->[$self->{page_first}];
 	my $pic = $self->{pics}->{$key};
 
 	if ($self->{zoom} < -1)
@@ -111,23 +111,22 @@ sub display
 
 		my $d = (sort $W, $H)[0];  # smallest window dimention
 		my $n = -$self->{zoom};    # number of pictures across that dimention
-		my ($nx, $ny) = (int($W/($d/$n)), int($H/($d/$n)));  # grid size
-		my ($w,  $h)  = (int($W/$nx),     int($H/$ny));      # thumbnail size
-		$self->{page_size} = $nx * $ny;
+		($self->{cols}, $self->{rows}) = (int($W/($d/$n)), int($H/($d/$n)));
+		my ($w, $h) = (int($W/$self->{cols}), int($H/$self->{rows}));  # thumbnail area
 
-		my $i = $self->{cursor};
-		THUMB: foreach my $y (0 .. $ny-1) {
-			foreach my $x (0 .. $nx-1) {
+		my $i = $self->{page_first};
+		THUMB: foreach my $y (0 .. $self->{rows}-1) {
+			foreach my $x (0 .. $self->{cols}-1) {
 				my $key = $self->{keys}->[$i];
 				my $pic = $self->{pics}->{$key};
 				$self->display_pic ($pic, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
-				last THUMB if $i >= scalar @{$self->{keys}};
 				++$i;
+				last THUMB if $i >= scalar @{$self->{keys}};
 			}
 		}
 	}#
 	else {
-		$self->{page_size} = 1;
+		$self->{rows} = $self->{cols} = 1;
 		$self->display_pic ($pic, $W, $H, 0, 0);
 	}
 
@@ -152,24 +151,65 @@ sub display
 	$self->{dirty} = 0;
 }#
 
-sub do ($)
+sub adjust_page_and_cursor ($)
 {#
-	my ($self, $event) = @_;
-	return unless defined $event;
-
-	given ($event) {
-		when (/image_go_next/)  { $self->{cursor} += $self->{page_size}; }
-		when (/image_go_prev/)  { $self->{cursor} -= $self->{page_size}; }
-		when (/toggle_info/)    { $self->{display_info} = !$self->{display_info}; }
-		when (/zoom_in/)        { $self->{zoom}++; $self->{zoom} =  0 if $self->{zoom} == -1; }
-		when (/zoom_out/)       { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
-		when (/zoom_reset/)     { $self->{zoom} = 1; }
-		default { die }
-	}
+	my ($self) = @_;
 
 	my $last = (scalar @{$self->{keys}}) - 1;
-	$self->{cursor} = $last - ($self->{page_size}-1)  if $self->{cursor} < 0;
-	$self->{cursor} = 0                               if $self->{cursor} > $last;
+
+	if ($self->{cursor} < 0) {
+		$self->{cursor} = $last;
+		$self->{page_first} = $last - ($self->{rows}*$self->{cols}-1)
+	}
+	elsif ($self->{cursor} > $last) {
+		$self->{cursor} = $self->{page_first} = 0;
+	}
+	elsif ($self->{rows}*$self->{cols} > 1) {
+		if (scalar @{$self->{keys}} > $self->{rows}*$self->{cols}) {
+			$self->{page_first} += $self->{rows}*$self->{cols}
+				while $self->{cursor}-$self->{page_first} >= $self->{rows}*$self->{cols};
+
+			$self->{page_first} -= $self->{rows}*$self->{cols}
+				while $self->{cursor} < $self->{page_first};
+
+			$self->{page_first} = 0
+				if $self->{page_first} < 0;
+
+			my $last_page = (scalar @{$self->{keys}}) - $self->{rows}*$self->{cols};
+			$self->{page_first} = $last_page
+				if $self->{page_first} > $last_page;
+		}
+	}
+	else {
+		$self->{page_first} = $self->{cursor};
+	}
+
+}#
+
+sub do ($)
+{#
+	my ($self, $command) = @_;
+	return unless defined $command;
+
+	given ($command) {
+		when (/^right$/)      { $self->{cursor}++; }
+		when (/^left$/)       { $self->{cursor}--; }
+		when (/^up$/)         { $self->{cursor} -= $self->{cols}; }
+		when (/^down$/)       { $self->{cursor} += $self->{cols}; }
+		when (/page down/)    { $self->{cursor} += $self->{rows}*$self->{cols}; }
+		when (/page up/)      { $self->{cursor} -= $self->{rows}*$self->{cols}; }
+		when (/toggle info/)  { $self->{display_info} = !$self->{display_info}; }
+		when (/zoom in/)      { $self->{zoom}++; $self->{zoom} =  0 if $self->{zoom} == -1; }
+		when (/zoom out/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
+		when (/zoom reset/)   { $self->{zoom} = 1; }
+		when (/quit/)         { exit(0); }
+		default {
+			$self->{dirty} = 0;
+			say 'unhandled command ['.$command.']';
+		}
+	}
+
+	$self->adjust_page_and_cursor;
 
 	1;
 }#
@@ -181,25 +221,24 @@ sub handle_event ($)
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
 			$self->{dirty} = 1;
-			given ($event->key_name) {
-				when (/^(q|escape)$/) { exit(0); }
-				when (/^(space|down|right)$/)  { $self->do ('image_go_next'); }
-				when (/^(backspace|up|left)$/) { $self->do ('image_go_prev'); }
-				when (/^(i)$/)                 { $self->do ('toggle_info'); }
-				when (/^(-)$/)                 { $self->do ('zoom_out'); }
-				when (/^(=)$/)                 { $self->do ('zoom_in'); }
-				default {
-					$self->{dirty} = 0;
-					say 'unhandled key ['.$event->key_name.']';
-				}
-			}
+			my %ev2cmd = (
+				q         => 'quit',
+				escape    => 'quit',
+				space     => 'page down',
+				backspace => 'page up',
+				i         => 'toggle info',
+				'-'       => 'zoom out',
+				'='       => 'zoom in',
+			);
+
+			$self->do ($ev2cmd{$event->key_name} // $event->key_name);
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
 			$self->{dirty} = $self->do (
 				{
-					3 => 'toggle_info',
-					4 => 'image_go_next',
-					5 => 'image_go_prev',
+					3 => 'toggle info',
+					4 => 'page up',
+					5 => 'page down',
 				}->{$event->button}
 			);
 		}
@@ -218,11 +257,11 @@ sub main (@)
 
 	bless my $self = {};
 
+	# pictures
 	$self->{pics} = load_files;
 	$self->{keys} = [ sort keys %{$self->{pics}} ];
-	$self->{zoom} = 1;
-	$self->{page_size} = 1;
 
+	# SDL window
 	my ($w, $h) = get_window_geometry;
 	$self->{app} = SDL::App->new (
 		-title => 'bapho',
@@ -231,17 +270,23 @@ sub main (@)
 		($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 	);
 
+	# rendering state
 	$self->{display_info} = 0;
 	$self->{text} = text::new (
 		'Bitstream Vera Sans Mono:18',
 		':14',
 	);
 
+	# navigation state
+	$self->{cursor} = $self->{page_first} = 0;
+	$self->{rows} = $self->{cols} = 1;
+	$self->{zoom} = 1;
+
+	# prepare to enter main loop
 	use SDL::Event;
 	use SDL::Constants;
 	my $event = new SDL::Event;
 	SDL::Event->set_key_repeat (200, 30);
-	$self->{cursor} = 0;
 	$self->display;
 
 	while(1) {
