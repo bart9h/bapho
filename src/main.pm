@@ -193,17 +193,19 @@ sub do ($)
 	return unless defined $command;
 
 	given ($command) {
-		when (/^right$/)      { $self->{cursor}++; }
-		when (/^left$/)       { $self->{cursor}--; }
-		when (/^up$/)         { $self->{cursor} -= $self->{cols}; }
-		when (/^down$/)       { $self->{cursor} += $self->{cols}; }
-		when (/page down/)    { $self->{cursor} += $self->{rows}*$self->{cols}; }
-		when (/page up/)      { $self->{cursor} -= $self->{rows}*$self->{cols}; }
-		when (/toggle info/)  { $self->{display_info} = !$self->{display_info}; }
-		when (/zoom in/)      { $self->{zoom}++; $self->{zoom} =  0 if $self->{zoom} == -1; }
-		when (/zoom out/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
-		when (/zoom reset/)   { $self->{zoom} = 1; }
-		when (/quit/)         { exit(0); }
+		when (/^right$/)        { $self->{cursor}++; }
+		when (/^left$/)         { $self->{cursor}--; }
+		when (/^up$/)           { $self->{cursor} -= $self->{cols}; }
+		when (/^down$/)         { $self->{cursor} += $self->{cols}; }
+		when (/^page down$/)    { $self->{cursor} += $self->{rows}*$self->{cols}; }
+		when (/^page up$/)      { $self->{cursor} -= $self->{rows}*$self->{cols}; }
+		when (/^home$/)         { $self->{cursor} = 0; }
+		when (/^end$/)          { $self->{cursor} = scalar @{$self->{keys}} - 1; }
+		when (/^toggle info$/)  { $self->{display_info} = !$self->{display_info}; }
+		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  0 if $self->{zoom} == -1; }
+		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
+		when (/^zoom reset$/)   { $self->{zoom} = 1; }
+		when (/^quit$/)         { exit(0); }
 		default {
 			$self->{dirty} = 0;
 			say 'unhandled command ['.$command.']';
