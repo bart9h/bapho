@@ -7,5 +7,5 @@ __END__
 bapho -- the [ba]rt9h's [ph]oto [o]rganizer
 http://github.com/bart9h/bapho
 
-requires SDL and Image::ExifTool Perl modules
+requires Perl 5.10, with the SDL and Image::ExifTool modules
 

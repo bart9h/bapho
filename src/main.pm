@@ -156,26 +156,27 @@ sub adjust_page_and_cursor ($)
 	my ($self) = @_;
 
 	my $last = (scalar @{$self->{keys}}) - 1;
+	my $page_size = $self->{rows}*$self->{cols};
 
 	if ($self->{cursor} < 0) {
 		$self->{cursor} = $last;
-		$self->{page_first} = $last - ($self->{rows}*$self->{cols}-1)
+		$self->{page_first} = $last>=$page_size ? $last-($page_size-1) : 0;
 	}
 	elsif ($self->{cursor} > $last) {
 		$self->{cursor} = $self->{page_first} = 0;
 	}
-	elsif ($self->{rows}*$self->{cols} > 1) {
-		if (scalar @{$self->{keys}} > $self->{rows}*$self->{cols}) {
-			$self->{page_first} += $self->{rows}*$self->{cols}
-				while $self->{cursor}-$self->{page_first} >= $self->{rows}*$self->{cols};
+	elsif ($page_size > 1) {
+		if (scalar @{$self->{keys}} > $page_size) {
+			$self->{page_first} += $page_size
+				while $self->{cursor}-$self->{page_first} >= $page_size;
 
-			$self->{page_first} -= $self->{rows}*$self->{cols}
+			$self->{page_first} -= $page_size
 				while $self->{cursor} < $self->{page_first};
 
 			$self->{page_first} = 0
 				if $self->{page_first} < 0;
 
-			my $last_page = (scalar @{$self->{keys}}) - $self->{rows}*$self->{cols};
+			my $last_page = (scalar @{$self->{keys}}) - $page_size;
 			$self->{page_first} = $last_page
 				if $self->{page_first} > $last_page;
 		}
