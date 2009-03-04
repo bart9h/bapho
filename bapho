@@ -2,10 +2,3 @@
 BEGIN { unshift @INC, qw(src) }
 use main;
 main (@ARGV);
-__END__
-
-bapho -- the [ba]rt9h's [ph]oto [o]rganizer
-http://github.com/bart9h/bapho
-
-requires Perl 5.10, with the SDL and Image::ExifTool modules
-
