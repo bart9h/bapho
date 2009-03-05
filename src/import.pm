@@ -41,14 +41,23 @@ sub exif2path ($)
 
 	use Image::ExifTool qw(:Public);
 	my $exif = ImageInfo ($source_file);
-	unless (defined $exif->{DateTimeOriginal}) {
+
+	my $date_key;
+	foreach (qw/DateTimeOriginal FileModifyDate/) {
+		if (defined $exif->{$_}) {
+			$date_key = $_;
+			last;
+		}
+	}
+
+	unless (defined $date_key) {
 		warn "bad exif in \"$source_file\": ".($exif->{Error} // Dumper $exif)
 			if $args{verbose};
 		return undef;
 	}
 
 	my ($year, $mon, $mday, $hour, $min, $sec) =
-		$exif->{DateTimeOriginal}
+		$exif->{$date_key}
 		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
 
 	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
