@@ -11,5 +11,6 @@ our %args = (
 		verbose => 1,
 		geometry => undef,
 		fullscreen => 0,
+		nop => 0,
 );
 

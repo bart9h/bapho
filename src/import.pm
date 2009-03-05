@@ -24,9 +24,13 @@ sub do_mkdir($)
 	-d $_[0]  and return $_[0];
 	my $cmd = "mkdir -p \"$_[0]\"";
 	$cmd .= ' -v' if $args{verbose};
-	x $cmd;
-	-d $_[0]  or die "$cmd: $!"  unless $args{nop};
-	return $_[0];
+	if ($args{nop}) {
+		say $cmd;
+	}
+	else {
+		system $cmd;
+		-d $_[0]  or die "$cmd: $!"  unless $args{nop};
+	}
 }#
 
 sub exif2path ($)
