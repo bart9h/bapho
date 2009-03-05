@@ -12,20 +12,6 @@ use args qw/%args/;
 
 #}#
 
-sub do_mkdir($)
-{#
-	-d $_[0]  and return $_[0];
-	my $cmd = "mkdir -p \"$_[0]\"";
-	$cmd .= ' -v' if $args{verbose};
-	if ($args{nop}) {
-		say $cmd;
-	}
-	else {
-		system $cmd;
-		-d $_[0]  or die "$cmd: $!"  unless $args{nop};
-	}
-}#
-
 sub exif2path ($)
 {#
 	my ($source_file) = @_;
@@ -58,45 +44,44 @@ sub exif2path ($)
 		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
 
 	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
-	do_mkdir $dir;
-
-	foreach ('a' .. 'z') {
-		my $path = sprintf '%s/%02d%02d%02d%s.%s', $dir, $hour, $min, $sec, $_, lc $ext;
-		return $path unless -e $path;
-	}
-	die;
+	my $basename = sprintf '%02d%02d%02d-%02d%02d%02d', $year, $mon, $mday, $hour, $min, $sec;
+	return ($dir, $basename, lc $ext);
 }#
 
 sub import_file ($)
 {#
-	my $file = shift;
+	my $source_file = shift;
 
-	my $dir = exif2path ($file)  or return;
+	my ($dir, $basename, $ext) = exif2path ($source_file)  or return undef;
 
-	# check for duplicated files
-	if (-e $dir) {
-		if (0 == system "cmp \"$file\" \"$dir\"") {
-			say "skipping $file == $dir";
-			unlink $file;
+	my $target_file;
+	foreach ('a' .. 'z', 0) {
+		$_ or die 'duplicated timestamp overflow';
+		$target_file = "$dir/$basename$_.$ext";
+		if (!-e $target_file) {
+			last;
 		}
 		else {
-			say "WARNING: $file != $dir";
+			if (0 == system "cmp \"$source_file\" \"$target_file\"") {
+				say "skipping \"$source_file\" == \"$target_file\""  unless $args{quiet};
+				system "rm \"$source_file\"".($args{verbose}?' -v':'')  if $args{mv};
+				return $target_file;
+			}
 		}
-		return undef;
 	}
 
-	# move the file to it's new place/name
-	my $cmd = join ' ', ($args{mv} ? 'mv' : 'cp'), $file, $dir;
-	$cmd .= ' -v'  if $args{verbose};
+	# move the file target_file it's new place/name
+	my $v = $args{verbose} ? ' -v' : '';
+	my $cmd =
+			(-d $dir ? '' : "mkdir -p$v \"$dir\" && ").
+			($args{mv} ? 'mv' : 'cp')."$v \"$source_file\" \"$target_file\"".
+			" && chmod 444 \"$target_file\"";
 	if ($args{nop}) {
 		say $cmd;
 	}
 	elsif (0 == system $cmd) {
 		-e $target_file or die;
-		system "chmod 444 \"$target_file\"";
 	}
-
-	return $dir;
 }#
 
 sub import_files (@)
