@@ -1,4 +1,4 @@
 #!/usr/bin/perl
-BEGIN { unshift @INC, qw(src) }
+BEGIN { unshift @INC, "$ENV{HOME}/src/bapho/src" };  #FIXME
 use main;
 main (@ARGV);
