@@ -12,13 +12,6 @@ use args qw/%args/;
 
 #}#
 
-sub x ($)
-{#
-	my $cmd = shift;
-	say $cmd;
-	system $cmd  unless $args{nop};
-}#
-
 sub do_mkdir($)
 {#
 	-d $_[0]  and return $_[0];
@@ -98,8 +91,9 @@ sub import_file ($)
 	if ($args{nop}) {
 		say $cmd;
 	}
-	else {
-		x $cmd;
+	elsif (0 == system $cmd) {
+		-e $target_file or die;
+		system "chmod 444 \"$target_file\"";
 	}
 
 	return $dir;
