@@ -29,7 +29,7 @@ sub load_files
 		$args{basedir}.'/'
 	);
 
-	die 'no pictures found'  unless scalar keys %pics;
+	die "no pictures found in \"$args{basedir}\""  unless scalar keys %pics;
 	return \%pics;
 }#
 
@@ -254,6 +254,7 @@ sub handle_event ($)
 sub main (@)
 {#
 	if (@_) {
+		use import;
 		import::import_files (@_);
 		return;
 	}
