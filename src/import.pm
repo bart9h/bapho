@@ -34,8 +34,7 @@ sub exif2path ($)
 	}
 
 	unless (defined $date_key) {
-		warn "bad exif in \"$source_file\": ".($exif->{Error} // Dumper $exif)
-			if $args{verbose};
+		warn "bad exif in \"$source_file\"".($args{verbose} ? ($exif->{Error} // Dumper $exif) : '');
 		return undef;
 	}
 
@@ -64,14 +63,14 @@ sub import_file ($)
 		else {
 			if (0 == system "cmp \"$source_file\" \"$target_file\"") {
 				say "skipping \"$source_file\" == \"$target_file\""  unless $args{quiet};
-				system "rm \"$source_file\"".($args{verbose}?' -v':'')  if $args{mv};
+				system "rm \"$source_file\"".($args{quiet}?'':' -v')  if $args{mv};
 				return $target_file;
 			}
 		}
 	}
 
 	# move the file target_file it's new place/name
-	my $v = $args{verbose} ? ' -v' : '';
+	my $v = $args{quiet} ? '' : ' -v';
 	my $cmd =
 			(-d $dir ? '' : "mkdir -p$v \"$dir\" && ").
 			($args{mv} ? 'mv' : 'cp')."$v \"$source_file\" \"$target_file\"".

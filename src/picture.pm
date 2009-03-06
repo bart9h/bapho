@@ -51,7 +51,7 @@ sub load_file ($)
 {#
 	my ($path) = @_;
 
-	say "loading $path";
+	say "loading $path"  if $args{verbose};
 
 	if ($path =~ m/\.cr2$/i)
 	{# load preview or thumbnail image from exif
