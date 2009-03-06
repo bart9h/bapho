@@ -206,6 +206,7 @@ sub do ($)
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1; }
 		when (/^quit$/)         { exit(0); }
+		when (/^p$/)            { say $self->{pics}->{$self->{keys}->[$self->{cursor}]}->{path}; }
 		default {
 			$self->{dirty} = 0;
 			say 'unhandled command ['.$command.']';
