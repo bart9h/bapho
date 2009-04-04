@@ -126,5 +126,15 @@ sub get_surface ($$)
 	}
 }#
 
+sub develop ($)
+{#
+	my $self = shift;
+
+	given ($self->{ext}) {
+		when (/^(cr2|ufraw)$/i) { system "ufraw $self->{path}"; }
+		default { system "gimp $self->{path} &"; }
+	}
+}#
+
 1;
 # vim600:fdm=marker:fmr={#,}#:

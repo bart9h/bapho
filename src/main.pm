@@ -206,12 +206,15 @@ sub do ($)
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1; }
 		when (/^quit$/)         { exit(0); }
-		when (/^p$/)            { say $self->{pics}->{$self->{keys}->[$self->{cursor}]}->{path}; }
+		when (/^p$/)            { say $self->{cursor_pic}->{path}; }
+		when (/^d$/)            { $self->{cursor_pic}->develop; }
+		when (/^d$/)            { $self->develop; }
 		default {
 			$self->{dirty} = 0;
 		}
 	}
 
+	$self->{cursor_pic} = $self->{pics}->{$self->{keys}->[$self->{cursor}]};
 	$self->adjust_page_and_cursor;
 
 	1;
