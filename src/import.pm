@@ -50,12 +50,15 @@ sub exif2path ($)
 sub import_file ($)
 {#
 	my $source_file = shift;
+	$source_file =~ m/$args{basedir}/
+		and die "importing file $source_file from inside basedir $args{basedir}";
 
-	my ($dir, $basename, $ext) = exif2path ($source_file)  or return undef;
+	my ($dir, $basename, $ext) = exif2path ($source_file)
+		or return undef;
 
 	my $target_file;
 	foreach ('a' .. 'z', 0) {
-		$_ or die 'duplicated timestamp overflow';
+		$_  or die 'duplicated timestamp overflow';
 		$target_file = "$dir/$basename$_.$ext";
 		if (!-e $target_file) {
 			last;
