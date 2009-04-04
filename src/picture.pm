@@ -17,18 +17,25 @@ sub new ($)
 {#
 	my $path = shift;
 
-	unless ($path =~ m{$args{basedir}/([^.]+?)\.([^.]+)$}) {
+	if ($path =~ m|^
+		$args{basedir}
+		(.*/)?
+		(?<key>[^.]+)\.
+		([^.]+\.)*
+		(?<ext>[^.]+)
+	$|x) {
+		bless {
+			key => $+{key},
+			ext => $+{ext},
+			path => $path,
+			loaded => 0,
+			surface => undef,
+		};
+	}
+	else {
 		warn "strange filename ($path)";
 		return undef;
 	}
-
-	bless {
-		key => $1,
-		ext => $2,
-		path => $path,
-		loaded => 0,
-		surface => undef,
-	};
 }#
 
 sub get_dummy_surface
@@ -44,23 +51,23 @@ sub get_dummy_surface
 		);
 	}
 
-	$surf;
+	return $surf;
 }#
 
-sub load_file ($)
+sub load ($)
 {#
-	my ($path) = @_;
+	my ($self) = @_;
 
-	say "loading $path"  if $args{verbose};
+	say "loading $self->{path}"  if $args{verbose};
 
-	if ($path =~ m/\.cr2$/i)
+	if ($self->{path} =~ m/\.cr2$/i)
 	{# load preview or thumbnail image from exif
 
 		use Image::ExifTool;
 		my $exif = Image::ExifTool->new;
 		$exif->Options (Binary => 1);
 
-		my $info = $exif->ImageInfo ($path);
+		my $info = $exif->ImageInfo ($self->{path});
 
 		my $tag = 'PreviewImage';
 		if (defined $info->{$tag}) {
@@ -79,7 +86,7 @@ sub load_file ($)
 		}
 	}#
 	else {
-		return SDL::Surface->new (-name => $path);
+		eval { SDL::Surface->new (-name => $self->{path}) };
 	}
 }#
 
@@ -99,8 +106,8 @@ sub get_surface ($$)
 	my ($self, $width, $height) = @_;
 
 	unless ($self->{loaded}) {
-		$self->{loaded} = 1;
-		$self->{surface} = load_file ($self->{path}) or get_dummy_surface;
+		$self->{loaded} = time;
+		$self->{surface} = ($self->load or get_dummy_surface);
 	}
 
 	my $res = "${width}x${height}";

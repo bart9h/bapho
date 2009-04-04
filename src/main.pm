@@ -209,7 +209,6 @@ sub do ($)
 		when (/^p$/)            { say $self->{pics}->{$self->{keys}->[$self->{cursor}]}->{path}; }
 		default {
 			$self->{dirty} = 0;
-			say 'unhandled command ['.$command.']';
 		}
 	}
 
