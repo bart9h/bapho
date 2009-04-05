@@ -8,6 +8,21 @@ use text;
 
 use SDL::App;
 
+sub extval ($)
+{#
+   $_[0] =~ /\.([^.]+)$/
+   ?
+       {
+           jpg => 3,
+           tif => 2,
+           png => 2,
+           cr2 => 1,
+       }->{lc $1}
+       // 0
+   :
+       -1;
+}#
+
 sub load_files
 {#
 	my %pics = ();
@@ -22,8 +37,11 @@ sub load_files
 			wanted => sub
 			{
 				return if -d;
-				my $pic = picture::new ($_);
-				$pics{$pic->{key}} = $pic  if $pic;
+				my $pic = picture::new ($_)  or return;
+				$pics{$pic->{key}} = $pic  if (
+					!exists $pics{$pic->{key}} or
+					extval($pic->{path}) > extval($pics{$pic->{key}}->{path})
+				);
 			},
 		},
 		$args{basedir}.'/'

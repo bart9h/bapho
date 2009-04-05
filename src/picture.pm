@@ -130,9 +130,17 @@ sub develop ($)
 {#
 	my $self = shift;
 
-	given ($self->{ext}) {
-		when (/^(cr2|ufraw)$/i) { system "ufraw $self->{path}"; }
-		default { system "gimp $self->{path} &"; }
+	my $file = $self->{path};
+	$file =~ s/\.[^.]+$/\.ufraw/;
+	-e $file or $file = $self->{path};
+
+	given ($file) {
+		when (/\.(cr2|ufraw)$/i) {
+			system "ufraw $file &";
+		}
+		default {
+			system "gimp $file &";
+		}
 	}
 }#
 
