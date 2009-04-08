@@ -44,7 +44,7 @@ sub load_files
 				);
 			},
 		},
-		$args{basedir}.'/'
+		($args{startdir} // $args{basedir}).'/'
 	);
 
 	die "no pictures found in \"$args{basedir}\""  unless scalar keys %pics;
@@ -275,9 +275,15 @@ sub handle_event ($)
 sub main (@)
 {#
 	if (@_) {
-		use import;
-		import::import_files (@_);
-		return;
+		#FIXME: fix relative paths (`bapho .` under basedir tries to import)
+		if (scalar @_ >= 1 and $_[0] =~ $args{basedir}) {
+			$args{startdir} = $_[0];
+		}
+		else {
+			use import;
+			import::import_files (@_);
+			return;
+		}
 	}
 
 	bless my $self = {};
