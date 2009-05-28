@@ -144,5 +144,19 @@ sub develop ($)
 	}
 }#
 
+sub delete ($)
+{#
+	my $self = shift;
+
+	$self->{path} =~ m{^(.*?)/([^/]+)\.[^.]+$}
+		or die "strange filename ($self->{path})";
+	my ($dirname, $basename) = ($1, $2);
+	my $trash = "$dirname/.bapho-trash";
+	print `mkdir -v "$trash"`;
+	while (<$dirname/$basename.*>) {
+		print `mv -v "$_" "$trash/"`;
+	}
+}#
+
 1;
 # vim600:fdm=marker:fmr={#,}#:

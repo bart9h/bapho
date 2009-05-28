@@ -224,6 +224,7 @@ sub do ($)
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1; }
 		when (/^quit$/)         { exit(0); }
+		when (/^delete$/)       { $self->{cursor_pic}->delete; }
 		when (/^p$/)            { say $self->{cursor_pic}->{path}; }
 		when (/^d$/)            { $self->{cursor_pic}->develop; }
 		when (/^d$/)            { $self->develop; }
