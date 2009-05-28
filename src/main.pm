@@ -275,11 +275,15 @@ sub handle_event ($)
 sub main (@)
 {#
 	if (@_) {
-		#FIXME: fix relative paths (`bapho .` under basedir tries to import)
-		if (scalar @_ >= 1 and $_[0] =~ $args{basedir}) {
-			$args{startdir} = $_[0];
+		my $dir = $_[0];
+		my $pwd = `pwd`;  chomp $pwd;
+		$dir =~ s{^\.$}{$pwd}    or
+		$dir =~ s{^\./}{$pwd/};
+
+		if (scalar @_ == 1 and $dir =~ $args{basedir}) {
+			$args{startdir} = $dir;
 		}
-		else {
+		elsif (scalar @_ >= 1) {
 			use import;
 			import::import_files (@_);
 			return;
