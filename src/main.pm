@@ -220,14 +220,13 @@ sub do ($)
 		when (/^home$/)         { $self->{cursor} = 0; }
 		when (/^end$/)          { $self->{cursor} = scalar @{$self->{keys}} - 1; }
 		when (/^toggle info$/)  { $self->{display_info} = !$self->{display_info}; }
-		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  0 if $self->{zoom} == -1; }
-		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} == -1; }
+		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  1 if $self->{zoom} == -1; }
+		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1; }
 		when (/^quit$/)         { exit(0); }
 		when (/^delete$/)       { $self->{cursor_pic}->delete; }
 		when (/^p$/)            { say $self->{cursor_pic}->{path}; }
 		when (/^d$/)            { $self->{cursor_pic}->develop; }
-		when (/^d$/)            { $self->develop; }
 		default {
 			$self->{dirty} = 0;
 		}
