@@ -314,6 +314,7 @@ sub main (@)
 
 	# navigation state
 	$self->{cursor} = $self->{page_first} = 0;
+	$self->{cursor_pic} = $self->{pics}->{$self->{keys}->[$self->{cursor}]};
 	$self->{rows} = $self->{cols} = 1;
 	$self->{zoom} = 1;
 
