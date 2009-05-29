@@ -53,7 +53,7 @@ sub print ($$$)
 	my $self = shift;
 	my $surf = shift;
 
-	my $big;
+	my $taller_font;
 	foreach my $mode ('layout', 'draw') {
 		for (my $i = 0;  $i < $#_;  $i += 2) {
 			my ($cmd, $arg) = ($_[$i], $_[$i+1]);
@@ -65,12 +65,16 @@ sub print ($$$)
 					my $font = $self->{fonts}->[$self->{font}]  or die;
 
 					if ($mode eq 'layout') {
-						$big = $font  if not defined $big or $big->height > $font->height;
+						$taller_font = $font
+							if not defined $taller_font
+							or $taller_font->height > $font->height;
 					}
 					else {
 						$font->print ($surf,
 							$self->{x},
-							$self->{y} +$big->height +$big->descent -$font->descent -$font->height,
+							$self->{y}
+								+$taller_font->height  +$taller_font->descent
+								-       $font->height  -       $font->descent,
 							$arg);
 						$self->{x} += $font->width ($arg);
 					}
@@ -80,7 +84,7 @@ sub print ($$$)
 		}
 	}
 
-	$self->{y} += $big->height;
+	$self->{y} += $taller_font->height;
 	$self->{x} = $self->{border};
 
 }#
