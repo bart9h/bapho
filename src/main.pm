@@ -309,8 +309,8 @@ sub main (@)
 	# rendering state
 	$self->{display_info} = 0;
 	$self->{text} = text::new (
-		'Bitstream Vera Sans Mono:18',
-		':14',
+		'Bitstream Vera Sans Mono:24',
+		':20',
 	);
 
 	# navigation state
