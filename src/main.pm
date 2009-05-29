@@ -150,6 +150,9 @@ sub display
 
 	if ($self->{display_info}) {
 
+		my $key = $self->{keys}->[$self->{cursor}];
+		my $pic = $self->{pics}->{$key};
+
 		$self->{text}->home;
 
 		$self->{text}->print ($self->{app},
