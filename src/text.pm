@@ -54,6 +54,7 @@ sub print ($$$)
 	my $surf = shift;
 
 	my $taller_font;
+	my $width = 2*$self->{border};;
 	foreach my $mode ('layout', 'draw') {
 		for (my $i = 0;  $i < $#_;  $i += 2) {
 			my ($cmd, $arg) = ($_[$i], $_[$i+1]);
@@ -68,6 +69,7 @@ sub print ($$$)
 						$taller_font = $font
 							if not defined $taller_font
 							or $taller_font->height > $font->height;
+						$width += $font->width ($arg);
 					}
 					else {
 						$font->print ($surf,
@@ -81,6 +83,14 @@ sub print ($$$)
 				}
 				default { die }
 			}
+		}
+
+		if ($mode eq 'layout') {
+			my $height = .5*$self->{border} + $taller_font->height;
+			$surf->fill (
+				SDL::Rect->new (-x => 0, -y => $self->{y}, -width => $width, -height => $height),
+				SDL::Color->new (-r => 0, -g => 0, -b => 0),
+			);
 		}
 	}
 
