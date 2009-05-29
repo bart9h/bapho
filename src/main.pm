@@ -277,8 +277,7 @@ sub main (@)
 	if (@_) {
 		my $dir = $_[0];
 		my $pwd = `pwd`;  chomp $pwd;
-		$dir =~ s{^\.$}{$pwd}    or
-		$dir =~ s{^\./}{$pwd/};
+		$dir =~ m{^/}  or $dir = $pwd."/$dir";
 
 		if (scalar @_ == 1 and $dir =~ $args{basedir}) {
 			$args{startdir} = $dir;
