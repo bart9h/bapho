@@ -113,6 +113,27 @@ sub display_pic ($$$$$;$)
 	}#
 }#
 
+sub display_info ($)
+{#
+	my $self = shift;
+
+	my $key = $self->{keys}->[$self->{cursor}];
+	my $pic = $self->{pics}->{$key};
+
+	$self->{text}->home;
+
+	$self->{text}->print ($self->{app},
+		font => 0,
+		text => $key,
+		font => 1,
+		text => ".$pic->{ext}",
+	);
+
+	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
+	$str .= '  '.int($pic->{zoom}*100).'%';
+	$self->{text}->print ($self->{app}, text => $str);
+}#
+
 sub display
 {#
 	my ($self) = @_;
@@ -149,22 +170,7 @@ sub display
 	}
 
 	if ($self->{display_info}) {
-
-		my $key = $self->{keys}->[$self->{cursor}];
-		my $pic = $self->{pics}->{$key};
-
-		$self->{text}->home;
-
-		$self->{text}->print ($self->{app},
-			font => 0,
-			text => $key,
-			font => 1,
-			text => ".$pic->{ext}",
-		);
-
-		my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
-		$str .= '  '.int($pic->{zoom}*100).'%';
-		$self->{text}->print ($self->{app}, text => $str);
+		$self->display_info;
 	}
 
 	$self->{app}->update;
