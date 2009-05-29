@@ -232,8 +232,8 @@ sub do ($)
 		}
 	}
 
-	$self->{cursor_pic} = $self->{pics}->{$self->{keys}->[$self->{cursor}]};
 	$self->adjust_page_and_cursor;
+	$self->{cursor_pic} = $self->{pics}->{$self->{keys}->[$self->{cursor}]};
 
 	1;
 }#
