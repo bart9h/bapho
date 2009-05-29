@@ -304,6 +304,8 @@ sub main (@)
 		($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 	);
 
+	SDL::ShowCursor(0);
+
 	# rendering state
 	$self->{display_info} = 0;
 	$self->{text} = text::new (
