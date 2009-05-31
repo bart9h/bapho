@@ -43,11 +43,15 @@ sub display_info ($)
 
 	$self->{text}->home;
 
+	#FIXME
+	my $s = $pic->{sel};
+	$s =~ s{^.*/[^.]+\.(.*)$}{$1};
+
 	$self->{text}->print ($self->{app},
 		font => 0,
 		text => $key,
 		font => 1,
-		text => ".$pic->{ext}",
+		text => ".$s",
 	);
 
 	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};

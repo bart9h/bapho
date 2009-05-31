@@ -95,7 +95,7 @@ sub do ($)
 		when (/^zoom reset$/)   { $self->{zoom} = 1; }
 		when (/^quit$/)         { exit(0); }
 		when (/^delete$/)       { $self->{cursor_pic}->delete; }
-		when (/^p$/)            { say $self->{cursor_pic}->{path}; }
+		when (/^p$/)            { say join "\n", keys %{$self->{cursor_pic}->{files}}; }
 		when (/^d$/)            { $self->{cursor_pic}->develop; }
 		default {
 			$self->{dirty} = 0;

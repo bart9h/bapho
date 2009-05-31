@@ -81,16 +81,16 @@ sub load ($)
 {#
 	my ($self) = @_;
 
-	say "loading $self->{path}"  if $args{verbose};
+	say "loading $self->{sel}"  if $args{verbose};
 
-	if ($self->{path} =~ m/\.cr2$/i)
+	if ($self->{sel} =~ m/\.cr2$/i)
 	{# load preview or thumbnail image from exif
 
 		use Image::ExifTool;
 		my $exif = Image::ExifTool->new;
 		$exif->Options (Binary => 1);
 
-		my $info = $exif->ImageInfo ($self->{path});
+		my $info = $exif->ImageInfo ($self->{sel});
 
 		my $tag = 'PreviewImage';
 		if (defined $info->{$tag}) {
@@ -109,7 +109,7 @@ sub load ($)
 		}
 	}#
 	else {
-		eval { SDL::Surface->new (-name => $self->{path}) };
+		eval { SDL::Surface->new (-name => $self->{sel}) };
 	}
 }#
 
@@ -142,9 +142,9 @@ sub develop ($)
 {#
 	my $self = shift;
 
-	my $file = $self->{path};
+	my $file = $self->{sel};
 	$file =~ s/\.[^.]+$/\.ufraw/;
-	-e $file or $file = $self->{path};
+	-e $file or $file = $self->{sel};
 
 	given ($file) {
 		when (/\.(cr2|ufraw)$/i) {
@@ -160,11 +160,11 @@ sub delete ($)
 {#
 	my $self = shift;
 
-	$self->{path} =~ m{^(.*?)/([^/]+)\.[^.]+$}
-		or die "strange filename ($self->{path})";
+	$self->{sel} =~ m{^(.*?)/([^/]+)\.[^.]+$}
+		or die "strange filename ($self->{sel})";
 	my ($dirname, $basename) = ($1, $2);
 	my $trash = "$dirname/.bapho-trash";
-	print `mkdir -v "$trash"`;
+	-d $trash or print `mkdir -v "$trash"`;
 	while (<$dirname/$basename.*>) {
 		print `mv -v "$_" "$trash/"`;
 	}
