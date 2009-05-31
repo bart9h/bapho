@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+use 5.010;
 BEGIN { unshift @INC, "$ENV{HOME}/src/bapho/src" };  #FIXME
 use main;
 main (@ARGV);
