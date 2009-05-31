@@ -1,11 +1,15 @@
+package picture;
+
 #{# use
 
 use strict;
 use warnings;
 use 5.010;
-use Data::Dumper;
 
+use Data::Dumper;
 use SDL::Surface;
+
+use args qw/%args/;
 
 #}#
 
@@ -55,14 +59,12 @@ sub zoom ($$)
 	return $tmp;
 }#
 
-package picture;
-use args qw/%args/;
-
 sub new ($)
 {#
 	bless {
 		key => $_[0],
 		files => {},
+		tags => {},
 		loaded => 0,
 		sel => undef,
 		surface => undef,
@@ -73,8 +75,26 @@ sub add ($$)
 {#
 	my ($self, $path) = @_;
 	die 'duplicate file'  if exists $self->{files}->{$path};
-	$self->{files}->{$path} = 1;
-	$self->{sel} = $path  if ::extval($path) > ::extval($self->{sel});
+
+	$path =~ m{^.*/[^.]+\.([^/]+)} or die;
+	my $ext = $1;
+
+	given ($ext) {
+		when (/^tags$/) {
+			if (open F, $path) {
+				foreach (<F>) {
+					chomp;
+					$self->{tags}->{$_} = 1;
+				}
+			}
+		}
+		when (/^ufraw$/) {
+		}
+		default {
+			$self->{files}->{$path} = 1;
+			$self->{sel} = $path  if extval($path) > extval($self->{sel});
+		}
+	}
 }#
 
 sub load ($)
@@ -119,7 +139,7 @@ sub get_surface ($$)
 
 	unless ($self->{loaded}) {
 		$self->{loaded} = time;
-		$self->{surface} = ($self->load or ::get_dummy_surface);
+		$self->{surface} = ($self->load or get_dummy_surface);
 	}
 
 	my $res = "${width}x${height}";
@@ -130,7 +150,7 @@ sub get_surface ($$)
 		my $zoom_y = $height/$self->{surface}->height;
 		$self->{zoom} = (sort $zoom_x, $zoom_y)[0];
 
-		return $self->{zoomed} = ::zoom ($self->{surface}, $self->{zoom});
+		return $self->{zoomed} = zoom ($self->{surface}, $self->{zoom});
 	}
 	else {
 		die unless defined $self->{zoomed};

@@ -57,6 +57,13 @@ sub display_info ($)
 	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
 	$str .= '  '.int($pic->{zoom}*100).'%';
 	$self->{text}->print ($self->{app}, text => $str);
+
+	$self->{text}->print ($self->{app},
+		font => 1,
+		text => 'tags:',
+	);
+	$self->{text}->print ($self->{app}, text => $_)
+		foreach map { ' '.$_ } sort keys %{$pic->{tags}};
 }#
 
 sub display
