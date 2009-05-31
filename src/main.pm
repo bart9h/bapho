@@ -4,53 +4,11 @@ use 5.010;
 
 use args qw/%args/;
 use display;
+use collection;
 use picture;
 use text;
 
 use SDL::App;
-
-sub extval ($)
-{#
-   $_[0] =~ /\.([^.]+)$/
-   ?
-       {
-           jpg => 3,
-           tif => 2,
-           png => 2,
-           cr2 => 1,
-       }->{lc $1}
-       // 0
-   :
-       -1;
-}#
-
-sub load_files
-{#
-	my %pics = ();
-
-	die if $args{dir_fmt} =~ m{\.};
-
-	use File::Find;
-	find (
-		{
-			no_chdir => 1,
-			follow => 1,
-			wanted => sub
-			{
-				return if -d;
-				my $pic = picture::new ($_)  or return;
-				$pics{$pic->{key}} = $pic  if (
-					!exists $pics{$pic->{key}} or
-					extval($pic->{path}) > extval($pics{$pic->{key}}->{path})
-				);
-			},
-		},
-		($args{startdir} // $args{basedir}).'/'
-	);
-
-	die "no pictures found in \"$args{basedir}\""  unless scalar keys %pics;
-	return \%pics;
-}#
 
 sub get_window_geometry
 {#
@@ -78,7 +36,6 @@ sub get_window_geometry
 
 	($w, $h);
 }#
-
 
 package main;
 
@@ -205,7 +162,8 @@ sub main (@)
 	bless my $self = {};
 
 	# pictures
-	$self->{pics} = load_files;
+	my $collection = collection::new;
+	$self->{pics} = $collection->{pics};
 	$self->{keys} = [ sort keys %{$self->{pics}} ];
 
 	# SDL window

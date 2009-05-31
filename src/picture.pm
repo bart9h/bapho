@@ -15,27 +15,40 @@ use args qw/%args/;
 
 sub new ($)
 {#
-	my $path = shift;
+	bless {
+		key => $_[0],
+		files => {},
+		loaded => 0,
+		sel => undef,
+		surface => undef,
+	};
+}#
 
-	if ($path =~ m|^
-		$args{basedir}
-		(.*/)?
-		(?<key>[^.]+)\.
-		([^.]+\.)*
-		(?<ext>[^.]+)
-	$|x) {
-		bless {
-			key => $+{key},
-			ext => $+{ext},
-			path => $path,
-			loaded => 0,
-			surface => undef,
-		};
-	}
-	else {
-		warn "strange filename ($path)";
-		return undef;
-	}
+sub extval ($)
+{#
+	defined $_[0]
+	?
+		$_[0] =~ /\.([^.]+)$/
+		?
+			{
+				jpg => 3,
+				tif => 2,
+				png => 2,
+				cr2 => 1,
+			}->{lc $1}
+			// 0
+		:
+			-1
+	:
+		-1
+}#
+
+sub add ($$)
+{#
+	my ($self, $path) = @_;
+	die 'duplicate file'  if exists $self->{files}->{$path};
+	$self->{files}->{$path} = 1;
+	$self->{sel} = $path  if extval($path) > extval($self->{sel});
 }#
 
 sub get_dummy_surface
