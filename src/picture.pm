@@ -1,5 +1,3 @@
-package picture;
-
 #{# use
 
 use strict;
@@ -9,20 +7,7 @@ use Data::Dumper;
 
 use SDL::Surface;
 
-use args qw/%args/;
-
 #}#
-
-sub new ($)
-{#
-	bless {
-		key => $_[0],
-		files => {},
-		loaded => 0,
-		sel => undef,
-		surface => undef,
-	};
-}#
 
 sub extval ($)
 {#
@@ -43,14 +28,6 @@ sub extval ($)
 		-1
 }#
 
-sub add ($$)
-{#
-	my ($self, $path) = @_;
-	die 'duplicate file'  if exists $self->{files}->{$path};
-	$self->{files}->{$path} = 1;
-	$self->{sel} = $path  if extval($path) > extval($self->{sel});
-}#
-
 sub get_dummy_surface
 {#
 	state $surf;
@@ -65,6 +42,39 @@ sub get_dummy_surface
 	}
 
 	return $surf;
+}#
+
+sub zoom ($$)
+{#
+	my ($surface, $zoom) = @_;
+	die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
+		unless ( ref($surface) && $surface->isa('SDL::Surface'));
+
+	my $tmp = SDL::Surface->new;
+	$$tmp = SDL::GFXZoom ($$surface, $zoom, $zoom, 1);
+	return $tmp;
+}#
+
+package picture;
+use args qw/%args/;
+
+sub new ($)
+{#
+	bless {
+		key => $_[0],
+		files => {},
+		loaded => 0,
+		sel => undef,
+		surface => undef,
+	};
+}#
+
+sub add ($$)
+{#
+	my ($self, $path) = @_;
+	die 'duplicate file'  if exists $self->{files}->{$path};
+	$self->{files}->{$path} = 1;
+	$self->{sel} = $path  if ::extval($path) > ::extval($self->{sel});
 }#
 
 sub load ($)
@@ -103,24 +113,13 @@ sub load ($)
 	}
 }#
 
-sub zoom ($$)
-{#
-	my ($surface, $zoom) = @_;
-	die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
-		unless ( ref($surface) && $surface->isa('SDL::Surface'));
-
-	my $tmp = SDL::Surface->new;
-	$$tmp = SDL::GFXZoom ($$surface, $zoom, $zoom, 1);
-	return $tmp;
-}#
-
 sub get_surface ($$)
 {#
 	my ($self, $width, $height) = @_;
 
 	unless ($self->{loaded}) {
 		$self->{loaded} = time;
-		$self->{surface} = ($self->load or get_dummy_surface);
+		$self->{surface} = ($self->load or ::get_dummy_surface);
 	}
 
 	my $res = "${width}x${height}";
@@ -131,7 +130,7 @@ sub get_surface ($$)
 		my $zoom_y = $height/$self->{surface}->height;
 		$self->{zoom} = (sort $zoom_x, $zoom_y)[0];
 
-		return $self->{zoomed} = zoom ($self->{surface}, $self->{zoom});
+		return $self->{zoomed} = ::zoom ($self->{surface}, $self->{zoom});
 	}
 	else {
 		die unless defined $self->{zoomed};
