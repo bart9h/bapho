@@ -184,6 +184,8 @@ sub handle_event ($)
 
 sub main (@)
 {#
+	$args{basedir} = readlink $args{basedir};
+
 	if (@_) {
 		my $dir = $_[0];
 		my $pwd = `pwd`;  chomp $pwd;
