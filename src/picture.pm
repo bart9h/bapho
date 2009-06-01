@@ -133,6 +133,18 @@ sub load ($)
 	}
 }#
 
+sub toggle_tag ($$)
+{#
+	my ($self, $tag) = @_;
+
+	if (exists $self->{tags}->{$tag}) {
+		delete $self->{tags}->{$tag};
+	}
+	else {
+		$self->{tags}->{$tag} = 1;
+	}
+}#
+
 sub get_surface ($$)
 {#
 	my ($self, $width, $height) = @_;

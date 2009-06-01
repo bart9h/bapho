@@ -74,6 +74,33 @@ sub display_info ($)
 		foreach map { ' '.$_ } sort keys %{$pic->{tags}};
 }#
 
+sub display_tags ($)
+{#
+	my $self = shift;
+
+	my $key = $self->{keys}->[$self->{cursor}];
+	my $pic = $self->{collection}->{pics}->{$key};
+
+	$self->{text}->home;
+
+	#FIXME
+	my $s = $pic->{sel};
+	$s =~ s{^.*/[^.]+\.(.*)$}{$1};
+
+	$self->print (
+		font => 0,
+		text => "EDIT TAGS for $key:",
+	);
+
+	my $i = 0;
+	foreach (@{$self->{tags}}) {
+		my @s = split //, $i==$self->{tag_cursor}  ?  '[]' : '  ';  # cursor
+		my $t = exists $self->{cursor_pic}->{tags}->{$_}  ?  '*' : ' ';  # tag
+		$self->print (text => $s[0].$t.$_.$t.$s[1]);
+		++$i;
+	}
+}#
+
 sub display
 {#
 	my ($self) = @_;
@@ -109,7 +136,10 @@ sub display
 		$self->display_pic ($pic, $W, $H, 0, 0);
 	}
 
-	if ($self->{display_info}) {
+	if ($self->{tag_mode}) {
+		$self->display_tags;
+	}
+	elsif ($self->{display_info}) {
 		$self->display_info;
 	}
 

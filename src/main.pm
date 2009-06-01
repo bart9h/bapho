@@ -75,9 +75,39 @@ sub adjust_page_and_cursor ($)
 
 }#
 
+sub tag_do ($)
+{#
+	my ($self, $command) = @_;
+	return unless defined $command;
+
+	my $N = scalar @{$self->{tags}};
+
+	given ($command) {
+		when (/^up$/)           { $self->{tag_cursor}--; }
+		when (/^down$/)         { $self->{tag_cursor}++; }
+		when (/^home$/)         { $self->{tag_cursor} = 0; }
+		when (/^end$/)          { $self->{tag_cursor} = $N - 1; }
+		when (/^toggle info$/)  { $self->{tag_mode} = 0; }
+		when (/^t$/)            { $self->{tag_mode} = 0; }
+		when (/^quit$/)         { exit(0); }
+		when (/^(page down|enter|return)$/) {
+			$self->{cursor_pic}->toggle_tag ($self->{tags}->[$self->{tag_cursor}]);
+		}
+		default {
+			$self->{dirty} = 0;
+		}
+	}
+
+	$self->{tag_cursor} = 0     if $self->{tag_cursor} <  0;
+	$self->{tag_cursor} = $N-1  if $self->{tag_cursor} >= $N;
+
+	1;
+}#
+
 sub do ($)
 {#
 	my ($self, $command) = @_;
+	return $self->tag_do($command)  if $self->{tag_mode};
 	return unless defined $command;
 
 	given ($command) {
@@ -97,6 +127,10 @@ sub do ($)
 		when (/^delete$/)       { $self->{cursor_pic}->delete; }
 		when (/^p$/)            { say join "\n", keys %{$self->{cursor_pic}->{files}}; }
 		when (/^d$/)            { $self->{cursor_pic}->develop; }
+		when (/^t$/)            {
+			$self->{tag_mode} = 1;
+			$self->{tags} = [ sort keys %{$self->{collection}->{tags}} ];
+		}
 		default {
 			$self->{dirty} = 0;
 		}
@@ -188,6 +222,10 @@ sub main (@)
 	$self->{cursor_pic} = $self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
 	$self->{rows} = $self->{cols} = 1;
 	$self->{zoom} = 1;
+
+	# tag editor state
+	$self->{tag_mode} = 0;
+	$self->{tag_cursor} = 0;
 
 	# prepare to enter main loop
 	use SDL::Event;
