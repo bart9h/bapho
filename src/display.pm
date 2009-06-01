@@ -1,3 +1,5 @@
+package main;
+
 use strict;
 use warnings;
 use 5.010;
@@ -34,6 +36,12 @@ sub display_pic ($$$$$;$)
 	}#
 }#
 
+sub print
+{#
+	my $self = shift;
+	$self->{text}->print ($self->{app}, @_);
+}#
+
 sub display_info ($)
 {#
 	my $self = shift;
@@ -47,7 +55,7 @@ sub display_info ($)
 	my $s = $pic->{sel};
 	$s =~ s{^.*/[^.]+\.(.*)$}{$1};
 
-	$self->{text}->print ($self->{app},
+	$self->print (
 		font => 0,
 		text => $key,
 		font => 1,
@@ -56,13 +64,13 @@ sub display_info ($)
 
 	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
 	$str .= '  '.int($pic->{zoom}*100).'%';
-	$self->{text}->print ($self->{app}, text => $str);
+	$self->print (text => $str);
 
-	$self->{text}->print ($self->{app},
+	$self->print (
 		font => 1,
 		text => 'tags:',
 	);
-	$self->{text}->print ($self->{app}, text => $_)
+	$self->print (text => $_)
 		foreach map { ' '.$_ } sort keys %{$pic->{tags}};
 }#
 
