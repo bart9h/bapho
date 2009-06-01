@@ -78,7 +78,7 @@ sub add ($$)
 
 	$path =~ m{^(.*)/[^.]+\.([^/]+)} or die;
 	my ($dir, $ext) = ($1, $2);
-	die "same pic in different dir:\n$dir\nvs\n$self->{dir}\nfor\n$path\n"
+	die "$path\nalso exists in\n$self->{dir}\n"
 		if exists $self->{dir} and $self->{dir} ne $dir;
 	$self->{dir} //= $dir;
 
