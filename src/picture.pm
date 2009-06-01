@@ -85,6 +85,7 @@ sub add ($$)
 	given ($ext) {
 		when (/^tags$/) {
 			if (open F, $path) {
+				$self->{tags} = {};
 				foreach (<F>) {
 					chomp;
 					$self->{tags}->{$_} = 1;
@@ -150,11 +151,18 @@ sub toggle_tag ($$)
 	$self->{dirty} = 1;
 }#
 
+sub tag_filename ($)
+{#
+	my $self = shift;
+	defined $self->{dir} or die;
+	"$self->{dir}/$self->{key}.tags";
+}#
+
 sub save_tags ($)
 {#
 	my $self = shift;
 	return unless $self->{dirty};
-	my $filename = "$self->{dir}/$self->{key}.tags";
+	my $filename = $self->tag_filename;
 	open F, '>', $filename  or die "$filename: $!";
 	print F "$_\n"  foreach sort keys %{$self->{tags}};
 	close F;

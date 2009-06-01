@@ -75,6 +75,14 @@ sub adjust_page_and_cursor ($)
 
 }#
 
+sub tag_mode ($)
+{#
+	my $self = shift;
+	$self->{tag_mode} = 1;
+	$self->{tag_cursor} = 0;
+	$self->{tags} = [ sort keys %{$self->{collection}->{tags}} ];
+}#
+
 sub tag_do ($)
 {#
 	my ($self, $command) = @_;
@@ -88,6 +96,15 @@ sub tag_do ($)
 		when (/^home$/)         { $self->{tag_cursor} = 0; }
 		when (/^end$/)          { $self->{tag_cursor} = $N - 1; }
 		when (/^quit$/)         { exit(0); }
+		when (/^e$/) {
+			$self->{cursor_pic}->save_tags;
+			my $filename = $self->{cursor_pic}->tag_filename;
+			system "\$EDITOR $filename";
+			$self->{cursor_pic}->add ($filename);
+			$self->{collection}->update_tags;
+			$self->tag_mode;
+			$self->display;
+		}
 		when (/^(page down|enter|return)$/) {
 			$self->{cursor_pic}->toggle_tag ($self->{tags}->[$self->{tag_cursor}]);
 		}
@@ -129,13 +146,8 @@ sub do ($)
 		when (/^delete$/)       { $self->{cursor_pic}->delete; }
 		when (/^p$/)            { say join "\n", keys %{$self->{cursor_pic}->{files}}; }
 		when (/^d$/)            { $self->{cursor_pic}->develop; }
-		when (/^t$/)            {
-			$self->{tag_mode} = 1;
-			$self->{tags} = [ sort keys %{$self->{collection}->{tags}} ];
-		}
-		default {
-			$self->{dirty} = 0;
-		}
+		when (/^t$/)            { $self->tag_mode; }
+		default                 { $self->{dirty} = 0; }
 	}
 
 	$self->adjust_page_and_cursor;

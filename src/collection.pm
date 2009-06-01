@@ -30,12 +30,7 @@ sub new
 
 	die "no pictures found in \"$args{basedir}\""  unless scalar keys %{$self->{pics}};
 
-	# global tag list
-	foreach my $pic (keys %{$self->{pics}}) {
-		foreach my $tag (keys %{$self->{pics}->{$pic}->{tags}}) {
-			$self->{tags}->{$tag}++;
-		}
-	}
+	$self->update_tags();
 
 	return $self;
 }#
@@ -58,6 +53,16 @@ sub add_file ($$)
 	}
 	else {
 		warn "strange filename ($file)";
+	}
+}#
+
+sub update_tags ($)
+{#
+	my $self = shift;
+	foreach my $pic (keys %{$self->{pics}}) {
+		foreach my $tag (keys %{$self->{pics}->{$pic}->{tags}}) {
+			$self->{tags}->{$tag}++;
+		}
 	}
 }#
 
