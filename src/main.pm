@@ -103,7 +103,7 @@ sub do ($)
 	}
 
 	$self->adjust_page_and_cursor;
-	$self->{cursor_pic} = $self->{pics}->{$self->{keys}->[$self->{cursor}]};
+	$self->{cursor_pic} = $self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
 
 	1;
 }#
@@ -162,9 +162,8 @@ sub main (@)
 	bless my $self = {};
 
 	# pictures
-	my $collection = collection::new;
-	$self->{pics} = $collection->{pics};
-	$self->{keys} = [ sort keys %{$self->{pics}} ];
+	$self->{collection} = collection::new;
+	$self->{keys} = [ sort keys %{$self->{collection}->{pics}} ];
 
 	# SDL window
 	my ($w, $h) = get_window_geometry;
@@ -186,7 +185,7 @@ sub main (@)
 
 	# navigation state
 	$self->{cursor} = $self->{page_first} = 0;
-	$self->{cursor_pic} = $self->{pics}->{$self->{keys}->[$self->{cursor}]};
+	$self->{cursor_pic} = $self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
 	$self->{rows} = $self->{cols} = 1;
 	$self->{zoom} = 1;
 

@@ -47,7 +47,7 @@ sub display_info ($)
 	my $self = shift;
 
 	my $key = $self->{keys}->[$self->{cursor}];
-	my $pic = $self->{pics}->{$key};
+	my $pic = $self->{collection}->{pics}->{$key};
 
 	$self->{text}->home;
 
@@ -83,7 +83,7 @@ sub display
 	$self->{app}->fill (0, $bg);
 
 	my $key = $self->{keys}->[$self->{page_first}];
-	my $pic = $self->{pics}->{$key};
+	my $pic = $self->{collection}->{pics}->{$key};
 
 	if ($self->{zoom} < -1)
 	{# thumbnails
@@ -97,7 +97,7 @@ sub display
 		THUMB: foreach my $y (0 .. $self->{rows}-1) {
 			foreach my $x (0 .. $self->{cols}-1) {
 				my $key = $self->{keys}->[$i];
-				my $pic = $self->{pics}->{$key};
+				my $pic = $self->{collection}->{pics}->{$key};
 				$self->display_pic ($pic, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
 				++$i;
 				last THUMB if $i >= scalar @{$self->{keys}};
