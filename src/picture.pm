@@ -76,8 +76,11 @@ sub add ($$)
 	my ($self, $path) = @_;
 	die 'duplicate file'  if exists $self->{files}->{$path};
 
-	$path =~ m{^.*/[^.]+\.([^/]+)} or die;
-	my $ext = $1;
+	$path =~ m{^(.*)/[^.]+\.([^/]+)} or die;
+	my ($dir, $ext) = ($1, $2);
+	die "same pic in different dir:\n$dir\nvs\n$self->{dir}\nfor\n$path\n"
+		if exists $self->{dir} and $self->{dir} ne $dir;
+	$self->{dir} //= $dir;
 
 	given ($ext) {
 		when (/^tags$/) {
@@ -143,6 +146,19 @@ sub toggle_tag ($$)
 	else {
 		$self->{tags}->{$tag} = 1;
 	}
+
+	$self->{dirty} = 1;
+}#
+
+sub save_tags ($)
+{#
+	my $self = shift;
+	return unless $self->{dirty};
+	my $filename = "$self->{dir}/$self->{key}.tags";
+	open F, '>', $filename  or die "$filename: $!";
+	print F "$_\n"  foreach sort keys %{$self->{tags}};
+	close F;
+	$self->{dirty} = 0;
 }#
 
 sub get_surface ($$)

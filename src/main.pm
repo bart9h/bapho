@@ -87,11 +87,13 @@ sub tag_do ($)
 		when (/^down$/)         { $self->{tag_cursor}++; }
 		when (/^home$/)         { $self->{tag_cursor} = 0; }
 		when (/^end$/)          { $self->{tag_cursor} = $N - 1; }
-		when (/^toggle info$/)  { $self->{tag_mode} = 0; }
-		when (/^t$/)            { $self->{tag_mode} = 0; }
 		when (/^quit$/)         { exit(0); }
 		when (/^(page down|enter|return)$/) {
 			$self->{cursor_pic}->toggle_tag ($self->{tags}->[$self->{tag_cursor}]);
+		}
+		when (/^(t|toggle info)$/) {
+			$self->{tag_mode} = 0;
+			$self->{cursor_pic}->save_tags;
 		}
 		default {
 			$self->{dirty} = 0;
