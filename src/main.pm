@@ -150,6 +150,10 @@ sub handle_event ($)
 		when ($_ == SDL_KEYDOWN()) {
 			$self->{dirty} = 1;
 			my %ev2cmd = (
+				k         => 'up',
+				j         => 'down',
+				h         => 'left',
+				l         => 'right',
 				q         => 'quit',
 				escape    => 'quit',
 				space     => 'page down',
