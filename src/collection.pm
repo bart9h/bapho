@@ -16,6 +16,7 @@ sub new
 
 	bless my $self = {
 		pics => {},
+		tags => {},
 	};
 
 	use File::Find;
@@ -28,6 +29,14 @@ sub new
 	);
 
 	die "no pictures found in \"$args{basedir}\""  unless scalar keys %{$self->{pics}};
+
+	# global tag list
+	foreach my $pic (keys %{$self->{pics}}) {
+		foreach my $tag (keys %{$self->{pics}->{$pic}->{tags}}) {
+			$self->{tags}->{$tag}++;
+		}
+	}
+
 	return $self;
 }#
 
