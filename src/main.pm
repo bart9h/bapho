@@ -196,22 +196,23 @@ sub handle_event ($)
 
 sub main (@)
 {#
+	args::read_args(@_);
 	if (-l $args{basedir}) {
 		$args{basedir} = readlink $args{basedir};
 	}
 
-	if (@_) {
-		my $dir = $_[0];
-		my $pwd = `pwd`;  chomp $pwd;
-		$dir =~ m{^/}  or $dir = $pwd."/$dir";
-
-		if (scalar @_ == 1 and $dir =~ $args{basedir}) {
+	if ($args{import}) {
+		die 'import what?'  unless exists $args{files};
+		use import;
+		import::import_files (@{$args{files}});
+	}
+	else {
+		if (exists $args{files}) {
+			die 'only one startdir supported'  if scalar @{$args{files}} != 1;
+			my $dir = $args{files}->[0];
+			my $pwd = `pwd`;  chomp $pwd;
+			$dir =~ m{^/}  or $dir = $pwd."/$dir";
 			$args{startdir} = $dir;
-		}
-		elsif (scalar @_ >= 1) {
-			use import;
-			import::import_files (@_);
-			return;
 		}
 	}
 
