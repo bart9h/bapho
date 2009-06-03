@@ -30,6 +30,13 @@ sub new
 
 	die "no pictures found in \"$args{basedir}\""  unless scalar keys %{$self->{pics}};
 
+	foreach (keys %{$self->{pics}}) {
+		if (not defined $self->{pics}->{$_}->{sel}) {
+			say "ignoring $_";
+			delete $self->{pics}->{$_};
+		}
+	}
+
 	$self->update_tags();
 
 	return $self;
