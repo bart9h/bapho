@@ -196,7 +196,9 @@ sub handle_event ($)
 
 sub main (@)
 {#
-	$args{basedir} = readlink $args{basedir};
+	if (-l $args{basedir}) {
+		$args{basedir} = readlink $args{basedir};
+	}
 
 	if (@_) {
 		my $dir = $_[0];
