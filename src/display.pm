@@ -65,6 +65,8 @@ sub display_info ($)
 	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
 	$str .= '  '.int($pic->{zoom}*100).'%';
 	$self->print (text => $str);
+	$self->print (text => $pic->{surface}->width().'x'.$pic->{surface}->height())
+		if $pic->{surface};
 
 	$self->print (
 		font => 1,
