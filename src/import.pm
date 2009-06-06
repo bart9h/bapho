@@ -42,8 +42,9 @@ sub exif2path ($)
 		$exif->{$date_key}
 		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
 	foreach ($year, $mon, $mday, $hour) {
-		if ($_ <= 0) {
+		if (not defined $_  or  $_ <= 0) {
 			warn "invalid exif date in \"$source_file\"\n";
+			warn Dumper $exif  if $args{verbose};
 			return undef;
 		}
 	}
@@ -59,8 +60,8 @@ sub import_file ($)
 	$source_file =~ m/$args{basedir}/
 		and die "importing file $source_file from inside basedir $args{basedir}";
 
-	my ($dir, $basename, $ext) = exif2path ($source_file)
-		or return undef;
+	my ($dir, $basename, $ext) = exif2path ($source_file);
+	defined $dir or return undef;
 
 	my $target_file;
 	foreach ('a' .. 'z', 0) {
