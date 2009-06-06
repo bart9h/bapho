@@ -79,11 +79,12 @@ sub import_file ($)
 	}
 
 	# move the file target_file it's new place/name
-	my $v = $args{quiet} ? '' : ' -v';
-	my $cmd =
-			(-d $dir ? '' : "mkdir -p$v \"$dir\" && ").
-			($args{mv} ? 'mv' : 'cp')."$v \"$source_file\" \"$target_file\"".
-			" && chmod 444 \"$target_file\"";
+	my $v = $args{quiet} ? '' : 'v';
+	my $cmd = join ' && ',(
+		-d $dir ? () : "mkdir -p$v \"$dir\"",
+		($args{mv} ? 'mv' : 'cp')." -i$v \"$source_file\" \"$target_file\"",
+		"chmod 444 \"$target_file\"",
+	);
 	if ($args{nop}) {
 		say $cmd;
 	}
