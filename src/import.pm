@@ -18,7 +18,7 @@ sub exif2path ($)
 
 	my ($ext) = $source_file =~ /\.([^.]+)$/;
 	unless (defined $ext) {
-		warn "no extension in \"$source_file\"";
+		warn "ignoring \"$source_file\": no extension.\n";
 		return undef;
 	}
 
@@ -34,13 +34,19 @@ sub exif2path ($)
 	}
 
 	unless (defined $date_key) {
-		warn "bad exif in \"$source_file\"".($args{verbose} ? ($exif->{Error} // Dumper $exif) : '');
+		warn "bad exif in \"$source_file\"".($args{verbose} ? ($exif->{Error} // Dumper $exif) : '')."\n";
 		return undef;
 	}
 
 	my ($year, $mon, $mday, $hour, $min, $sec) =
 		$exif->{$date_key}
 		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
+	foreach ($year, $mon, $mday, $hour) {
+		if ($_ <= 0) {
+			warn "invalid exif date in \"$source_file\"\n";
+			return undef;
+		}
+	}
 
 	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
 	my $basename = sprintf '%02d%02d%02d-%02d%02d%02d', $year, $mon, $mday, $hour, $min, $sec;
