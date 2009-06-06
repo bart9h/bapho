@@ -16,6 +16,7 @@ our %args = (
 		geometry => undef,
 		fullscreen => undef,
 		nop => undef,
+		import => undef,
 );
 
 sub read_args (@)

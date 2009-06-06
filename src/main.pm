@@ -197,6 +197,8 @@ sub handle_event ($)
 sub main (@)
 {#
 	args::read_args(@_);
+
+	# fix symlinked basedir
 	if (-l $args{basedir}) {
 		$args{basedir} = readlink $args{basedir};
 	}
@@ -204,7 +206,7 @@ sub main (@)
 	if ($args{import}) {
 		die 'import what?'  unless exists $args{files};
 		use import;
-		import::import_files (@{$args{files}});
+		exit (import::import_files(@{$args{files}}) ? 0 : 1);
 	}
 	else {
 		if (exists $args{files}) {
