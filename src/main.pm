@@ -183,8 +183,8 @@ sub handle_event ($)
 			$self->{dirty} = $self->do (
 				{
 					3 => 'toggle info',
-					4 => 'page up',
-					5 => 'page down',
+					4 => 'page down',
+					5 => 'page up',
 				}->{$event->button}
 			);
 		}
