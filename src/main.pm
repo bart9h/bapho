@@ -97,20 +97,20 @@ sub tag_do ($)
 		when (/^end$/)          { $self->{tag_cursor} = $N - 1; }
 		when (/^quit$/)         { exit(0); }
 		when (/^e$/) {
-			$self->{cursor_pic}->save_tags;
-			my $filename = $self->{cursor_pic}->tag_filename;
+			$self->pic->save_tags;
+			my $filename = $self->pic->tag_filename;
 			system "\$EDITOR $filename";
-			$self->{cursor_pic}->add ($filename);
+			$self->pic->add ($filename);
 			$self->{collection}->update_tags;
 			$self->tag_mode;
 			$self->display;
 		}
 		when (/^(page down|enter|return)$/) {
-			$self->{cursor_pic}->toggle_tag ($self->{tags}->[$self->{tag_cursor}]);
+			$self->pic->toggle_tag ($self->{tags}->[$self->{tag_cursor}]);
 		}
 		when (/^(t|toggle info)$/) {
 			$self->{tag_mode} = 0;
-			$self->{cursor_pic}->save_tags;
+			$self->pic->save_tags;
 		}
 		default {
 			$self->{dirty} = 0;
@@ -121,6 +121,12 @@ sub tag_do ($)
 	$self->{tag_cursor} = $N-1  if $self->{tag_cursor} >= $N;
 
 	1;
+}#
+
+sub pic ($)
+{#
+	my $self = shift;
+	$self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
 }#
 
 sub do ($)
@@ -143,15 +149,14 @@ sub do ($)
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1; }
 		when (/^quit$/)         { exit(0); }
-		when (/^delete$/)       { $self->{cursor_pic}->delete; }
-		when (/^p$/)            { say join "\n", keys %{$self->{cursor_pic}->{files}}; }
-		when (/^d$/)            { $self->{cursor_pic}->develop; }
+		when (/^delete$/)       { $self->pic->delete; }
+		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}}; }
+		when (/^d$/)            { $self->pic->develop; }
 		when (/^t$/)            { $self->tag_mode; }
 		default                 { $self->{dirty} = 0; }
 	}
 
 	$self->adjust_page_and_cursor;
-	$self->{cursor_pic} = $self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
 
 	1;
 }#
@@ -244,7 +249,6 @@ sub main (@)
 
 	# navigation state
 	$self->{cursor} = $self->{page_first} = 0;
-	$self->{cursor_pic} = $self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
 	$self->{rows} = $self->{cols} = 1;
 	$self->{zoom} = 1;
 
