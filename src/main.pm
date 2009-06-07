@@ -129,6 +129,25 @@ sub pic ($)
 	$self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
 }#
 
+sub seek_date ($$)
+{#
+	my ($self, $what) = @_;
+	my $cur = $self->pic;
+	my $last = (scalar @{$self->{keys}}) - 1;
+	given ($what) {
+		my $d = /[a-z]/ ? 1 : -1;
+		while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
+			$self->{cursor} += $d;
+			$self->{cursor} = 0      if $self->{cursor} > $last;
+			$self->{cursor} = $last  if $self->{cursor} < 0;
+
+			our $k = lc $what;
+			sub part($) { substr $_[0]->{key}, 0, {d=>8,m=>6,y=>4}->{$k}; }
+			last  if part($self->pic) ne part($cur);
+		}
+	}
+}#
+
 sub do ($)
 {#
 	my ($self, $command) = @_;
@@ -144,6 +163,7 @@ sub do ($)
 		when (/^page up$/)      { $self->{cursor} -= $self->{rows}*$self->{cols}; }
 		when (/^home$/)         { $self->{cursor} = 0; }
 		when (/^end$/)          { $self->{cursor} = scalar @{$self->{keys}} - 1; }
+		when (/^[dmy]$/i)       { $self->seek_date($_); }
 		when (/^toggle info$/)  { $self->{display_info} = !$self->{display_info}; }
 		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  1 if $self->{zoom} == -1; }
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
@@ -164,6 +184,7 @@ sub do ($)
 sub handle_event ($)
 {#
 	my ($self, $event) = @_;
+	state $shift = 0;
 
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
@@ -182,7 +203,13 @@ sub handle_event ($)
 				'='       => 'zoom in',
 			);
 
-			$self->do ($ev2cmd{$event->key_name} // $event->key_name);
+			my $key = $event->key_name;
+			$shift = 1  if $key =~ m{^(left|right)\ shift$};
+			$key = uc $key  if $shift;
+			$self->do ($ev2cmd{$key} // $key);
+		}
+		when ($_ == SDL_KEYUP()) {
+			$shift = 0  if $event->key_name =~ m{^(left|right)\ shift$};
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
 			$self->{dirty} = $self->do (
