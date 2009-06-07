@@ -66,8 +66,13 @@ sub new ($)
 		files => {},
 		tags => {},
 		loaded => 0,
-		sel => undef,
-		surface => undef,
+		dir => undef,             # dir where files are
+		dirty => 0,               # has to save tags
+		sel => undef,             # which file was choosen to display
+		surface => undef,         # loaded SDL_Surface
+		res => undef,             # dimentions of the loaded surface
+		zoomed_surface => undef,  # surface scaled to display size
+		zoom => undef,            # zoom factor of the zoomed_surface
 	};
 }#
 
@@ -79,7 +84,7 @@ sub add ($$)
 	$path =~ m{^(.*)/[^.]+\.([^/]+)} or die;
 	my ($dir, $ext) = ($1, $2);
 	die "$path\nalso exists in\n$self->{dir}\n"
-		if exists $self->{dir} and $self->{dir} ne $dir;
+		if defined $self->{dir} and $self->{dir} ne $dir;
 	$self->{dir} //= $dir;
 
 	given ($ext) {
@@ -186,11 +191,11 @@ sub get_surface ($$)
 		my $zoom_y = $height/$self->{surface}->height;
 		$self->{zoom} = (sort $zoom_x, $zoom_y)[0];
 
-		return $self->{zoomed} = zoom ($self->{surface}, $self->{zoom});
+		return $self->{zoomed_surface} = zoom ($self->{surface}, $self->{zoom});
 	}
 	else {
-		die unless defined $self->{zoomed};
-		return $self->{zoomed};
+		die unless defined $self->{zoomed_surface};
+		return $self->{zoomed_surface};
 	}
 }#
 
