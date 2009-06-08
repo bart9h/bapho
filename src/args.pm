@@ -25,6 +25,15 @@ sub read_args (@)
 	my $process_args = 1;
 	foreach (@_) {
 		if ($process_args) {
+
+			if (my $alias = {
+					'-f' => '--fullscreen',
+					'-v' => '--verbose',
+				}->{$_})
+			{
+				$_ = $alias;
+			}
+
 			if (/^--$/) {
 				$process_args = 0;
 				next;
