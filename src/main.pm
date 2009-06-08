@@ -93,7 +93,7 @@ sub tag_do ($)
 		when (/^down$/)         { $self->{tag_cursor}++ }
 		when (/^home$/)         { $self->{tag_cursor} = 0 }
 		when (/^end$/)          { $self->{tag_cursor} = $N - 1 }
-		when (/^quit$/)         { exit(0) }
+		when (/^quit$/)         { $self->quit }
 		when (/^e$/) {
 			$self->pic->save_tags;
 			my $filename = $self->pic->tag_filename;
@@ -166,7 +166,7 @@ sub do ($)
 		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  1 if $self->{zoom} == -1; }
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1 }
-		when (/^quit$/)         { exit(0) }
+		when (/^quit$/)         { $self->quit }
 		when (/^d$/)            { $self->pic->develop }
 		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}} }
 		when (/^t$/)            { $self->enter_tag_mode }
@@ -222,9 +222,19 @@ sub handle_event ($)
 			);
 		}
 		when ($_ == SDL_QUIT()) {
-			exit (0);
+			$self->quit;
 		}
 	}
+}#
+
+sub quit ($)
+{#
+	my $self = shift;
+	my $P = $self->{collection}->{pics};
+	foreach (keys %{$P}) {
+		$P->{$_}->save_tags;
+	}
+	exit(0);
 }#
 
 sub main (@)
