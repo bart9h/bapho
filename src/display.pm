@@ -58,11 +58,12 @@ sub display_info ($)
 	$self->print (
 		font=>0, text=>$id,
 		font=>1, text=>".$s",
+		$pic->{tags}->{_star} ? (font=>0, text=>'  (*)') : (),
 	);
 
 	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{ids}};
 	$str .= '  '.int($pic->{zoom}*100).'%';
-	$self->print (text=>$str);
+	$self->print (font=>1, text=>$str);
 	$self->print (text=>$pic->{surface}->width().'x'.$pic->{surface}->height())
 		if $pic->{surface};
 
@@ -71,7 +72,7 @@ sub display_info ($)
 		text => 'tags:',
 	);
 	$self->print (text => $_)
-		foreach map { ' '.$_ } sort keys %{$pic->{tags}};
+		foreach map { ' '.$_ } $pic->tags;
 }#
 
 sub display_tags ($)

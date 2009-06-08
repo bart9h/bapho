@@ -169,6 +169,7 @@ sub do ($)
 		when (/^quit$/)         { $self->quit }
 		when (/^d$/)            { $self->pic->develop }
 		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}} }
+		when (/^s$/)            { $self->pic->toggle_tag('_star') }
 		when (/^t$/)            { $self->enter_tag_mode }
 		when (/^delete$/)       {
 			$self->{collection}->delete ($self->pic);

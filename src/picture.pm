@@ -177,6 +177,12 @@ sub save_tags ($)
 	}
 }#
 
+sub tags ($)
+{#
+	my $self = shift;
+	grep {!/^_/} sort keys %{$self->{tags}};
+}#
+
 sub get_surface ($$)
 {#
 	my ($self, $width, $height) = @_;

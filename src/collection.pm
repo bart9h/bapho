@@ -69,7 +69,7 @@ sub update_tags ($)
 {#
 	my $self = shift;
 	foreach my $pic (keys %{$self->{pics}}) {
-		foreach my $tag (keys %{$self->{pics}->{$pic}->{tags}}) {
+		foreach my $tag ($self->{pics}->{$pic}->tags) {
 			$self->{tags}->{$tag}++;
 		}
 	}
