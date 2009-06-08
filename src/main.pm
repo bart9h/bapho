@@ -167,10 +167,13 @@ sub do ($)
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1 }
 		when (/^quit$/)         { exit(0) }
-		when (/^delete$/)       { $self->pic->delete }
 		when (/^d$/)            { $self->pic->develop }
 		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}} }
 		when (/^t$/)            { $self->enter_tag_mode }
+		when (/^delete$/)       {
+			$self->{collection}->delete ($self->pic);
+			$self->{ids} = [ sort keys %{$self->{collection}->{pics}} ];
+		}
 		default                 { $self->{dirty} = 0 }
 	}
 

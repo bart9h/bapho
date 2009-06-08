@@ -75,5 +75,13 @@ sub update_tags ($)
 	}
 }#
 
+sub delete ($$)
+{#
+	my ($self, $pic) = @_;
+	$pic->delete;
+	delete $self->{pics}->{$pic->{id}};
+	$self->update_tags;
+}#
+
 1;
 # vim600:fdm=marker:fmr={#,}#:
