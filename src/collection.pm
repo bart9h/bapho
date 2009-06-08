@@ -47,7 +47,8 @@ sub add_file ($$)
 	my ($self, $file) = @_;
 
 	return if -d $file;
-	return if $file =~ m{/\.qiv-(select|trash)/}i;
+	return if $file =~ m{/\.([^/]*-)?trash/}i;
+	return if $file =~ m{/\.qiv-select/}i;
 
 	if ($file =~ m|^
 		$args{basedir}
