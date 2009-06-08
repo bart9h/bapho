@@ -62,7 +62,7 @@ sub zoom ($$)
 sub new ($)
 {#
 	bless {
-		key => $_[0],
+		id => $_[0],
 		files => {},
 		tags => {},
 		loaded => 0,
@@ -160,18 +160,21 @@ sub tag_filename ($)
 {#
 	my $self = shift;
 	defined $self->{dir} or die;
-	"$self->{dir}/$self->{key}.tags";
+	"$self->{dir}/$self->{id}.tags";
 }#
 
 sub save_tags ($)
 {#
 	my $self = shift;
-	return unless $self->{dirty};
-	my $filename = $self->tag_filename;
-	open F, '>', $filename  or die "$filename: $!";
-	print F "$_\n"  foreach sort keys %{$self->{tags}};
-	close F;
-	$self->{dirty} = 0;
+
+	if ($self->{dirty}) {
+		my $filename = $self->tag_filename;
+		open F, '>', $filename  or die "$filename: $!";
+		say "saving $filename"  if $args{verbose};
+		print F "$_\n"  foreach sort keys %{$self->{tags}};
+		close F;
+		$self->{dirty} = 0;
+	}
 }#
 
 sub get_surface ($$)
@@ -207,13 +210,18 @@ sub develop ($)
 	$file =~ s/\.[^.]+$/\.ufraw/;
 	-e $file or $file = $self->{sel};
 
+	my $cmd;
 	given ($file) {
 		when (/\.(cr2|ufraw)$/i) {
-			system "ufraw $file &";
+			$cmd = "ufraw";
 		}
 		default {
-			system "gimp $file &";
+			$cmd = "gimp";
 		}
+	}
+	if (defined $cmd) {
+		say $cmd if $args{verbose};
+		system "$cmd $file &";
 	}
 }#
 

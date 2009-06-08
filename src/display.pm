@@ -46,8 +46,8 @@ sub display_info ($)
 {#
 	my $self = shift;
 
-	my $key = $self->{keys}->[$self->{cursor}];
-	my $pic = $self->{collection}->{pics}->{$key};
+	my $id = $self->{ids}->[$self->{cursor}];
+	my $pic = $self->{collection}->{pics}->{$id};
 
 	$self->{text}->home;
 
@@ -56,16 +56,14 @@ sub display_info ($)
 	$s =~ s{^.*/[^.]+\.(.*)$}{$1};
 
 	$self->print (
-		font => 0,
-		text => $key,
-		font => 1,
-		text => ".$s",
+		font=>0, text=>$id,
+		font=>1, text=>".$s",
 	);
 
-	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{keys}};
+	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{ids}};
 	$str .= '  '.int($pic->{zoom}*100).'%';
-	$self->print (text => $str);
-	$self->print (text => $pic->{surface}->width().'x'.$pic->{surface}->height())
+	$self->print (text=>$str);
+	$self->print (text=>$pic->{surface}->width().'x'.$pic->{surface}->height())
 		if $pic->{surface};
 
 	$self->print (
@@ -80,8 +78,8 @@ sub display_tags ($)
 {#
 	my $self = shift;
 
-	my $key = $self->{keys}->[$self->{cursor}];
-	my $pic = $self->{collection}->{pics}->{$key};
+	my $id = $self->{ids}->[$self->{cursor}];
+	my $pic = $self->{collection}->{pics}->{$id};
 
 	$self->{text}->home;
 
@@ -91,7 +89,7 @@ sub display_tags ($)
 
 	$self->print (
 		font => 0,
-		text => "EDIT TAGS for $key:",
+		text => "EDIT TAGS for $id:",
 	);
 
 	my $i = 0;
@@ -111,8 +109,8 @@ sub display
 	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
 	$self->{app}->fill (0, $bg);
 
-	my $key = $self->{keys}->[$self->{page_first}];
-	my $pic = $self->{collection}->{pics}->{$key};
+	my $id = $self->{ids}->[$self->{page_first}];
+	my $pic = $self->{collection}->{pics}->{$id};
 
 	if ($self->{zoom} < -1)
 	{# thumbnails
@@ -125,11 +123,11 @@ sub display
 		my $i = $self->{page_first};
 		THUMB: foreach my $y (0 .. $self->{rows}-1) {
 			foreach my $x (0 .. $self->{cols}-1) {
-				my $key = $self->{keys}->[$i];
-				my $pic = $self->{collection}->{pics}->{$key};
+				my $id = $self->{ids}->[$i];
+				my $pic = $self->{collection}->{pics}->{$id};
 				$self->display_pic ($pic, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
 				++$i;
-				last THUMB if $i >= scalar @{$self->{keys}};
+				last THUMB if $i >= scalar @{$self->{ids}};
 			}
 		}
 	}#

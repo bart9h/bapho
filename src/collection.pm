@@ -23,7 +23,7 @@ sub new
 	find ( {
 			no_chdir => 1,
 			follow => 1,
-			wanted => sub { $self->add_file ($_); },
+			wanted => sub { $self->add_file ($_) },
 		},
 		($args{startdir} // $args{basedir}).'/'
 	);
@@ -53,11 +53,11 @@ sub add_file ($$)
 	if ($file =~ m|^
 		$args{basedir}
 		(.*/)?
-		(?<key>[^.]+)\.
+		(?<id>[^.]+)\.
 		(?<rest>.*)
 		$|x)
 	{
-		my $pic = $self->{pics}{$+{key}} //= picture::new ($+{key});
+		my $pic = $self->{pics}{$+{id}} //= picture::new ($+{id});
 		$pic->add ($file);
 	}
 	else {

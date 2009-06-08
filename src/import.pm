@@ -56,6 +56,8 @@ sub exif2path ($)
 
 sub import_file ($)
 {#
+	#FIXME: $args{quiet}
+
 	my $source_file = shift;
 	$source_file =~ m/$args{basedir}/
 		and die "importing file $source_file from inside basedir $args{basedir}";

@@ -31,8 +31,6 @@ sub get_window_geometry
 			}#
 		}
 	}
-	else {
-	}
 
 	($w, $h);
 }#
@@ -43,7 +41,7 @@ sub adjust_page_and_cursor ($)
 {#
 	my ($self) = @_;
 
-	my $last = (scalar @{$self->{keys}}) - 1;
+	my $last = (scalar @{$self->{ids}}) - 1;
 	my $page_size = $self->{rows}*$self->{cols};
 
 	if ($self->{cursor} < 0) {
@@ -54,7 +52,7 @@ sub adjust_page_and_cursor ($)
 		$self->{cursor} = $self->{page_first} = 0;
 	}
 	elsif ($page_size > 1) {
-		if (scalar @{$self->{keys}} > $page_size) {
+		if (scalar @{$self->{ids}} > $page_size) {
 			$self->{page_first} += $page_size
 				while $self->{cursor}-$self->{page_first} >= $page_size;
 
@@ -64,7 +62,7 @@ sub adjust_page_and_cursor ($)
 			$self->{page_first} = 0
 				if $self->{page_first} < 0;
 
-			my $last_page = (scalar @{$self->{keys}}) - $page_size;
+			my $last_page = (scalar @{$self->{ids}}) - $page_size;
 			$self->{page_first} = $last_page
 				if $self->{page_first} > $last_page;
 		}
@@ -75,7 +73,7 @@ sub adjust_page_and_cursor ($)
 
 }#
 
-sub tag_mode ($)
+sub enter_tag_mode ($)
 {#
 	my $self = shift;
 	$self->{tag_mode} = 1;
@@ -91,18 +89,18 @@ sub tag_do ($)
 	my $N = scalar @{$self->{tags}};
 
 	given ($command) {
-		when (/^up$/)           { $self->{tag_cursor}--; }
-		when (/^down$/)         { $self->{tag_cursor}++; }
-		when (/^home$/)         { $self->{tag_cursor} = 0; }
-		when (/^end$/)          { $self->{tag_cursor} = $N - 1; }
-		when (/^quit$/)         { exit(0); }
+		when (/^up$/)           { $self->{tag_cursor}-- }
+		when (/^down$/)         { $self->{tag_cursor}++ }
+		when (/^home$/)         { $self->{tag_cursor} = 0 }
+		when (/^end$/)          { $self->{tag_cursor} = $N - 1 }
+		when (/^quit$/)         { exit(0) }
 		when (/^e$/) {
 			$self->pic->save_tags;
 			my $filename = $self->pic->tag_filename;
 			system "\$EDITOR $filename";
 			$self->pic->add ($filename);
 			$self->{collection}->update_tags;
-			$self->tag_mode;
+			$self->enter_tag_mode;
 			$self->display;
 		}
 		when (/^(page down|enter|return)$/) {
@@ -126,23 +124,23 @@ sub tag_do ($)
 sub pic ($)
 {#
 	my $self = shift;
-	$self->{collection}->{pics}->{$self->{keys}->[$self->{cursor}]};
+	$self->{collection}->{pics}->{$self->{ids}->[$self->{cursor}]};
 }#
 
 sub seek_date ($$)
 {#
-	my ($self, $what) = @_;
+	my ($self, $key) = @_;
 	my $cur = $self->pic;
-	my $last = (scalar @{$self->{keys}}) - 1;
-	given ($what) {
+	my $last = (scalar @{$self->{ids}}) - 1;
+	given ($key) {
 		my $d = /[a-z]/ ? 1 : -1;
 		while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
 			$self->{cursor} += $d;
 			$self->{cursor} = 0      if $self->{cursor} > $last;
 			$self->{cursor} = $last  if $self->{cursor} < 0;
 
-			our $k = lc $what;
-			sub part($) { substr $_[0]->{key}, 0, {d=>8,m=>6,y=>4}->{$k}; }
+			our $k = lc $key;
+			sub part($) { substr $_[0]->{id}, 0, {d=>8,m=>6,y=>4}->{$k} }
 			last  if part($self->pic) ne part($cur);
 		}
 	}
@@ -155,25 +153,25 @@ sub do ($)
 	return unless defined $command;
 
 	given ($command) {
-		when (/^right$/)        { $self->{cursor}++; }
-		when (/^left$/)         { $self->{cursor}--; }
-		when (/^up$/)           { $self->{cursor} -= $self->{cols}; }
-		when (/^down$/)         { $self->{cursor} += $self->{cols}; }
-		when (/^page down$/)    { $self->{cursor} += $self->{rows}*$self->{cols}; }
-		when (/^page up$/)      { $self->{cursor} -= $self->{rows}*$self->{cols}; }
-		when (/^home$/)         { $self->{cursor} = 0; }
-		when (/^end$/)          { $self->{cursor} = scalar @{$self->{keys}} - 1; }
-		when (/^[dmy]$/i)       { $self->seek_date($_); }
-		when (/^toggle info$/)  { $self->{display_info} = !$self->{display_info}; }
+		when (/^right$/)        { $self->{cursor}++ }
+		when (/^left$/)         { $self->{cursor}-- }
+		when (/^up$/)           { $self->{cursor} -= $self->{cols} }
+		when (/^down$/)         { $self->{cursor} += $self->{cols} }
+		when (/^page down$/)    { $self->{cursor} += $self->{rows}*$self->{cols} }
+		when (/^page up$/)      { $self->{cursor} -= $self->{rows}*$self->{cols} }
+		when (/^home$/)         { $self->{cursor} = 0 }
+		when (/^end$/)          { $self->{cursor} = scalar @{$self->{ids}} - 1 }
+		when (/^[dmy]$/i)       { $self->seek_date($_) }
+		when (/^toggle info$/)  { $self->{display_info} = !$self->{display_info} }
 		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  1 if $self->{zoom} == -1; }
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
-		when (/^zoom reset$/)   { $self->{zoom} = 1; }
-		when (/^quit$/)         { exit(0); }
-		when (/^delete$/)       { $self->pic->delete; }
-		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}}; }
-		when (/^d$/)            { $self->pic->develop; }
-		when (/^t$/)            { $self->tag_mode; }
-		default                 { $self->{dirty} = 0; }
+		when (/^zoom reset$/)   { $self->{zoom} = 1 }
+		when (/^quit$/)         { exit(0) }
+		when (/^delete$/)       { $self->pic->delete }
+		when (/^d$/)            { $self->pic->develop }
+		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}} }
+		when (/^t$/)            { $self->enter_tag_mode }
+		default                 { $self->{dirty} = 0 }
 	}
 
 	$self->adjust_page_and_cursor;
@@ -254,7 +252,7 @@ sub main (@)
 
 	# pictures
 	$self->{collection} = collection::new;
-	$self->{keys} = [ sort keys %{$self->{collection}->{pics}} ];
+	$self->{ids} = [ sort keys %{$self->{collection}->{pics}} ];
 
 	# SDL window
 	my ($w, $h) = get_window_geometry;
