@@ -46,57 +46,48 @@ sub display_info ($)
 {#
 	my $self = shift;
 
-	my $id = $self->{ids}->[$self->{cursor}];
-	my $pic = $self->{collection}->{pics}->{$id};
-
 	$self->{text}->home;
 
 	#FIXME
-	my $s = $pic->{sel};
+	my $s = $self->pic->{sel};
 	$s =~ s{^.*/[^.]+\.(.*)$}{$1};
 
 	$self->print (
-		font=>0, text=>$id,
+		font=>0, text=>$self->pic->{id},
 		font=>1, text=>".$s",
-		$pic->{tags}->{_star} ? (font=>0, text=>'  (*)') : (),
+		$self->pic->{tags}->{_star} ? (font=>0, text=>'  (*)') : (),
 	);
 
 	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{ids}};
-	$str .= '  '.int($pic->{zoom}*100).'%';
+	$str .= '  '.int($self->pic->{zoom}*100).'%';
 	$self->print (font=>1, text=>$str);
-	$self->print (text=>$pic->{surface}->width().'x'.$pic->{surface}->height())
-		if $pic->{surface};
+	if (my $surf = $self->pic->{surface}) {
+		$self->print (text=>$surf->width().'x'.$surf->height());
+	}
 
 	$self->print (
 		font => 1,
 		text => 'tags:',
 	);
 	$self->print (text => $_)
-		foreach map { ' '.$_ } $pic->tags;
+		foreach map { ' '.$_ } $self->pic->tags;
 }#
 
-sub display_tags ($)
+sub display_tag_editor ($)
 {#
 	my $self = shift;
 
-	my $id = $self->{ids}->[$self->{cursor}];
-	my $pic = $self->{collection}->{pics}->{$id};
-
 	$self->{text}->home;
-
-	#FIXME
-	my $s = $pic->{sel};
-	$s =~ s{^.*/[^.]+\.(.*)$}{$1};
 
 	$self->print (
 		font => 0,
-		text => "EDIT TAGS for $id:",
+		text => 'EDIT TAGS for '.$self->pic->{id}.':',
 	);
 
 	my $i = 0;
-	foreach (@{$self->{tags}}) {
+	foreach (sort keys %{$self->{collection}->{tags}}) {
 		my @s = split //, $i==$self->{tag_cursor}  ?  '[]' : '  ';  # cursor
-		my $t = exists $self->{cursor_pic}->{tags}->{$_}  ?  '*' : ' ';  # tag
+		my $t = exists $self->pic->{tags}->{$_}  ?  '*' : ' ';  # tag
 		$self->print (text => $s[0].$t.$_.$t.$s[1]);
 		++$i;
 	}
@@ -109,9 +100,6 @@ sub display
 
 	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
 	$self->{app}->fill (0, $bg);
-
-	my $id = $self->{ids}->[$self->{page_first}];
-	my $pic = $self->{collection}->{pics}->{$id};
 
 	if ($self->{zoom} < -1)
 	{# thumbnails
@@ -134,11 +122,11 @@ sub display
 	}#
 	else {
 		$self->{rows} = $self->{cols} = 1;
-		$self->display_pic ($pic, $W, $H, 0, 0);
+		$self->display_pic ($self->pic, $W, $H, 0, 0);
 	}
 
 	if ($self->{tag_mode}) {
-		$self->display_tags;
+		$self->display_tag_editor;
 	}
 	elsif ($self->{display_info}) {
 		$self->display_info;
