@@ -86,7 +86,7 @@ sub display_tag_editor ($)
 
 	my $i = 0;
 	foreach (sort keys %{$self->{collection}->{tags}}) {
-		my @s = split //, $i==$self->{tag_cursor}  ?  '[]' : '  ';  # cursor
+		my @s = split //, $i==$self->{menu}->{cursor}  ?  '[]' : '  ';  # cursor
 		my $t = exists $self->pic->{tags}->{$_}  ?  '*' : ' ';  # tag
 		$self->print (text => $s[0].$t.$_.$t.$s[1]);
 		++$i;
@@ -125,7 +125,7 @@ sub display
 		$self->display_pic ($self->pic, $W, $H, 0, 0);
 	}
 
-	if ($self->{tag_mode}) {
+	if ($self->{menu}->{action} eq 'tag_editor') {
 		$self->display_tag_editor;
 	}
 	elsif ($self->{display_info}) {

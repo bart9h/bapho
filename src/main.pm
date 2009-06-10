@@ -5,6 +5,7 @@ use 5.010;
 use args qw/%args/;
 use display;
 use collection;
+use menu;
 use picture;
 use text;
 
@@ -76,49 +77,7 @@ sub adjust_page_and_cursor ($)
 sub enter_tag_mode ($)
 {#
 	my $self = shift;
-	$self->{tag_mode} = 1;
-	$self->{tag_cursor} = 0;
-	$self->{tags} = [ sort keys %{$self->{collection}->{tags}} ];
-}#
-
-sub tag_do ($)
-{#
-	my ($self, $command) = @_;
-	return unless defined $command;
-
-	my $N = scalar @{$self->{tags}};
-
-	given ($command) {
-		when (/^up$/)           { $self->{tag_cursor}-- }
-		when (/^down$/)         { $self->{tag_cursor}++ }
-		when (/^home$/)         { $self->{tag_cursor} = 0 }
-		when (/^end$/)          { $self->{tag_cursor} = $N - 1 }
-		when (/^quit$/)         { $self->quit }
-		when (/^e$/) {
-			$self->pic->save_tags;
-			my $filename = $self->pic->tag_filename;
-			system "\$EDITOR $filename";
-			$self->pic->add ($filename);
-			$self->{collection}->update_tags;
-			$self->enter_tag_mode;
-			$self->display;
-		}
-		when (/^(page down|enter|return)$/) {
-			$self->pic->toggle_tag ($self->{tags}->[$self->{tag_cursor}]);
-		}
-		when (/^(t|toggle info)$/) {
-			$self->{tag_mode} = 0;
-			$self->pic->save_tags;
-		}
-		default {
-			$self->{dirty} = 0;
-		}
-	}
-
-	$self->{tag_cursor} = 0     if $self->{tag_cursor} <  0;
-	$self->{tag_cursor} = $N-1  if $self->{tag_cursor} >= $N;
-
-	1;
+	$self->{menu}->enter ('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
 }#
 
 sub pic ($)
@@ -146,11 +105,46 @@ sub seek_date ($$)
 	}
 }#
 
+sub do_menu ($$)
+{#
+	my ($self, $command) = @_;
+	return 0 unless $self->{menu}->{active};
+
+	my $rc = $self->{menu}->do ($command);
+	given ($self->{menu}->{action}) {
+		when (/^tag_editor$/) {
+			if ($rc) {
+				my $tag = $self->{menu}->{selected};
+				$self->pic->toggle_tag ($tag)  if defined $tag;
+			}
+			else {
+				given ($command) {
+					when (/^(t|toggle info)$/) {
+						$self->{menu}->leave;
+						$self->pic->save_tags;
+					}
+					when (/^e$/) {
+						$self->pic->save_tags;
+						my $filename = $self->pic->tag_filename;
+						system "\$EDITOR $filename";
+						$self->pic->add ($filename);
+						$self->{collection}->update_tags;
+						$self->enter_tag_mode;
+						$self->display;
+					}
+				}
+			}
+		}
+	}
+
+	return 1;
+}#
+
 sub do ($)
 {#
 	my ($self, $command) = @_;
-	return $self->tag_do($command)  if $self->{tag_mode};
 	return unless defined $command;
+	return if $self->do_menu ($command);
 
 	given ($command) {
 		when (/^right$/)        { $self->{cursor}++ }
@@ -262,38 +256,41 @@ sub main (@)
 		}
 	}
 
-	bless my $self = {};
+	my ($w, $h) = get_window_geometry;
+	bless my $self = {
 
-	# pictures
-	$self->{collection} = collection::new;
+		# data
+		collection => collection::new(),
+
+		# navigation state
+		cursor     => 0,
+		page_first => 0,
+		rows       => 1,
+		cols       => 1,
+		zoom       => 1,
+		menu       => menu::new(),
+
+		# rendering state
+		display_info => 0,
+		text => text::new (
+			'Bitstream Vera Sans Mono:24',
+			':20',
+		),
+
+		# SDL window
+		app => SDL::App->new (
+			-title => 'bapho',
+			-width => $w,
+			-height => $h,
+			($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
+		),
+
+	};
+
+	# sorted array of (the ids of) all pictures
 	$self->{ids} = [ sort keys %{$self->{collection}->{pics}} ];
 
-	# SDL window
-	my ($w, $h) = get_window_geometry;
-	$self->{app} = SDL::App->new (
-		-title => 'bapho',
-		-width => $w,
-		-height => $h,
-		($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
-	);
-
 	SDL::ShowCursor(0);
-
-	# rendering state
-	$self->{display_info} = 0;
-	$self->{text} = text::new (
-		'Bitstream Vera Sans Mono:24',
-		':20',
-	);
-
-	# navigation state
-	$self->{cursor} = $self->{page_first} = 0;
-	$self->{rows} = $self->{cols} = 1;
-	$self->{zoom} = 1;
-
-	# tag editor state
-	$self->{tag_mode} = 0;
-	$self->{tag_cursor} = 0;
 
 	# prepare to enter main loop
 	use SDL::Event;
