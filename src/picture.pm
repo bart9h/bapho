@@ -62,17 +62,17 @@ sub zoom ($$)
 sub new ($)
 {#
 	bless {
-		id => $_[0],
-		files => {},
-		tags => {},
-		loaded => 0,
-		dir => undef,             # dir where files are
-		dirty => 0,               # has to save tags
-		sel => undef,             # which file was choosen to display
-		surface => undef,         # loaded SDL_Surface
-		res => undef,             # dimentions of the loaded surface
+		id             => $_[0],
+		files          => {},
+		tags           => {},
+		loaded         => 0,
+		dir            => undef,  # dir where files are
+		dirty          => 0,      # has to save tags?
+		sel            => undef,  # which file was choosen to display
+		surface        => undef,  # loaded SDL_Surface
+		res            => undef,  # dimentions of the loaded surface
 		zoomed_surface => undef,  # surface scaled to display size
-		zoom => undef,            # zoom factor of the zoomed_surface
+		zoom           => undef,  # zoom factor of the zoomed_surface
 	};
 }#
 
@@ -168,11 +168,13 @@ sub save_tags ($)
 	my $self = shift;
 
 	if ($self->{dirty}) {
-		my $filename = $self->tag_filename;
-		open F, '>', $filename  or die "$filename: $!";
-		say "saving $filename"  if $args{verbose};
-		print F "$_\n"  foreach sort keys %{$self->{tags}};
-		close F;
+		unless ($args{nop}) {
+			my $filename = $self->tag_filename;
+			open F, '>', $filename  or die "$filename: $!";
+			say "saving $filename"  if $args{verbose};
+			print F "$_\n"  foreach sort keys %{$self->{tags}};
+			close F;
+		}
 		$self->{dirty} = 0;
 	}
 }#
@@ -183,9 +185,10 @@ sub tags ($)
 	grep {!/^_/} sort keys %{$self->{tags}};
 }#
 
-sub get_surface ($$)
+sub get_surface ($$$)
 {#
 	my ($self, $width, $height) = @_;
+	die unless $self->{sel};
 
 	unless ($self->{loaded}) {
 		$self->{loaded} = time;
@@ -234,6 +237,7 @@ sub develop ($)
 sub delete ($)
 {#
 	my $self = shift;
+	return if $args{nop};
 
 	$self->{sel} =~ m{^(.*?)/([^/]+)\.[^.]+$}
 		or die "strange filename ($self->{sel})";
