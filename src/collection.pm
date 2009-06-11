@@ -83,5 +83,11 @@ sub delete ($$)
 	$self->update_tags;
 }#
 
+sub get_surface ($$$$)
+{#
+	my ($self, $id, $width, $height) = @_;
+	return $self->{pics}->{$id}->get_surface ($width, $height);
+}#
+
 1;
 # vim600:fdm=marker:fmr={#,}#:

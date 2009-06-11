@@ -6,9 +6,10 @@ use 5.010;
 
 sub display_pic ($$$$$;$)
 {#
-	my ($self, $pic, $w, $h, $x, $y, $is_selected) = @_;
+	my ($self, $pic_idx, $w, $h, $x, $y, $is_selected) = @_;
 
-	my $surf = $pic->get_surface ($w, $h);
+	my $id = $self->{ids}->[$pic_idx];
+	my $surf = $self->{collection}->get_surface ($id, $w, $h);
 
 	my $dest = SDL::Rect->new (
 		-x => $x + ($w - $surf->width)/2,
@@ -112,9 +113,7 @@ sub display
 		my $i = $self->{page_first};
 		THUMB: foreach my $y (0 .. $self->{rows}-1) {
 			foreach my $x (0 .. $self->{cols}-1) {
-				my $id = $self->{ids}->[$i];
-				my $pic = $self->{collection}->{pics}->{$id};
-				$self->display_pic ($pic, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
+				$self->display_pic ($i, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
 				++$i;
 				last THUMB if $i >= scalar @{$self->{ids}};
 			}
@@ -122,7 +121,7 @@ sub display
 	}#
 	else {
 		$self->{rows} = $self->{cols} = 1;
-		$self->display_pic ($self->pic, $W, $H, 0, 0);
+		$self->display_pic ($self->{cursor}, $W, $H, 0, 0);
 	}
 
 	if ($self->{menu}->{action} eq 'tag_editor') {
