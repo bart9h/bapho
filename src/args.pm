@@ -45,7 +45,7 @@ sub read_args (@)
 				say 'arguments and their defaults:';
 				foreach (sort keys %args) {
 					my $val = $args{$_};
-					s/_/-/;
+					s/_/-/g;
 					say '--'.$_.(defined $val ? "=$val" : '');
 				}
 				exit 0;
