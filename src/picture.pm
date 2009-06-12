@@ -32,33 +32,6 @@ sub extval ($)
 		-1
 }#
 
-sub get_dummy_surface
-{#
-	state $surf;
-
-	unless ($surf) {
-		say ':(';
-		$surf = SDL::Surface->new (-width => 256, -height => 256);
-		$surf->fill (
-			SDL::Rect->new (-width => 128, -height => 128, -x => 64, -y => 64),
-			SDL::Color->new (-r => 200, -g => 0, -b => 0),
-		);
-	}
-
-	return $surf;
-}#
-
-sub zoom ($$)
-{#
-	my ($surface, $zoom) = @_;
-	die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
-		unless ( ref($surface) && $surface->isa('SDL::Surface'));
-
-	my $tmp = SDL::Surface->new;
-	$$tmp = SDL::GFXZoom ($$surface, $zoom, $zoom, 1);
-	return $tmp;
-}#
-
 sub new ($)
 {#
 	bless {
@@ -106,42 +79,6 @@ sub add ($$)
 	}
 }#
 
-sub load ($)
-{#
-	my ($self) = @_;
-
-	say "loading $self->{sel}"  if $args{verbose};
-
-	if ($self->{sel} =~ m/\.cr2$/i)
-	{# load preview or thumbnail image from exif
-
-		use Image::ExifTool;
-		my $exif = Image::ExifTool->new;
-		$exif->Options (Binary => 1);
-
-		my $info = $exif->ImageInfo ($self->{sel});
-
-		my $tag = 'PreviewImage';
-		if (defined $info->{$tag}) {
-
-			my $tmp = '/tmp/bapho.jpg';
-
-			open F, '>', $tmp or die $!;
-			print F ${$info->{$tag}};
-			close F;
-
-			my $surf = SDL::Surface->new (-name => $tmp);
-
-			unlink $tmp;
-
-			return $surf;
-		}
-	}#
-	else {
-		eval { SDL::Surface->new (-name => $self->{sel}) };
-	}
-}#
-
 sub toggle_tag ($$)
 {#
 	my ($self, $tag) = @_;
@@ -183,32 +120,6 @@ sub tags ($)
 {#
 	my $self = shift;
 	grep {!/^_/} sort keys %{$self->{tags}};
-}#
-
-sub get_surface ($$$)
-{#
-	my ($self, $width, $height) = @_;
-	die unless $self->{sel};
-
-	unless ($self->{loaded}) {
-		$self->{loaded} = time;
-		$self->{surface} = ($self->load or get_dummy_surface);
-	}
-
-	my $res = "${width}x${height}";
-	if (not $self->{res} or $self->{res} ne $res) {
-		$self->{res} = $res;
-
-		my $zoom_x = $width/$self->{surface}->width;
-		my $zoom_y = $height/$self->{surface}->height;
-		$self->{zoom} = (sort $zoom_x, $zoom_y)[0];
-
-		return $self->{zoomed_surface} = zoom ($self->{surface}, $self->{zoom});
-	}
-	else {
-		die unless defined $self->{zoomed_surface};
-		return $self->{zoomed_surface};
-	}
 }#
 
 sub develop ($)

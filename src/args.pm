@@ -17,6 +17,7 @@ our %args = (
 		fullscreen => undef,
 		nop => undef,
 		import => undef,
+		cache_size_mb => undef,
 );
 
 sub read_args (@)

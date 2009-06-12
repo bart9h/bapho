@@ -6,6 +6,8 @@ use strict;
 use warnings;
 use 5.010;
 
+use cache;
+
 use args qw/%args/;
 
 #}#
@@ -17,6 +19,7 @@ sub new
 	bless my $self = {
 		pics => {},
 		tags => {},
+		cache => cache::new,
 	};
 
 	use File::Find;
@@ -86,7 +89,8 @@ sub delete ($$)
 sub get_surface ($$$$)
 {#
 	my ($self, $id, $width, $height) = @_;
-	return $self->{pics}->{$id}->get_surface ($width, $height);
+	my $file = $self->{pics}->{$id}->{sel};
+	return $self->{cache}->get ($file, $width, $height);
 }#
 
 1;

@@ -10,15 +10,16 @@ sub display_pic ($$$$$;$)
 
 	my $id = $self->{ids}->[$pic_idx];
 	my $surf = $self->{collection}->get_surface ($id, $w, $h);
+	$self->{cur_surf} = $surf  if $pic_idx == $self->{cursor};
 
 	my $dest = SDL::Rect->new (
-		-x => $x + ($w - $surf->width)/2,
-		-y => $y + ($h - $surf->height)/2,
-		-width => $surf->width,
-		-height => $surf->height,
+		-x => $x + ($w - $surf->{surf}->width)/2,
+		-y => $y + ($h - $surf->{surf}->height)/2,
+		-width => $surf->{surf}->width,
+		-height => $surf->{surf}->height,
 	);
 
-	$surf->blit (0, $self->{app}, $dest);
+	$surf->{surf}->blit (0, $self->{app}, $dest);
 
 	if ($is_selected)
 	{#  draw cursor
@@ -60,10 +61,12 @@ sub display_info ($)
 	);
 
 	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{ids}};
-	$str .= '  '.int($self->pic->{zoom}*100).'%';
+	$str .= '  '.int($self->{cur_surf}->{zoom}*100).'%';
 	$self->print (font=>1, text=>$str);
-	if (my $surf = $self->pic->{surface}) {
-		$self->print (text=>$surf->width().'x'.$surf->height());
+
+	if ($self->{cur_surf}) {
+		my $s = $self->{cur_surf}->{surf};
+		$self->print (text=>$s->width().'x'.$s->height());
 	}
 
 	$self->print (
