@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use 5.010;
 
-use cache;
+use factory;
 
 use args qw/%args/;
 
@@ -20,7 +20,7 @@ sub new
 	bless my $self = {
 		pics => {},
 		tags => {},
-		cache => cache::new,
+		factory => factory::new,
 	};
 
 	use File::Find;
@@ -68,7 +68,7 @@ sub get_surface
 {my ($self, $id, $width, $height) = @_;
 
 	my $file = $self->{pics}->{$id}->{sel};
-	return $self->{cache}->get ($file, $width, $height);
+	return $self->{factory}->get ($file, $width, $height);
 }#
 
 

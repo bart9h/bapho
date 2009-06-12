@@ -1,5 +1,4 @@
-package cache;
-# surface factory.
+package factory;
 
 #{my uses
 
