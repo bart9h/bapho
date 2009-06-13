@@ -74,7 +74,7 @@ sub display_info ($)
 		text => 'tags:',
 	);
 	$self->print (text => $_)
-		foreach map { ' '.$_ } $self->pic->tags;
+		foreach map { ' '.$_ } $self->pic->get_tags;
 }#
 
 sub display_tag_editor ($)

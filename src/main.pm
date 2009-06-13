@@ -125,7 +125,7 @@ sub do_menu ($$)
 					}
 					when (/^e$/) {
 						$self->pic->save_tags;
-						my $filename = $self->pic->tag_filename;
+						my $filename = $self->pic->get_tag_filename;
 						system "\$EDITOR $filename";
 						$self->pic->add ($filename);
 						$self->{collection}->update_tags;

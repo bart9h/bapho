@@ -84,7 +84,7 @@ sub toggle_tag ($$)
 	$self->{dirty} = 1;
 }#
 
-sub tag_filename ($)
+sub get_tag_filename ($)
 {#
 	my $self = shift;
 	defined $self->{dir} or die;
@@ -97,7 +97,7 @@ sub save_tags ($)
 
 	if ($self->{dirty}) {
 		unless ($args{nop}) {
-			my $filename = $self->tag_filename;
+			my $filename = $self->get_tag_filename;
 			open F, '>', $filename  or die "$filename: $!";
 			say "saving $filename"  if $args{verbose};
 			print F "$_\n"  foreach sort keys %{$self->{tags}};
@@ -107,7 +107,7 @@ sub save_tags ($)
 	}
 }#
 
-sub tags ($)
+sub get_tags ($)
 {#
 	my $self = shift;
 	grep {!/^_/} sort keys %{$self->{tags}};
