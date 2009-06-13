@@ -1,6 +1,6 @@
 package collection;
 
-#{# use
+#{my uses
 
 use strict;
 use warnings;
@@ -13,7 +13,8 @@ use args qw/%args/;
 #}#
 
 sub new
-{#
+{#{my}
+
 	die if $args{dir_fmt} =~ m{\.};
 
 	bless my $self = {
@@ -45,9 +46,8 @@ sub new
 	return $self;
 }#
 
-sub add_file ($$)
-{#
-	my ($self, $file) = @_;
+sub add_file
+{my ($self, $file) = @_;
 
 	return if -d $file;
 	return if $file =~ m{/\.([^/]*-)?trash/}i;
@@ -68,9 +68,9 @@ sub add_file ($$)
 	}
 }#
 
-sub update_tags ($)
-{#
-	my $self = shift;
+sub update_tags
+{my ($self) = @_;
+
 	foreach my $pic (keys %{$self->{pics}}) {
 		foreach my $tag ($self->{pics}->{$pic}->get_tags) {
 			$self->{tags}->{$tag}++;
@@ -78,20 +78,20 @@ sub update_tags ($)
 	}
 }#
 
-sub delete ($$)
-{#
-	my ($self, $pic) = @_;
+sub delete
+{my ($self, $pic) = @_;
+
 	$pic->delete;
 	delete $self->{pics}->{$pic->{id}};
 	$self->update_tags;
 }#
 
-sub get_surface ($$$$)
-{#
-	my ($self, $id, $width, $height) = @_;
+sub get_surface
+{my ($self, $id, $width, $height) = @_;
+
 	my $file = $self->{pics}->{$id}->{sel};
 	return $self->{cache}->get ($file, $width, $height);
 }#
 
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:

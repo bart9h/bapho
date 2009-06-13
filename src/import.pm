@@ -1,6 +1,6 @@
 package import;
 
-#{# use
+#{my uses
 
 use strict;
 use warnings;
@@ -12,9 +12,8 @@ use args qw/%args/;
 
 #}#
 
-sub exif2path ($)
-{#
-	my ($source_file) = @_;
+sub exif2path
+{my ($source_file) = @_;
 
 	my ($ext) = $source_file =~ /\.([^.]+)$/;
 	unless (defined $ext) {
@@ -54,11 +53,11 @@ sub exif2path ($)
 	return ($dir, $basename, lc $ext);
 }#
 
-sub import_file ($)
-{#
+sub import_file
+{my ($source_file) = @_;
+
 	#FIXME: $args{quiet}
 
-	my $source_file = shift;
 	$source_file =~ m/$args{basedir}/
 		and die "importing file $source_file from inside basedir $args{basedir}";
 
@@ -96,17 +95,18 @@ sub import_file ($)
 	}
 }#
 
-sub import_files (@)
-{#
+sub import_files
+{my (@files) = @_;
+
 	use File::Find;
 	find (
 		{
 			no_chdir => 1,
 			wanted => sub { import_file ($_) unless -d },
 		},
-		@_
+		@files
 	);
 }#
 
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:

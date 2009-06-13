@@ -5,25 +5,26 @@ use warnings;
 use 5.010;
 
 sub new
-{#
+{#{my}
+
 	bless my $self = {};
 	$self->leave;
 	return $self;
 }#
 
 sub enter ($$$)
-{#
-	my $self = shift;
-	$self->{action}   = shift;
-	$self->{items}    = shift;
+{my ($self, $action, $items) = @_;
+
+	$self->{action}   = $action;
+	$self->{items}    = $items;
 	$self->{active}   = 1;
 	$self->{cursor}   = 0;
 	$self->{selected} = undef;
 }#
 
 sub leave ($)
-{#
-	my $self = shift;
+{my ($self) = @_;
+
 	$self->{action}   = '';
 	$self->{items}    = [];
 	$self->{active}   = 0;
@@ -32,8 +33,8 @@ sub leave ($)
 }#
 
 sub do ($)
-{#
-	my ($self, $command) = @_;
+{my ($self, $command) = @_;
+
 	return unless defined $command;
 
 	my $N = scalar @{$self->{items}};
@@ -61,4 +62,4 @@ sub do ($)
 }#
 
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:

@@ -6,13 +6,14 @@ use 5.010;
 use SDL::TTFont;
 
 sub home
-{#
-	my $self = shift;
+{my ($self) = @_;
+
 	$self->{x} = $self->{y} = $self->{border};
 }#
 
-sub new (@)
-{#
+sub new
+{#{my}
+
 	bless my $self = {
 		border => 8,
 		fonts => [],
@@ -48,16 +49,14 @@ sub new (@)
 	$self;
 }#
 
-sub print ($$$)
-{#
-	my $self = shift;
-	my $surf = shift;
+sub print
+{my ($self, $surf, @args) = @_;
 
 	my $taller_font;
 	my $width = 2*$self->{border};;
 	foreach my $mode ('layout', 'draw') {
-		for (my $i = 0;  $i < $#_;  $i += 2) {
-			my ($cmd, $arg) = ($_[$i], $_[$i+1]);
+		for (my $i = 0;  $i < $#args;  $i += 2) {
+			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
 			given ($cmd) {
 				when (/font/) {
 					$self->{font} = $arg;
@@ -99,10 +98,10 @@ sub print ($$$)
 
 }#
 
-{# check system sanity
+#{my system sanity check
 	$_ = `which fc-match`;
 	chomp;
 	-x or die 'fc-match not found.  fontconfig is required.';
-}#
+#}#
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:

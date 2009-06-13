@@ -1,18 +1,25 @@
+package main;
+
+#{my uses
+
 use strict;
 use warnings;
 use 5.010;
 
+use SDL::App;
+
 use args qw/%args/;
-use display;
 use collection;
+use display;
 use menu;
 use picture;
 use text;
 
-use SDL::App;
+#}#
 
 sub get_window_geometry
-{#
+{my ($self) = @_;
+
 	my ($w, $h) = (0, 0);
 
 	if (defined $args{geometry}) {
@@ -23,7 +30,7 @@ sub get_window_geometry
 		if ($w == 0) {
 			($w, $h) = `xdpyinfo` =~ /\b(\d{2,})x(\d{2,})\b/s ? ($1, $2) : (0, 0);
 			for (2 .. 10)
-			{#  fix multi-monitor
+			{#{my ugly hack: fix multi-monitor}
 				$_ = 12 - $_;
 				if ($w > $_*$h) {
 					$w = int ($w/$_);
@@ -36,11 +43,8 @@ sub get_window_geometry
 	($w, $h);
 }#
 
-package main;
-
-sub adjust_page_and_cursor ($)
-{#
-	my ($self) = @_;
+sub adjust_page_and_cursor
+{my ($self) = @_;
 
 	my $last = (scalar @{$self->{ids}}) - 1;
 	my $page_size = $self->{rows}*$self->{cols};
@@ -74,21 +78,21 @@ sub adjust_page_and_cursor ($)
 
 }#
 
-sub enter_tag_mode ($)
-{#
-	my $self = shift;
+sub enter_tag_mode
+{my ($self) = @_;
+
 	$self->{menu}->enter ('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
 }#
 
-sub pic ($)
-{#
-	my $self = shift;
+sub pic
+{my ($self) = @_;
+
 	$self->{collection}->{pics}->{$self->{ids}->[$self->{cursor}]};
 }#
 
-sub seek_date ($$)
-{#
-	my ($self, $key) = @_;
+sub seek_date
+{my ($self, $key) = @_;
+
 	my $cur = $self->pic;
 	my $last = (scalar @{$self->{ids}}) - 1;
 	given ($key) {
@@ -105,9 +109,9 @@ sub seek_date ($$)
 	}
 }#
 
-sub do_menu ($$)
-{#
-	my ($self, $command) = @_;
+sub do_menu
+{my ($self, $command) = @_;
+
 	return 0 unless $self->{menu}->{active};
 
 	my $rc = $self->{menu}->do ($command);
@@ -140,9 +144,9 @@ sub do_menu ($$)
 	return 1;
 }#
 
-sub do ($)
-{#
-	my ($self, $command) = @_;
+sub do
+{my ($self, $command) = @_;
+
 	return unless defined $command;
 	return if $self->do_menu ($command);
 
@@ -177,9 +181,9 @@ sub do ($)
 	1;
 }#
 
-sub handle_event ($)
-{#
-	my ($self, $event) = @_;
+sub handle_event
+{my ($self, $event) = @_;
+
 	state $shift = 0;
 
 	given ($event->type) {
@@ -222,9 +226,9 @@ sub handle_event ($)
 	}
 }#
 
-sub quit ($)
-{#
-	my $self = shift;
+sub quit
+{my ($self) = @_;
+
 	my $P = $self->{collection}->{pics};
 	foreach (keys %{$P}) {
 		$P->{$_}->save_tags;
@@ -232,9 +236,10 @@ sub quit ($)
 	exit(0);
 }#
 
-sub main (@)
-{#
-	args::read_args(@_);
+sub main
+{my @args = @_;
+
+	args::read_args(@args);
 
 	# fix symlinked basedir
 	if (-l $args{basedir}) {
@@ -311,4 +316,4 @@ sub main (@)
 }#
 
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:

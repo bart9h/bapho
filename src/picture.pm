@@ -1,6 +1,6 @@
 package picture;
 
-#{# use
+#{my uses
 
 use strict;
 use warnings;
@@ -9,29 +9,11 @@ use args qw/%args/;
 
 #}#
 
-sub extval ($)
-{#
-	defined $_[0]
-	?
-		$_[0] =~ /\.([^.]+)$/
-		?
-			{
-				jpg => 3,
-				tif => 2,
-				png => 2,
-				cr2 => 1,
-			}->{lc $1}
-			// 0
-		:
-			-1
-	:
-		-1
-}#
+sub new
+{my ($id) = @_;
 
-sub new ($)
-{#
 	bless {
-		id             => $_[0],
+		id             => $id,
 		files          => {},
 		tags           => {},
 		dir            => undef,  #dir: where files are
@@ -40,9 +22,9 @@ sub new ($)
 	};
 }#
 
-sub add ($$)
-{#
-	my ($self, $path) = @_;
+sub add
+{my ($self, $path) = @_;
+
 	die 'duplicate file'  if exists $self->{files}->{$path};
 
 	$path =~ m{^(.*)/[^.]+\.([^/]+)} or die;
@@ -70,9 +52,8 @@ sub add ($$)
 	}
 }#
 
-sub toggle_tag ($$)
-{#
-	my ($self, $tag) = @_;
+sub toggle_tag
+{my ($self, $tag) = @_;
 
 	if (exists $self->{tags}->{$tag}) {
 		delete $self->{tags}->{$tag};
@@ -84,16 +65,15 @@ sub toggle_tag ($$)
 	$self->{dirty} = 1;
 }#
 
-sub get_tag_filename ($)
-{#
-	my $self = shift;
+sub get_tag_filename
+{my ($self) = @_;
+
 	defined $self->{dir} or die;
 	"$self->{dir}/$self->{id}.tags";
 }#
 
-sub save_tags ($)
-{#
-	my $self = shift;
+sub save_tags
+{my ($self) = @_;
 
 	if ($self->{dirty}) {
 		unless ($args{nop}) {
@@ -107,15 +87,14 @@ sub save_tags ($)
 	}
 }#
 
-sub get_tags ($)
-{#
-	my $self = shift;
+sub get_tags
+{my ($self) = @_;
+
 	grep {!/^_/} sort keys %{$self->{tags}};
 }#
 
-sub develop ($)
-{#
-	my $self = shift;
+sub develop
+{my ($self) = @_;
 
 	my $file = $self->{sel};
 	$file =~ s/\.[^.]+$/\.ufraw/;
@@ -132,13 +111,14 @@ sub develop ($)
 	}
 	if (defined $cmd) {
 		say $cmd if $args{verbose};
+		#TODO: catch editor termination to update index?
 		system "$cmd $file &";
 	}
 }#
 
-sub delete ($)
-{#
-	my $self = shift;
+sub delete
+{my ($self) = @_;
+
 	return if $args{nop};
 
 	$self->{sel} =~ m{^(.*?)/([^/]+)\.[^.]+$}
@@ -151,5 +131,25 @@ sub delete ($)
 	}
 }#
 
+sub extval
+{my ($path) = @_;
+
+	defined $path
+	?
+	$path =~ /\.([^.]+)$/
+	?
+	{
+		jpg => 3,
+		tif => 2,
+		png => 2,
+		cr2 => 1,
+	}->{lc $1}
+	// 0
+	:
+	-1
+	:
+	-1
+}#
+
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:

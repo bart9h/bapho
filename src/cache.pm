@@ -1,7 +1,7 @@
 package cache;
 # surface factory.
 
-#{# use
+#{my uses
 
 use strict;
 use warnings;
@@ -14,53 +14,58 @@ use args qw/%args/;
 
 #}#
 
-sub res_key ($$)
-{#
-	my ($width, $height) = @_;
+sub res_key
+{my ($width, $height) = @_;
+
 	sprintf "%05dx%05d", $width, $height;
 }#
 
-sub load_file ($$$)
-{#
-	my ($path, $width, $height) = @_;
+sub load_exif_preview
+{my ($path, $width, $height) = @_;
+
+	use Image::ExifTool;
+	my $exif = Image::ExifTool->new;
+	$exif->Options (Binary => 1);
+
+	my $info = $exif->ImageInfo ($path);
+
+	my $tag = 'PreviewImage';
+	#TODO: use thumbnail if $width,$height fits
+	if (defined $info->{$tag}) {
+
+		my $tmp = '/tmp/bapho.jpg';
+
+		open F, '>', $tmp or die $!;
+		print F ${$info->{$tag}};
+		close F;
+
+		my $surf = SDL::Surface->new (-name => $tmp);
+
+		unlink $tmp;
+
+		return $surf;
+	}
+}#
+
+sub load_file
+{my ($path, $width, $height) = @_;
+
 	# width,height is only a hint to load the thumbnail instead,
 	# when available (.cr2).  Returned surface is not scaled.
 
 	say "loading $path"  if $args{verbose};
 
-	if ($path =~ m/\.cr2$/i)
-	{# load preview or thumbnail image from exif
-
-		use Image::ExifTool;
-		my $exif = Image::ExifTool->new;
-		$exif->Options (Binary => 1);
-
-		my $info = $exif->ImageInfo ($path);
-
-		my $tag = 'PreviewImage';
-		#TODO: use thumbnail if $width,$height fits
-		if (defined $info->{$tag}) {
-
-			my $tmp = '/tmp/bapho.jpg';
-
-			open F, '>', $tmp or die $!;
-			print F ${$info->{$tag}};
-			close F;
-
-			my $surf = SDL::Surface->new (-name => $tmp);
-
-			unlink $tmp;
-
-			return $surf;
-		}
-	}#
+	if ($path =~ m/\.cr2$/i) {
+		load_exif_preview ($path, $width, $height);
+	}
 	else {
 		eval { SDL::Surface->new (-name => $path) };
 	}
 }#
 
 sub get_dummy_surface
-{#
+{#{my}
+
 	state $surf;
 
 	unless ($surf) {
@@ -75,9 +80,9 @@ sub get_dummy_surface
 	return $surf;
 }#
 
-sub zoom ($$)
-{#
-	my ($surface, $zoom) = @_;
+sub zoom
+{my ($surface, $zoom) = @_;
+
 	die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
 		unless ( ref($surface) && $surface->isa('SDL::Surface'));
 
@@ -86,18 +91,18 @@ sub zoom ($$)
 	return $tmp;
 }#
 
-sub surf_bytes ($)
-{#  estimate number of bytes used by the surface
+sub surf_bytes  # estimate number of bytes used by the surface
+{my ($surf) = @_;
 
-	my ($surf) = @_;
 	$surf->pitch * $surf->height;
 }#
 
-
 sub new
-{#
+{#{my constructor}
+
 	sub get_cache_size
-	{#
+	{#{my}
+
 		if ($args{cache_size_mb}) {
 			$args{cache_size_mb}*1024*1024;
 		}
@@ -128,62 +133,14 @@ sub new
 	};
 }#
 
-sub get ($$$$)
-{#
-	my ($self, $path, $width, $height) = @_;
+sub get
+{my ($self, $path, $width, $height) = @_;
 
 	$self->{items}->{$path} //= {};
 
 	my $res = res_key($width,$height);
 
-	$self->{items}->{$path}->{$res} //= eval
-	{# produce new image
-
-		my $origin;
-		{#
-			# First res larger than asked, or the largest one.
-			foreach (sort keys %{$self->{items}->{$path}}) {
-				$origin = $self->{items}->{$path}->{$_};
-				last if $_ gt $res;
-			}
-
-			# If none were loaded, create new.
-			unless (defined $origin) {
-
-				$origin = { zoom => 1 };
-
-				if ($origin->{surf} = load_file($path,$width,$height)) {
-					$self->{used_bytes} += surf_bytes($origin->{surf});
-					$self->{loaded_files} += 1;
-				}
-				else {
-					$origin->{surf} = get_dummy_surface;
-				}
-			}
-		}#
-		$origin->{last_time_used} = time;
-
-		my $zoom;
-		return {
-
-			zoom => eval {
-				my $zoom_x =  $width  / $origin->{surf}->width;
-				my $zoom_y =  $height / $origin->{surf}->height;
-				$zoom = (sort $zoom_x, $zoom_y)[0];
-			},
-
-			surf => eval {
-				$zoom >= 1
-				? $origin->{surf}
-				: eval {
-					my $zoomed = zoom ($origin->{surf}, $zoom);
-					$self->{bytes_used} += surf_bytes($zoomed);
-					$zoomed;
-				};
-			},
-		};
-	}#
-	;
+	$self->{items}->{$path}->{$res} //= $self->create_surf ($path, $width, $height);
 
 	$self->{items}->{$path}->{$res}->{last_time_used} = time;
 
@@ -194,9 +151,59 @@ sub get ($$$$)
 	$self->{items}->{$path}->{$res};
 }#
 
-sub garbage_collector ($)
-{#
-	my ($self) = @_;
+sub create_surf
+{my ($self, $path, $width, $height) = @_;
+
+	my $origin;
+	{#
+		my $res = res_key($width,$height);
+
+		# First res larger than asked, or the largest one.
+		foreach (sort keys %{$self->{items}->{$path}}) {
+			$origin = $self->{items}->{$path}->{$_};
+			last if $_ gt $res;
+		}
+
+		# If none were loaded, create new.
+		unless (defined $origin) {
+
+			$origin = { zoom => 1 };
+
+			if ($origin->{surf} = load_file($path,$width,$height)) {
+				$self->{used_bytes} += surf_bytes($origin->{surf});
+				$self->{loaded_files} += 1;
+			}
+			else {
+				$origin->{surf} = get_dummy_surface;
+			}
+		}
+	}
+	$origin->{last_time_used} = time;
+
+	my $zoom;
+	return {
+
+		zoom => eval {
+			my $zoom_x =  $width  / $origin->{surf}->width;
+			my $zoom_y =  $height / $origin->{surf}->height;
+			$zoom = (sort $zoom_x, $zoom_y)[0];
+		},
+
+		surf => eval {
+			$zoom >= 1
+			? $origin->{surf}
+			: eval {
+				my $zoomed = zoom ($origin->{surf}, $zoom);
+				$self->{bytes_used} += surf_bytes($zoomed);
+				$zoomed;
+			};
+		},
+	};
+}#
+
+sub garbage_collector
+{my ($self) = @_;
+
 	return if $self->{bytes_used} < $self->{max_bytes};
 
 	foreach (
@@ -225,4 +232,4 @@ sub garbage_collector ($)
 }#
 
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:

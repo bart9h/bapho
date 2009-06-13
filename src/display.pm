@@ -4,9 +4,8 @@ use strict;
 use warnings;
 use 5.010;
 
-sub display_pic ($$$$$;$)
-{#
-	my ($self, $pic_idx, $w, $h, $x, $y, $is_selected) = @_;
+sub display_pic
+{my ($self, $pic_idx, $w, $h, $x, $y, $is_selected) = @_;
 
 	my $id = $self->{ids}->[$pic_idx];
 	my $surf = $self->{collection}->get_surface ($id, $w, $h);
@@ -21,8 +20,8 @@ sub display_pic ($$$$$;$)
 
 	$surf->{surf}->blit (0, $self->{app}, $dest);
 
-	if ($is_selected)
-	{#  draw cursor
+	sub display_cursor
+	{my ($self, $x, $y, $w, $h) = @_;
 
 		my $b = 2;
 		$self->{app}->fill (
@@ -36,17 +35,18 @@ sub display_pic ($$$$$;$)
 			[ $x+$w-$b, $y+$b,    $b, $h-2*$b ],  # right
 		);
 	}#
+
+	$self->display_cursor($x,$y,$w,$h)  if $is_selected;
 }#
 
 sub print
-{#
-	my $self = shift;
-	$self->{text}->print ($self->{app}, @_);
+{my ($self, @args) = @_;
+
+	$self->{text}->print ($self->{app}, @args);
 }#
 
-sub display_info ($)
-{#
-	my $self = shift;
+sub display_info
+{my ($self) = @_;
 
 	$self->{text}->home;
 
@@ -77,9 +77,8 @@ sub display_info ($)
 		foreach map { ' '.$_ } $self->pic->get_tags;
 }#
 
-sub display_tag_editor ($)
-{#
-	my $self = shift;
+sub display_tag_editor
+{my ($self) = @_;
 
 	$self->{text}->home;
 
@@ -98,33 +97,41 @@ sub display_tag_editor ($)
 }#
 
 sub display
-{#
-	my ($self) = @_;
-	my ($W, $H) = ($self->{app}->width, $self->{app}->height);
+{my ($self) = @_;
 
 	state $bg = SDL::Color->new (-r => 0, -g => 0, -b => 0);
 	$self->{app}->fill (0, $bg);
 
-	if ($self->{zoom} < -1)
-	{# thumbnails
+	if ($self->{zoom} < -1) {
 
-		my $d = (sort $W, $H)[0];  # smallest window dimention
-		my $n = -$self->{zoom};    # number of pictures across that dimention
-		($self->{cols}, $self->{rows}) = (int($W/($d/$n)), int($H/($d/$n)));
-		my ($w, $h) = (int($W/$self->{cols}), int($H/$self->{rows}));  # thumbnail area
+		sub display_thumbnails
+		{my ($self) = @_;
 
-		my $i = $self->{page_first};
-		THUMB: foreach my $y (0 .. $self->{rows}-1) {
-			foreach my $x (0 .. $self->{cols}-1) {
-				$self->display_pic ($i, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
-				++$i;
-				last THUMB if $i >= scalar @{$self->{ids}};
+			my ($W, $H) = ($self->{app}->width, $self->{app}->height);
+
+			my $d = (sort $W, $H)[0];  # smallest window dimention
+			my $n = -$self->{zoom};    # number of pictures across that dimention
+			($self->{cols}, $self->{rows}) = (int($W/($d/$n)), int($H/($d/$n)));
+			my ($w, $h) = (int($W/$self->{cols}), int($H/$self->{rows}));  # thumbnail area
+
+			my $i = $self->{page_first};
+			THUMB: foreach my $y (0 .. $self->{rows}-1) {
+				foreach my $x (0 .. $self->{cols}-1) {
+					$self->display_pic ($i, $w, $h, $x*$w, $y*$h, $i==$self->{cursor});
+					++$i;
+					last THUMB if $i >= scalar @{$self->{ids}};
+				}
 			}
-		}
-	}#
+		}#
+
+		$self->display_thumbnails;
+	}
 	else {
 		$self->{rows} = $self->{cols} = 1;
-		$self->display_pic ($self->{cursor}, $W, $H, 0, 0);
+		$self->display_pic (
+			$self->{cursor},
+			$self->{app}->width, $self->{app}->height,
+			0, 0);
 	}
 
 	if ($self->{menu}->{action} eq 'tag_editor') {
@@ -140,4 +147,4 @@ sub display
 }#
 
 1;
-# vim600:fdm=marker:fmr={#,}#:
+# vim600:fdm=marker:fmr={my,}#:
