@@ -27,7 +27,7 @@ sub new
 	find ( {
 			no_chdir => 1,
 			follow => 1,
-			wanted => sub { $self->add_file ($_) },
+			wanted => sub { $self->pvt__add_file ($_) },
 		},
 		($args{startdir} // $args{basedir}).'/'
 	);
@@ -44,28 +44,6 @@ sub new
 	$self->update_tags();
 
 	return $self;
-}#
-
-sub add_file
-{my ($self, $file) = @_;
-
-	return if -d $file;
-	return if $file =~ m{/\.([^/]*-)?trash/}i;
-	return if $file =~ m{/\.qiv-select/}i;
-
-	if ($file =~ m|^
-		$args{basedir}
-		(.*/)?
-		(?<id>[^.]+)\.
-		(?<rest>.*)
-		$|x)
-	{
-		my $pic = $self->{pics}{$+{id}} //= picture::new ($+{id});
-		$pic->add ($file);
-	}
-	else {
-		warn "strange filename ($file)";
-	}
 }#
 
 sub update_tags
@@ -91,6 +69,30 @@ sub get_surface
 
 	my $file = $self->{pics}->{$id}->{sel};
 	return $self->{cache}->get ($file, $width, $height);
+}#
+
+
+sub pvt__add_file
+{my ($self, $file) = @_;
+	caller eq __PACKAGE__ or die;
+
+	return if -d $file;
+	return if $file =~ m{/\.([^/]*-)?trash/}i;
+	return if $file =~ m{/\.qiv-select/}i;
+
+	if ($file =~ m|^
+		$args{basedir}
+		(.*/)?
+		(?<id>[^.]+)\.
+		(?<rest>.*)
+		$|x)
+	{
+		my $pic = $self->{pics}{$+{id}} //= picture::new ($+{id});
+		$pic->add ($file);
+	}
+	else {
+		warn "strange filename ($file)";
+	}
 }#
 
 1;

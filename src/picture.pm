@@ -47,7 +47,7 @@ sub add
 		}
 		default {
 			$self->{files}->{$path} = 1;
-			$self->{sel} = $path  if extval($path) > extval($self->{sel});
+			$self->{sel} = $path  if pvt__extval($path) > pvt__extval($self->{sel});
 		}
 	}
 }#
@@ -131,8 +131,10 @@ sub delete
 	}
 }#
 
-sub extval
+
+sub pvt__extval
 {my ($path) = @_;
+	caller eq __PACKAGE__ or die;
 
 	defined $path
 	?
