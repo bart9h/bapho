@@ -5,10 +5,6 @@ package picture;
 use strict;
 use warnings;
 use 5.010;
-
-use Data::Dumper;
-use SDL::Surface;
-
 use args qw/%args/;
 
 #}#
@@ -38,14 +34,9 @@ sub new ($)
 		id             => $_[0],
 		files          => {},
 		tags           => {},
-		loaded         => 0,
-		dir            => undef,  # dir where files are
-		dirty          => 0,      # has to save tags?
-		sel            => undef,  # which file was choosen to display
-		surface        => undef,  # loaded SDL_Surface
-		res            => undef,  # dimentions of the loaded surface
-		zoomed_surface => undef,  # surface scaled to display size
-		zoom           => undef,  # zoom factor of the zoomed_surface
+		dir            => undef,  #dir: where files are
+		dirty          => 0,      #bool: has to save tags?
+		sel            => undef,  #path: which file was choosen to display
 	};
 }#
 
