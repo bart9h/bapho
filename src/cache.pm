@@ -208,6 +208,9 @@ sub pvt__create_surf
 			$origin = { zoom => 1 };
 
 			if ($origin->{surf} = pvt__load_file($path,$width,$height)) {
+				$self->{items}->{$path}->{
+					pvt__res_key($origin->{surf}->width,$origin->{surf}->height)
+					} = $origin;
 				$self->{used_bytes} += pvt__surf_bytes($origin->{surf});
 				$self->{loaded_files} += 1;
 			}
