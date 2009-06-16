@@ -165,7 +165,7 @@ sub do
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1 }
 		when (/^quit$/)         { $self->quit }
-		when (/^d$/)            { $self->pic->develop }
+		when (/^control-d$/)    { $self->pic->develop }
 		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}} }
 		when (/^s$/)            { $self->pic->toggle_tag('_star') }
 		when (/^t$/)            { $self->enter_tag_mode }
@@ -184,7 +184,8 @@ sub do
 sub handle_event
 {my ($self, $event) = @_;
 
-	state $shift = 0;
+	state $shift   = 0;
+	state $control = 0;
 
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
@@ -204,12 +205,15 @@ sub handle_event
 			);
 
 			my $key = $event->key_name;
-			$shift = 1  if $key =~ m{^(left|right)\ shift$};
-			$key = uc $key  if $shift;
+			$shift   = 1  if $key =~ m{^(left|right)\ shift$};
+			$control = 1  if $key =~ m{^(left|right)\ ctrl$};
+			$key = uc $key          if $shift;
+			$key = 'control-'.$key  if $control;
 			$self->do ($ev2cmd{$key} // $key);
 		}
 		when ($_ == SDL_KEYUP()) {
-			$shift = 0  if $event->key_name =~ m{^(left|right)\ shift$};
+			$shift   = 0  if $event->key_name =~ m{^(left|right)\ shift$};
+			$control = 0  if $event->key_name =~ m{^(left|right)\ ctrl$};
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
 			$self->{dirty} = $self->do (
