@@ -40,7 +40,7 @@ sub exif2path
 	my ($year, $mon, $mday, $hour, $min, $sec) =
 		$exif->{$date_key}
 		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
-	foreach ($year, $mon, $mday, $hour) {
+	foreach ($year, $mon, $mday) {
 		if (not defined $_  or  $_ <= 0) {
 			warn "invalid exif date in \"$source_file\"\n";
 			warn Dumper $exif  if $args{verbose};
