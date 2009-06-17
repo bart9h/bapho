@@ -192,6 +192,12 @@ sub pvt__create_surf
 {my ($self, $path, $width, $height) = @_;
 	caller eq __PACKAGE__ or die;
 
+	sub handicap
+	{#{my ugly hack: 1 hour least-recently-used handicap}
+
+		60*60
+	}#
+
 	sub add_picture
 	{my ($self, $path, $picture) = @_;
 
@@ -217,7 +223,7 @@ sub pvt__create_surf
 			$origin = {
 				zoom => 1,  #FIXME: wrong when reading from exif preview
 				surf => pvt__load_file($path,$width,$height),
-				last_time_used => time,
+				last_time_used => time - handicap,
 			};
 
 			if ($origin->{surf}) {
@@ -244,7 +250,7 @@ sub pvt__create_surf
 			zoom => $zoom,
 		};
 		$self->add_picture ($path, $item);
-		$origin->{last_time_used} = time;
+		$origin->{last_time_used} = time - handicap;
 		return $item;
 	}
 
