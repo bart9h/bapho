@@ -192,8 +192,17 @@ sub pvt__create_surf
 {my ($self, $path, $width, $height) = @_;
 	caller eq __PACKAGE__ or die;
 
+	sub add_picture
+	{my ($self, $path, $picture) = @_;
+
+		my $res = pvt__res_key ($picture->{surf}->width, $picture->{surf}->height);
+		$self->{items}->{$path}->{$res} = $picture;
+		$self->{bytes_used} += pvt__surf_bytes ($picture->{surf});
+		$self->{loaded_files} += 1;
+	}#
+
 	my $origin;
-	{#
+	{#{my}
 		my $res = pvt__res_key($width,$height);
 
 		# First res larger than asked, or the largest one.
@@ -205,41 +214,40 @@ sub pvt__create_surf
 		# If none were loaded, create new.
 		unless (defined $origin) {
 
-			$origin = { zoom => 1 };
+			$origin = {
+				zoom => 1,  #FIXME: wrong when reading from exif preview
+				surf => pvt__load_file($path,$width,$height),
+				last_time_used => time,
+			};
 
-			if ($origin->{surf} = pvt__load_file($path,$width,$height)) {
-				$self->{items}->{$path}->{
-					pvt__res_key($origin->{surf}->width,$origin->{surf}->height)
-					} = $origin;
-				$self->{used_bytes} += pvt__surf_bytes($origin->{surf});
-				$self->{loaded_files} += 1;
+			if ($origin->{surf}) {
+				$self->add_picture ($path, $origin);
 			}
 			else {
 				$origin->{surf} = pvt__get_dummy_surface;
 			}
 		}
-	}
-	$origin->{last_time_used} = time;
+	}#
 
-	my $zoom;
-	return {
-
-		zoom => eval {
-			my $zoom_x =  $width  / $origin->{surf}->width;
-			my $zoom_y =  $height / $origin->{surf}->height;
-			$zoom = (sort $zoom_x, $zoom_y)[0];
-		},
-
-		surf => eval {
-			$zoom >= 1
-			? $origin->{surf}
-			: eval {
-				my $zoomed = pvt__zoom ($origin->{surf}, $zoom);
-				$self->{bytes_used} += pvt__surf_bytes($zoomed);
-				$zoomed;
-			};
-		},
+	my $zoom = eval {
+		my $zoom_x =  $width  / $origin->{surf}->width;
+		my $zoom_y =  $height / $origin->{surf}->height;
+		(sort $zoom_x, $zoom_y)[0];
 	};
+
+	if ($zoom >= 1) {
+		return $origin;
+	}
+	else {
+		my $item = {
+			surf => pvt__zoom ($origin->{surf}, $zoom),
+			zoom => $zoom,
+		};
+		$self->add_picture ($path, $item);
+		$origin->{last_time_used} = time;
+		return $item;
+	}
+
 }#
 
 1;
