@@ -120,7 +120,7 @@ sub pvt__load_exif_preview
 	#TODO: use thumbnail if $width,$height fits
 	if (defined $info->{$tag}) {
 
-		my $tmp = '/tmp/bapho.jpg';
+		my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
 
 		open F, '>', $tmp or die $!;
 		print F ${$info->{$tag}};
