@@ -258,9 +258,8 @@ sub main
 	}
 
 	if ($args{import}) {
-		die 'import what?'  unless exists $args{files};
 		use import;
-		exit (import::import_files(@{$args{files}}) ? 0 : 1);
+		exit (import::import_any($args{files}) ? 0 : 1);
 	}
 	else {
 		if (exists $args{files}) {

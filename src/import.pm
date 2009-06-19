@@ -108,5 +108,36 @@ sub import_files
 	);
 }#
 
+sub import_gphoto2
+{#{my}
+
+	my $dir = $args{temp_dir}.'/bapho-gphoto2';
+	mkdir $dir  or die $!;
+	chdir $dir  or die $!;
+
+	my $cmd = 'sudo gphoto2 -P';
+	if (0 == system $cmd) {
+		my $rc = import_files <*>;
+		unlink <*>;
+		chdir $args{temp_dir}  or die $!;
+		rmdir $dir  or die $!;
+		$rc;
+	}
+	else {
+		die "$cmd failed";
+	}
+}#
+
+sub import_any
+{my ($files_ref) = @_;
+
+	if (defined $files_ref and scalar @$files_ref) {
+		import_files (@$files_ref);
+	}
+	else {
+		import_gphoto2;
+	}
+}#
+
 1;
 # vim600:fdm=marker:fmr={my,}#:
