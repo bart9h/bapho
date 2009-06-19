@@ -144,6 +144,13 @@ sub do_menu
 	return 1;
 }#
 
+sub rotate
+{my ($array_ref) = @_;
+
+	push @$array_ref, shift @$array_ref;
+	return $array_ref;
+}#
+
 sub do
 {my ($self, $command) = @_;
 
@@ -160,7 +167,7 @@ sub do
 		when (/^home$/)         { $self->{cursor} = 0 }
 		when (/^end$/)          { $self->{cursor} = scalar @{$self->{ids}} - 1 }
 		when (/^[dmy]$/i)       { $self->seek_date($_) }
-		when (/^toggle info$/)  { $self->{display_info} = !$self->{display_info} }
+		when (/^toggle info$/)  { rotate($self->{info_modes}) }
 		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  1 if $self->{zoom} == -1; }
 		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $self->{zoom} = 1 }
@@ -280,7 +287,7 @@ sub main
 		menu       => menu::new(),
 
 		# rendering state
-		display_info => 0,
+		info_modes => [ qw/none title tags/ ],
 		text => text::new (
 			'Bitstream Vera Sans Mono:24',
 			':20',

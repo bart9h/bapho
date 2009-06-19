@@ -25,7 +25,7 @@ sub display
 	if ($self->{menu}->{action} eq 'tag_editor') {
 		$self->pvt__display_tag_editor;
 	}
-	elsif ($self->{display_info}) {
+	elsif ($self->{info_modes}->[0] ne 'none') {
 		$self->pvt__display_info;
 	}
 
@@ -126,12 +126,14 @@ sub pvt__display_info
 		$self->pvt__print (text=>$s->width().'x'.$s->height());
 	}
 
-	$self->pvt__print (
-		font => 1,
-		text => 'tags:',
-	);
-	$self->pvt__print (text => $_)
-		foreach map { ' '.$_ } $self->pic->get_tags;
+	if ($self->{info_modes}->[0] eq 'tags') {
+		$self->pvt__print (
+			font => 1,
+			text => 'tags:',
+		);
+		$self->pvt__print (text => $_)
+			foreach map { ' '.$_ } $self->pic->get_tags;
+	}
 }#
 
 sub pvt__display_tag_editor
