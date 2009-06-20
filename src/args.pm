@@ -30,6 +30,7 @@ sub read_args (@)
 
 			if (my $alias = {
 					'-f' => '--fullscreen',
+					'-h' => '--help',
 					'-v' => '--verbose',
 				}->{$_})
 			{
@@ -44,7 +45,7 @@ sub read_args (@)
 				#{#
 				#TODO: better %args, to contain description
 				#      (borrow from other script I wrote..)
-				say 'arguments and their defaults:';
+				say 'arguments and their defaults (if any):';
 				foreach (sort keys %args) {
 					my $val = $args{$_};
 					s/_/-/g;
