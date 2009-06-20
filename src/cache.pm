@@ -43,7 +43,7 @@ sub new
 	}#
 
 	bless {
-		items => {},  # $filename => { $res => {surf=>,last_time_used=>,zoom=>} }
+		items => {},  # $filename => { $res => {surf=>,last_time_used=>,width=>,height=>} }
 		loaded_files => 0,
 		bytes_used => 0,
 		max_bytes => get_cache_size,
@@ -130,7 +130,11 @@ sub pvt__load_exif_preview
 
 		unlink $tmp;
 
-		return $surf;
+		return (
+			$surf,
+			$info->{ExifImageWidth},
+			$info->{ExifImageHeight},
+		);
 	}
 }#
 
@@ -143,12 +147,21 @@ sub pvt__load_file
 
 	say "loading $path"  if $args{verbose};
 
+	my $item = {};
+
 	if ($path =~ m/\.cr2$/i) {
-		pvt__load_exif_preview ($path, $width, $height);
+		($item->{surf}, $item->{width}, $item->{height}) =
+			pvt__load_exif_preview ($path, $width, $height);
 	}
 	else {
-		eval { SDL::Surface->new (-name => $path) };
+		$item->{surf} = eval { SDL::Surface->new (-name => $path) };
+		if ($item->{surf}) {
+			$item->{width}  = $item->{surf}->width();
+			$item->{height} = $item->{surf}->height();
+		}
 	}
+
+	$item;
 }#
 
 sub pvt__get_dummy_surface
@@ -220,11 +233,8 @@ sub pvt__create_surf
 		# If none were loaded, create new.
 		unless (defined $origin) {
 
-			$origin = {
-				zoom => 1,  #FIXME: wrong when reading from exif preview
-				surf => pvt__load_file($path,$width,$height),
-				last_time_used => time - handicap,
-			};
+			$origin = pvt__load_file($path,$width,$height);
+			$origin->{last_time_used} = time - handicap;
 
 			if ($origin->{surf}) {
 				$self->add_picture ($path, $origin);
@@ -246,8 +256,9 @@ sub pvt__create_surf
 	}
 	else {
 		my $item = {
-			surf => pvt__zoom ($origin->{surf}, $zoom),
-			zoom => $zoom,
+			surf   => pvt__zoom ($origin->{surf}, $zoom),
+			width  => $origin->{width},
+			height => $origin->{height},
 		};
 		$self->add_picture ($path, $item);
 		$origin->{last_time_used} = time - handicap;

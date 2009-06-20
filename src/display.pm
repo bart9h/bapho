@@ -108,23 +108,21 @@ sub pvt__display_info
 	$self->{text}->home;
 
 	#FIXME
-	my $s = $self->pic->{sel};
-	$s =~ s{^.*/[^.]+\.(.*)$}{$1};
+	my $ext = $self->pic->{sel};
+	$ext =~ s{^.*/[^.]+\.(.*)$}{$1};
+
+	my $str = join '/', $self->{cursor}+1, scalar @{$self->{ids}};
+	if (my $s = $self->{cur_surf}) {
+		my $zoom = $s->{surf}->width()/$s->{width};
+		$str .= '  '.$s->{width}.'x'.$s->{height};
+		$str .= '  '.int($zoom*100).'%';
+	}
 
 	$self->pvt__print (
 		font=>0, text=>$self->pic->{id},
-		font=>1, text=>".$s",
+		font=>1, text=>".$ext  $str",
 		$self->pic->{tags}->{_star} ? (font=>0, text=>'  (*)') : (),
 	);
-
-	my $str = join ' / ', $self->{cursor}+1, scalar @{$self->{ids}};
-	$str .= '  '.int($self->{cur_surf}->{zoom}*100).'%';
-	$self->pvt__print (font=>1, text=>$str);
-
-	if ($self->{cur_surf}) {
-		my $s = $self->{cur_surf}->{surf};
-		$self->pvt__print (text=>$s->width().'x'.$s->height());
-	}
 
 	if ($self->{info_modes}->[0] eq 'tags') {
 		$self->pvt__print (
