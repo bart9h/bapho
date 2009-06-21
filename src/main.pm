@@ -95,17 +95,15 @@ sub seek_date
 
 	my $cur = $self->pic;
 	my $last = (scalar @{$self->{ids}}) - 1;
-	given ($key) {
-		my $d = /[a-z]/ ? 1 : -1;
-		while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
-			$self->{cursor} += $d;
-			$self->{cursor} = 0      if $self->{cursor} > $last;
-			$self->{cursor} = $last  if $self->{cursor} < 0;
+	my $d = $key =~ /[a-z]/ ? 1 : -1;
+	while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
+		$self->{cursor} += $d;
+		$self->{cursor} = 0      if $self->{cursor} > $last;
+		$self->{cursor} = $last  if $self->{cursor} < 0;
 
-			our $k = lc $key;
-			sub part($) { substr $_[0]->{id}, 0, {d=>8,m=>6,y=>4}->{$k} }
-			last  if part($self->pic) ne part($cur);
-		}
+		our $k = lc $key;
+		sub part($) { substr $_[0]->{id}, 0, {d=>8,m=>6,y=>4}->{$k} }
+		last  if part($self->pic) ne part($cur);
 	}
 }#
 
