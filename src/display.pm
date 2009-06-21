@@ -124,13 +124,19 @@ sub pvt__display_info
 		$self->pic->{tags}->{_star} ? (font=>0, text=>'  (*)') : (),
 	);
 
-	if ($self->{info_modes}->[0] eq 'tags') {
-		$self->pvt__print (
-			font => 1,
-			text => 'tags:',
-		);
-		$self->pvt__print (text => $_)
-			foreach map { ' '.$_ } $self->pic->get_tags;
+	given ($self->{info_modes}->[0]) {
+		when (/tags/) {
+			$self->pvt__print (font=>1, text=>'tags:');
+			$self->pvt__print (text=>$_)
+				foreach map { ' '.$_ } $self->pic->get_tags;
+		}
+		when (/exif/) {
+			$self->pvt__print (font=>1, text=>'exif:');
+			if (my $exif = $self->{cur_surf}->{exif}) {
+				$self->pvt__print (text => $_)
+					foreach map { "  $_: $exif->{$_}" } @{$args{exif_tags}};
+			}
+		}
 	}
 }#
 

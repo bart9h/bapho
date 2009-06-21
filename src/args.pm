@@ -19,6 +19,20 @@ our %args = (
 		nop => undef,
 		import => undef,
 		cache_size_mb => undef,
+		exif_tags => [ qw/
+			Model
+			LensID
+			ISO
+			ShutterSpeedValue
+			ApertureValue
+			FocalLength
+			Flash
+			FocusMode
+			ColorTemperature
+			Orientation
+			UserComment
+			/
+		],
 );
 
 sub read_args (@)
@@ -48,6 +62,7 @@ sub read_args (@)
 				say 'arguments and their defaults (if any):';
 				foreach (sort keys %args) {
 					my $val = $args{$_};
+					next if ref $val;
 					s/_/-/g;
 					say '--'.$_.(defined $val ? "=$val" : '');
 				}

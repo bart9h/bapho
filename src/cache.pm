@@ -9,6 +9,7 @@ use 5.010;
 use Data::Dumper;
 
 use SDL::Surface;
+use Image::ExifTool;
 
 use args qw/%args/;
 
@@ -110,10 +111,8 @@ sub pvt__load_exif_preview
 {my ($path, $width, $height) = @_;
 	caller eq __PACKAGE__ or die;
 
-	use Image::ExifTool;
 	my $exif = Image::ExifTool->new;
 	$exif->Options (Binary => 1);
-
 	my $info = $exif->ImageInfo ($path);
 
 	my $tag = 'PreviewImage';
@@ -130,11 +129,7 @@ sub pvt__load_exif_preview
 
 		unlink $tmp;
 
-		return (
-			$surf,
-			$info->{ExifImageWidth},
-			$info->{ExifImageHeight},
-		);
+		return ($surf, $info);
 	}
 }#
 
@@ -150,8 +145,16 @@ sub pvt__load_file
 	my $item = {};
 
 	if ($path =~ m/\.cr2$/i) {
-		($item->{surf}, $item->{width}, $item->{height}) =
-			pvt__load_exif_preview ($path, $width, $height);
+		my ($surf, $exif) = pvt__load_exif_preview ($path, $width, $height);
+		#use Data::Dumper;
+		#print Dumper  { map { $_ => $exif->{$_} } @{$args{exif_tags}} };
+		#exit;
+		$item = {
+			surf   => $surf,
+			width  => $exif->{ExifImageWidth},
+			height => $exif->{ExifImageHeight},
+			exif   => { map { $_ => $exif->{$_} } @{$args{exif_tags}} },
+		};
 	}
 	else {
 		$item->{surf} = eval { SDL::Surface->new (-name => $path) };
@@ -159,6 +162,9 @@ sub pvt__load_file
 			$item->{width}  = $item->{surf}->width();
 			$item->{height} = $item->{surf}->height();
 		}
+
+		my $exif = Image::ExifTool->new;
+		$item->{exif} = $exif->ImageInfo ($path);
 	}
 
 	$item;
@@ -255,11 +261,8 @@ sub pvt__create_surf
 		return $origin;
 	}
 	else {
-		my $item = {
-			surf   => pvt__zoom ($origin->{surf}, $zoom),
-			width  => $origin->{width},
-			height => $origin->{height},
-		};
+		my $item = { %$origin };
+		$item->{surf} = pvt__zoom ($origin->{surf}, $zoom);
 		$self->add_picture ($path, $item);
 		$origin->{last_time_used} = time - handicap;
 		return $item;
