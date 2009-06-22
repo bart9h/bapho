@@ -240,7 +240,7 @@ sub main
 
 	};
 
-	push @{$self->{views}}, view::new ($self->{collection});
+	push @{$self->{views}}, view::new ($self->{collection}, [], []);
 
 	SDL::ShowCursor(0);
 

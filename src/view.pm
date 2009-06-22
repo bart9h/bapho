@@ -9,10 +9,12 @@ use 5.010;
 #}#
 
 sub new
-{my ($collection) = @_;
+{my ($collection, $ins, $outs) = @_;
 
 	bless my $self = {
 		collection => $collection,
+		ins        => $ins,
+		outs       => $outs,
 		cursor     => 0,
 		page_first => 0,
 		rows       => 1,
@@ -20,8 +22,24 @@ sub new
 		zoom       => 1,
 	};
 
-	# sorted array of (the ids of) all pictures
-	$self->{ids} = [ sort keys %{$self->{collection}->{pics}} ];
+	sub filter
+	{my ($tags, $ins, $outs) = @_;
+		foreach (@$ins) {
+			return 0 unless $tags->{$_};
+		}
+		foreach (@$outs) {
+			return 0 if $tags->{$_};
+		}
+		1;
+	}#
+
+	# sorted array of (the ids of) filtered pictures
+	my $pics = $self->{collection}->{pics};
+	$self->{ids} = [
+		sort grep {
+			filter($pics->{$_}->{tags}, $ins, $outs)
+		} keys %$pics
+	];
 
 	return $self;
 }#
@@ -95,4 +113,3 @@ sub seek_date
 
 1;
 # vim600:fdm=marker:fmr={my,}#:
-
