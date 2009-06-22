@@ -143,7 +143,11 @@ sub pvt__display_info
 			$self->pvt__print (font=>1, text=>'exif:');
 			if (my $exif = $view->{cur_surf}->{exif}) {
 				$self->pvt__print (text => $_)
-					foreach map { "  $_: $exif->{$_}" } @{$args{exif_tags}};
+					foreach map {
+						"  $_: $exif->{$_}"
+					} grep {
+						defined $exif->{$_} and not $exif->{$_} =~ /^Unknown \(0\)$/
+					} @{$args{exif_tags}};
 			}
 		}
 	}
