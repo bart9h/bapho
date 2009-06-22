@@ -17,3 +17,12 @@ system requirements:
 - fontconfig and other system tools found on
   any Linux system (mkdir, which, cmp, rm, mv, cp, xdpyinfo)
 
+
+optional external tools:
+
+- ufraw, to develop raw files
+
+- gphoto2, to import files directly from the camera
+
+- any text editor (defined by the EDITOR environment variable) to enter new tags
+
