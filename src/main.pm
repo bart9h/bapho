@@ -92,6 +92,34 @@ sub rotate
 	push @$array_ref, shift @$array_ref;
 }#
 
+sub pick
+{my ($array_ref, $item) = @_;
+
+	my $idx;
+	foreach (0 .. (scalar @$array_ref - 1)) {
+		if ($array_ref->[$_] eq $item) {
+			$idx = $_;
+			last;
+		}
+	}
+
+	if (defined $idx) {
+		if ($idx > 0) {
+			@$array_ref = @$array_ref[ $idx,  0 .. $idx-1,  $idx+1 .. $#$array_ref ];
+		}
+	}
+	else {
+		unshift @$array_ref, $item;
+	}
+}#
+
+sub enter_star_view
+{my ($self) = @_;
+
+	$self->{star_view} //= view::new ($self->{collection}, ['_star'], []);
+	pick ($self->{views}, $self->{star_view});
+}#
+
 sub do
 {my ($self, $command) = @_;
 
@@ -118,6 +146,8 @@ sub do
 		when (/^control-d$/)    { $view->pic->develop }
 		when (/^p$/)            { say join "\n", keys %{$view->pic->{files}} }
 		when (/^s$/)            { $view->pic->toggle_tag('_star') }
+		when (/^tab$/)          { rotate $self->{views} }
+		when (/^control-s$/)    { $self->enter_star_view }
 		when (/^t$/)            { $self->enter_tag_mode }
 		when (/^delete$/)       {
 			$view->{collection}->delete ($view->pic);
@@ -221,6 +251,7 @@ sub main
 		collection => collection::new(),
 
 		views      => [],
+		star_view  => undef,
 		menu       => menu::new(),
 
 		# rendering state
