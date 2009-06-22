@@ -14,6 +14,7 @@ use display;
 use menu;
 use picture;
 use text;
+use view;
 
 #}#
 
@@ -43,103 +44,37 @@ sub get_window_geometry
 	($w, $h);
 }#
 
-sub adjust_page_and_cursor
-{my ($self) = @_;
-
-	my $last = (scalar @{$self->{ids}}) - 1;
-	my $page_size = $self->{rows}*$self->{cols};
-
-	if ($self->{cursor} < 0) {
-		$self->{cursor} = $last;
-		$self->{page_first} = $last>=$page_size ? $last-($page_size-1) : 0;
-	}
-	elsif ($self->{cursor} > $last) {
-		$self->{cursor} = $self->{page_first} = 0;
-	}
-	elsif ($page_size > 1) {
-		if (scalar @{$self->{ids}} > $page_size) {
-			$self->{page_first} += $page_size
-				while $self->{cursor}-$self->{page_first} >= $page_size;
-
-			$self->{page_first} -= $page_size
-				while $self->{cursor} < $self->{page_first};
-
-			$self->{page_first} = 0
-				if $self->{page_first} < 0;
-
-			my $last_page = (scalar @{$self->{ids}}) - $page_size;
-			$self->{page_first} = $last_page
-				if $self->{page_first} > $last_page;
-		}
-	}
-	else {
-		$self->{page_first} = $self->{cursor};
-	}
-
-}#
-
 sub enter_tag_mode
 {my ($self) = @_;
 
 	$self->{menu}->enter ('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
 }#
 
-sub pic
-{my ($self, $idx) = @_;
-
-	$idx //= $self->{cursor};
-
-	$self->{collection}->{pics}->{$self->{ids}->[$idx]};
-}#
-
-sub seek_date
-{my ($self, $key) = @_;
-
-	our $k = lc $key;
-	sub part($$) { substr $_[1]->{id}, 0, {d=>8,m=>6,y=>4}->{$_[0]} }
-
-	my $last = (scalar @{$self->{ids}}) - 1;
-
-	# prevent endless loop
-	return if part($k,$self->pic(0)) eq part($k,$self->pic($last));
-
-	# loop to find next pic with different date part
-	my $current_pic = $self->pic;
-	my $direction = $key =~ /[a-z]/ ? 1 : -1;
-	while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
-
-		$self->{cursor} += $direction;
-		$self->{cursor} = 0      if $self->{cursor} > $last;
-		$self->{cursor} = $last  if $self->{cursor} < 0;
-
-		last  if part($k,$self->pic) ne part($k,$current_pic);
-	}
-}#
-
 sub do_menu
 {my ($self, $command) = @_;
 
 	return 0 unless $self->{menu}->{active};
+	my $view = $self->{views}->[0];
 
 	my $rc = $self->{menu}->do ($command);
 	given ($self->{menu}->{action}) {
 		when (/^tag_editor$/) {
 			if ($rc) {
 				my $tag = $self->{menu}->{selected};
-				$self->pic->toggle_tag ($tag)  if defined $tag;
+				$view->pic->toggle_tag ($tag)  if defined $tag;
 			}
 			else {
 				given ($command) {
 					when (/^(t|toggle info)$/) {
 						$self->{menu}->leave;
-						$self->pic->save_tags;
+						$view->pic->save_tags;
 					}
 					when (/^e$/) {
-						$self->pic->save_tags;
-						my $filename = $self->pic->get_tag_filename;
+						$view->pic->save_tags;
+						my $filename = $view->pic->get_tag_filename;
 						system "\$EDITOR $filename";
-						$self->pic->add ($filename);
-						$self->{collection}->update_tags;
+						$view->pic->add ($filename);
+						$view->{collection}->update_tags;
 						$self->enter_tag_mode;
 						$self->display;
 					}
@@ -155,7 +90,6 @@ sub rotate
 {my ($array_ref) = @_;
 
 	push @$array_ref, shift @$array_ref;
-	return $array_ref;
 }#
 
 sub do
@@ -164,33 +98,35 @@ sub do
 	return unless defined $command;
 	return if $self->do_menu ($command);
 
+	my $view = $self->{views}->[0];
+
 	given ($command) {
-		when (/^right$/)        { $self->{cursor}++ }
-		when (/^left$/)         { $self->{cursor}-- }
-		when (/^up$/)           { $self->{cursor} -= $self->{cols} }
-		when (/^down$/)         { $self->{cursor} += $self->{cols} }
-		when (/^page down$/)    { $self->{cursor} += $self->{rows}*$self->{cols} }
-		when (/^page up$/)      { $self->{cursor} -= $self->{rows}*$self->{cols} }
-		when (/^home$/)         { $self->{cursor} = 0 }
-		when (/^end$/)          { $self->{cursor} = scalar @{$self->{ids}} - 1 }
-		when (/^[dmy]$/i)       { $self->seek_date($_) }
+		when (/^right$/)        { $view->{cursor}++ }
+		when (/^left$/)         { $view->{cursor}-- }
+		when (/^up$/)           { $view->{cursor} -= $view->{cols} }
+		when (/^down$/)         { $view->{cursor} += $view->{cols} }
+		when (/^page down$/)    { $view->{cursor} += $view->{rows}*$view->{cols} }
+		when (/^page up$/)      { $view->{cursor} -= $view->{rows}*$view->{cols} }
+		when (/^home$/)         { $view->{cursor} = 0 }
+		when (/^end$/)          { $view->{cursor} = scalar @{$view->{ids}} - 1 }
+		when (/^[dmy]$/i)       { $view->seek_date($_) }
 		when (/^toggle info$/)  { rotate($self->{info_modes}) }
-		when (/^zoom in$/)      { $self->{zoom}++; $self->{zoom} =  1 if $self->{zoom} == -1; }
-		when (/^zoom out$/)     { $self->{zoom}--; $self->{zoom} = -2 if $self->{zoom} ==  0; }
-		when (/^zoom reset$/)   { $self->{zoom} = 1 }
+		when (/^zoom in$/)      { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
+		when (/^zoom out$/)     { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; }
+		when (/^zoom reset$/)   { $view->{zoom} = 1 }
 		when (/^quit$/)         { $self->quit }
-		when (/^control-d$/)    { $self->pic->develop }
-		when (/^p$/)            { say join "\n", keys %{$self->pic->{files}} }
-		when (/^s$/)            { $self->pic->toggle_tag('_star') }
+		when (/^control-d$/)    { $view->pic->develop }
+		when (/^p$/)            { say join "\n", keys %{$view->pic->{files}} }
+		when (/^s$/)            { $view->pic->toggle_tag('_star') }
 		when (/^t$/)            { $self->enter_tag_mode }
 		when (/^delete$/)       {
-			$self->{collection}->delete ($self->pic);
-			$self->{ids} = [ sort keys %{$self->{collection}->{pics}} ];
+			$view->{collection}->delete ($view->pic);
+			$view->{ids} = [ sort keys %{$view->{collection}->{pics}} ];
 		}
 		default                 { $self->{dirty} = 0 }
 	}
 
-	$self->adjust_page_and_cursor;
+	$view->adjust_page_and_cursor;
 
 	1;
 }#
@@ -284,12 +220,7 @@ sub main
 		# data
 		collection => collection::new(),
 
-		# navigation state
-		cursor     => 0,
-		page_first => 0,
-		rows       => 1,
-		cols       => 1,
-		zoom       => 1,
+		views      => [],
 		menu       => menu::new(),
 
 		# rendering state
@@ -309,8 +240,7 @@ sub main
 
 	};
 
-	# sorted array of (the ids of) all pictures
-	$self->{ids} = [ sort keys %{$self->{collection}->{pics}} ];
+	push @{$self->{views}}, view::new ($self->{collection});
 
 	SDL::ShowCursor(0);
 
