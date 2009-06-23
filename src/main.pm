@@ -257,8 +257,8 @@ sub main
 		# rendering state
 		info_modes => [ qw/none title tags exif/ ],
 		text => text::new (
-			'Bitstream Vera Sans Mono:24',
-			':20',
+			'Bitstream Vera Sans Mono:20',
+			':18',
 		),
 
 		# SDL window
