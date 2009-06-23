@@ -53,7 +53,7 @@ sub enter_tag_mode
 sub do_menu
 {my ($self, $command) = @_;
 
-	return 0 unless $self->{menu}->{active};
+	return 0 unless $self->{menu}->{action};
 	my $view = $self->{views}->[0];
 
 	my $rc = $self->{menu}->do ($command);

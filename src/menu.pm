@@ -17,7 +17,6 @@ sub enter ($$$)
 
 	$self->{action}   = $action;
 	$self->{items}    = $items;
-	$self->{active}   = 1;
 	$self->{cursor}   = 0;
 	$self->{selected} = undef;
 }#
@@ -27,7 +26,6 @@ sub leave ($)
 
 	$self->{action}   = '';
 	$self->{items}    = [];
-	$self->{active}   = 0;
 	$self->{cursor}   = 0;
 	$self->{selected} = undef;
 }#
