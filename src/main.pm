@@ -69,7 +69,7 @@ sub do_menu
 						$self->{menu}->leave;
 						$view->pic->save_tags;
 					}
-					when (/^e$/) {
+					when (/^e$/ and not $args{fullscreen}) {
 						$view->pic->save_tags;
 						my $filename = $view->pic->get_tag_filename;
 						system "\$EDITOR $filename";
