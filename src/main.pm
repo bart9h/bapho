@@ -135,7 +135,7 @@ sub do
 		when (/^s$/)            { $view->pic->toggle_tag('_star') }
 		when (/^control-s$/)    { $self->enter_star_view }
 		when (/^t$/)            { $self->enter_tag_mode }
-		when (/^[dmy]$/i)       { $view->seek_date $_ }
+		when (/^[dmy]$/i)       { $view->seek_date($_) }
 
 		when (/^left$/)         { $view->{cursor}-- }
 		when (/^right$/)        { $view->{cursor}++ }
@@ -146,6 +146,7 @@ sub do
 		when (/^home$/)         { $view->{cursor} = 0 }
 		when (/^end$/)          { $view->{cursor} = scalar @{$view->{ids}} - 1 }
 
+		when (/^delete$/)       { $view->delete_current }
 		when (/^toggle info$/)  { rotate $self->{info_modes} }
 		when (/^tab$/)          { rotate $self->{views} }
 		when (/^zoom in$/)      { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
@@ -153,10 +154,6 @@ sub do
 		when (/^zoom reset$/)   { $view->{zoom} = 1 }
 		when (/^quit$/)         { $self->quit }
 
-		when (/^delete$/)       {
-			$view->{collection}->delete $view->pic;
-			$view->{ids} = [ sort keys %{$view->{collection}->{pics}} ];
-		}
 		default                 { $self->{dirty} = 0 }
 	}
 

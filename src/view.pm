@@ -22,6 +22,14 @@ sub new
 		zoom       => 1,
 	};
 
+	$self->update;
+
+	return $self;
+}#
+
+sub update
+{my ($self) = @_;
+
 	sub filter
 	{my ($tags, $ins, $outs) = @_;
 		foreach (@$ins) {
@@ -37,11 +45,9 @@ sub new
 	my $pics = $self->{collection}->{pics};
 	$self->{ids} = [
 		sort grep {
-			filter($pics->{$_}->{tags}, $ins, $outs)
+			filter($pics->{$_}->{tags}, $self->{ins}, $self->{outs})
 		} keys %$pics
 	];
-
-	return $self;
 }#
 
 sub pic
@@ -50,6 +56,14 @@ sub pic
 	$idx //= $self->{cursor};
 
 	$self->{collection}->{pics}->{$self->{ids}->[$idx]};
+}#
+
+sub delete_current
+{my ($self) = @_;
+
+	$self->{collection}->delete($self->pic);
+
+	$self->update;
 }#
 
 sub adjust_page_and_cursor
