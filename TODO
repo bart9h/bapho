@@ -1,0 +1,27 @@
+Poor man's issue tracker (roughly sorted by priority):
+
+* Interface to define new views (edit in/out filters).
+
+* Cycle through multiple files of a picture.
+  * Option to set selected one? As a tag?
+
+* When importing, load files first, to check for duplicates
+  (ex: in case of a renamed directory).
+
+* Image rotation.
+
+* Text editor (to enter new tags).
+
+* Asynchronous file loading.
+
+* Faster startup time (avoid `find $basedir`).
+  * Asynchronous directory loading;
+  or
+  * Save collection data to a database (how to sync?).
+
+* Display image histogram.
+
+* OSD transparency.
+
+* Window resizing.
+
