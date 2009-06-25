@@ -193,7 +193,7 @@ sub do
 
 		when (/^delete$/)       { $view->delete_current }
 		when (/^toggle info$/)  { rotate $self->{info_modes} }
-		when (/^tab$/)          { rotate $self->{views} }
+		when (/^tab$/)          { rotate $self->{views}; $self->{views}->[0]->update }
 		when (/^zoom in$/)      { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
 		when (/^zoom out$/)     { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $view->{zoom} = 1 }
