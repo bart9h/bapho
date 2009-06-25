@@ -250,6 +250,10 @@ sub handle_event
 				}->{$event->button}
 			);
 		}
+		when ($_ == SDL_VIDEORESIZE()) {
+			$self->{app}->resize($event->resize_w, $event->resize_h);
+			$self->{dirty} = 1;
+		}
 		when ($_ == SDL_QUIT()) {
 			$self->quit;
 		}
