@@ -129,28 +129,32 @@ sub do
 	my $view = $self->{views}->[0];
 
 	given ($command) {
-		when (/^right$/)        { $view->{cursor}++ }
+
+		when (/^control-d$/)    { $view->pic->develop }
+		when (/^p$/)            { say join "\n", keys %{$view->pic->{files}} }
+		when (/^s$/)            { $view->pic->toggle_tag('_star') }
+		when (/^control-s$/)    { $self->enter_star_view }
+		when (/^t$/)            { $self->enter_tag_mode }
+		when (/^[dmy]$/i)       { $view->seek_date $_ }
+
 		when (/^left$/)         { $view->{cursor}-- }
+		when (/^right$/)        { $view->{cursor}++ }
 		when (/^up$/)           { $view->{cursor} -= $view->{cols} }
 		when (/^down$/)         { $view->{cursor} += $view->{cols} }
-		when (/^page down$/)    { $view->{cursor} += $view->{rows}*$view->{cols} }
 		when (/^page up$/)      { $view->{cursor} -= $view->{rows}*$view->{cols} }
+		when (/^page down$/)    { $view->{cursor} += $view->{rows}*$view->{cols} }
 		when (/^home$/)         { $view->{cursor} = 0 }
 		when (/^end$/)          { $view->{cursor} = scalar @{$view->{ids}} - 1 }
-		when (/^[dmy]$/i)       { $view->seek_date($_) }
-		when (/^toggle info$/)  { rotate($self->{info_modes}) }
+
+		when (/^toggle info$/)  { rotate $self->{info_modes} }
+		when (/^tab$/)          { rotate $self->{views} }
 		when (/^zoom in$/)      { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
 		when (/^zoom out$/)     { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $view->{zoom} = 1 }
 		when (/^quit$/)         { $self->quit }
-		when (/^control-d$/)    { $view->pic->develop }
-		when (/^p$/)            { say join "\n", keys %{$view->pic->{files}} }
-		when (/^s$/)            { $view->pic->toggle_tag('_star') }
-		when (/^tab$/)          { rotate $self->{views} }
-		when (/^control-s$/)    { $self->enter_star_view }
-		when (/^t$/)            { $self->enter_tag_mode }
+
 		when (/^delete$/)       {
-			$view->{collection}->delete ($view->pic);
+			$view->{collection}->delete $view->pic;
 			$view->{ids} = [ sort keys %{$view->{collection}->{pics}} ];
 		}
 		default                 { $self->{dirty} = 0 }
