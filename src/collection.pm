@@ -24,10 +24,10 @@ sub new
 	};
 
 	use File::Find;
-	find ( {
+	find({
 			no_chdir => 1,
 			follow => 1,
-			wanted => sub { $self->pvt__add_file ($_) },
+			wanted => sub { $self->pvt__add_file($_) },
 		},
 		($args{startdir} // $args{basedir}).'/'
 	);
@@ -41,7 +41,7 @@ sub new
 		}
 	}
 
-	$self->update_tags();
+	$self->update_tags;
 
 	return $self;
 }#
@@ -68,7 +68,7 @@ sub get_surface
 {my ($self, $id, $width, $height) = @_;
 
 	my $file = $self->{pics}->{$id}->{sel};
-	return $self->{factory}->get ($file, $width, $height);
+	return $self->{factory}->get($file, $width, $height);
 }#
 
 
@@ -87,8 +87,8 @@ sub pvt__add_file
 		(?<rest>.*)
 		$|x)
 	{
-		my $pic = $self->{pics}{$+{id}} //= picture::new ($+{id});
-		$pic->add ($file);
+		my $pic = $self->{pics}{$+{id}} //= picture::new($+{id});
+		$pic->add($file);
 	}
 	else {
 		warn "strange filename ($file)";

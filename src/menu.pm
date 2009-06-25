@@ -12,7 +12,7 @@ sub new
 	return $self;
 }#
 
-sub enter ($$$)
+sub enter
 {my ($self, $action, $items) = @_;
 
 	$self->{action}   = $action;
@@ -21,7 +21,7 @@ sub enter ($$$)
 	$self->{selected} = undef;
 }#
 
-sub leave ($)
+sub leave
 {my ($self) = @_;
 
 	$self->{action}   = '';
@@ -30,7 +30,7 @@ sub leave ($)
 	$self->{selected} = undef;
 }#
 
-sub do ($)
+sub do
 {my ($self, $command) = @_;
 
 	return unless defined $command;

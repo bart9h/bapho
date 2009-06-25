@@ -62,7 +62,7 @@ sub get_window_geometry
 sub enter_tag_mode
 {my ($self) = @_;
 
-	$self->{menu}->enter ('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
+	$self->{menu}->enter('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
 }#
 
 sub do_menu
@@ -71,12 +71,12 @@ sub do_menu
 	return 0 unless $self->{menu}->{action};
 	my $view = $self->{views}->[0];
 
-	my $rc = $self->{menu}->do ($command);
+	my $rc = $self->{menu}->do($command);
 	given ($self->{menu}->{action}) {
 		when (/^tag_editor$/) {
 			if ($rc) {
 				my $tag = $self->{menu}->{selected};
-				$view->pic->toggle_tag ($tag)  if defined $tag;
+				$view->pic->toggle_tag($tag)  if defined $tag;
 			}
 			else {
 				given ($command) {
@@ -88,7 +88,7 @@ sub do_menu
 						$view->pic->save_tags;
 						my $filename = $view->pic->get_tag_filename;
 						system "\$EDITOR $filename";
-						$view->pic->add ($filename);
+						$view->pic->add($filename);
 						$view->{collection}->update_tags;
 						$self->enter_tag_mode;
 						$self->display;
@@ -131,8 +131,8 @@ sub pick
 sub enter_star_view
 {my ($self) = @_;
 
-	$self->{star_view} //= view::new ($self->{collection}, ['_star'], []);
-	pick ($self->{views}, $self->{star_view});
+	$self->{star_view} //= view::new($self->{collection}, ['_star'], []);
+	pick($self->{views}, $self->{star_view});
 }#
 
 sub fullscreen_toggle
@@ -169,7 +169,7 @@ sub do
 {my ($self, $command) = @_;
 
 	return unless defined $command;
-	return if $self->do_menu ($command);
+	return if $self->do_menu($command);
 
 	my $view = $self->{views}->[0];
 
@@ -235,14 +235,14 @@ sub handle_event
 			$control = 1  if $key =~ m{^(left|right)\ ctrl$};
 			$key = uc $key          if $shift;
 			$key = 'control-'.$key  if $control;
-			$self->do ($ev2cmd{$key} // $key);
+			$self->do($ev2cmd{$key} // $key);
 		}
 		when ($_ == SDL_KEYUP()) {
 			$shift   = 0  if $event->key_name =~ m{^(left|right)\ shift$};
 			$control = 0  if $event->key_name =~ m{^(left|right)\ ctrl$};
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
-			$self->{dirty} = $self->do (
+			$self->{dirty} = $self->do(
 				{
 					3 => 'toggle info',
 					4 => 'page down',
@@ -278,7 +278,7 @@ sub main
 
 	if ($args{import}) {
 		use import;
-		exit (import::import_any($args{files}) ? 0 : 1);
+		exit(import::import_any($args{files}) ? 0 : 1);
 	}
 	else {
 		if (exists $args{files}) {
@@ -294,21 +294,21 @@ sub main
 	bless my $self = {
 
 		# data
-		collection => collection::new(),
+		collection => collection::new,
 
 		views      => [],
 		star_view  => undef,
-		menu       => menu::new(),
+		menu       => menu::new,
 
 		# rendering state
 		info_modes => [ qw/none title tags exif/ ],
-		text => text::new (
+		text => text::new(
 			'Bitstream Vera Sans Mono:20',
 			':18',
 		),
 
 		# SDL window
-		app => SDL::App->new (
+		app => SDL::App->new(
 			-title => 'bapho',
 			-width => $w,
 			-height => $h,
@@ -317,7 +317,7 @@ sub main
 
 	};
 
-	push @{$self->{views}}, view::new ($self->{collection}, [], []);
+	push @{$self->{views}}, view::new($self->{collection}, [], []);
 
 	SDL::ShowCursor(0);
 
@@ -325,13 +325,13 @@ sub main
 	use SDL::Event;
 	use SDL::Constants;
 	my $event = new SDL::Event;
-	SDL::Event->set_key_repeat (200, 30);
+	SDL::Event->set_key_repeat(200, 30);
 	$self->display;
 
 	while(1) {
 		$event->wait;
 		do {
-			$self->handle_event ($event);
+			$self->handle_event($event);
 		} while ($event->poll);
 
 		$self->display  if $self->{dirty};

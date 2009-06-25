@@ -57,7 +57,7 @@ sub get
 
 	my $res = pvt__res_key($width,$height);
 
-	$self->{items}->{$path}->{$res} //= $self->pvt__create_surf ($path, $width, $height);
+	$self->{items}->{$path}->{$res} //= $self->pvt__create_surf($path, $width, $height);
 
 	$self->{items}->{$path}->{$res}->{last_time_used} = time;
 
@@ -111,8 +111,8 @@ sub pvt__load_exif_preview
 	caller eq __PACKAGE__ or die;
 
 	my $exif = Image::ExifTool->new;
-	$exif->Options (Binary => 1);
-	my $info = $exif->ImageInfo ($path);
+	$exif->Options(Binary => 1);
+	my $info = $exif->ImageInfo($path);
 
 	my $tag = 'PreviewImage';
 	#TODO: use thumbnail if $width,$height fits
@@ -124,7 +124,7 @@ sub pvt__load_exif_preview
 		print F ${$info->{$tag}};
 		close F;
 
-		my $surf = SDL::Surface->new (-name => $tmp);
+		my $surf = SDL::Surface->new(-name => $tmp);
 
 		unlink $tmp;
 
@@ -144,7 +144,7 @@ sub pvt__load_file
 	my $item = {};
 
 	if ($path =~ m/\.cr2$/i) {
-		my ($surf, $exif) = pvt__load_exif_preview ($path, $width, $height);
+		my ($surf, $exif) = pvt__load_exif_preview($path, $width, $height);
 		#use Data::Dumper;
 		#print Dumper  { map { $_ => $exif->{$_} } @{$args{exif_tags}} };
 		#exit;
@@ -156,14 +156,14 @@ sub pvt__load_file
 		};
 	}
 	else {
-		$item->{surf} = eval { SDL::Surface->new (-name => $path) };
+		$item->{surf} = eval { SDL::Surface->new(-name => $path) };
 		if ($item->{surf}) {
-			$item->{width}  = $item->{surf}->width();
-			$item->{height} = $item->{surf}->height();
+			$item->{width}  = $item->{surf}->width;
+			$item->{height} = $item->{surf}->height;
 		}
 
 		my $exif = Image::ExifTool->new;
-		$item->{exif} = $exif->ImageInfo ($path);
+		$item->{exif} = $exif->ImageInfo($path);
 	}
 
 	$item;
@@ -177,10 +177,10 @@ sub pvt__get_dummy_surface
 
 	unless ($surf) {
 		say ':(';
-		$surf = SDL::Surface->new (-width => 256, -height => 256);
-		$surf->fill (
-			SDL::Rect->new (-width => 128, -height => 128, -x => 64, -y => 64),
-			SDL::Color->new (-r => 200, -g => 0, -b => 0),
+		$surf = SDL::Surface->new(-width => 256, -height => 256);
+		$surf->fill(
+			SDL::Rect->new(-width => 128, -height => 128, -x => 64, -y => 64),
+			SDL::Color->new(-r => 200, -g => 0, -b => 0),
 		);
 	}
 
@@ -192,10 +192,10 @@ sub pvt__zoom
 	caller eq __PACKAGE__ or die;
 
 	die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
-		unless ( ref($surface) && $surface->isa('SDL::Surface'));
+		unless (ref($surface) and $surface->isa('SDL::Surface'));
 
 	my $tmp = SDL::Surface->new;
-	$$tmp = SDL::GFXZoom ($$surface, $zoom, $zoom, 1);
+	$$tmp = SDL::GFXZoom($$surface, $zoom, $zoom, 1);
 	return $tmp;
 }#
 
@@ -219,9 +219,9 @@ sub pvt__create_surf
 	sub add_picture
 	{my ($self, $path, $picture) = @_;
 
-		my $res = pvt__res_key ($picture->{surf}->width, $picture->{surf}->height);
+		my $res = pvt__res_key($picture->{surf}->width, $picture->{surf}->height);
 		$self->{items}->{$path}->{$res} = $picture;
-		$self->{bytes_used} += pvt__surf_bytes ($picture->{surf});
+		$self->{bytes_used} += pvt__surf_bytes($picture->{surf});
 		$self->{loaded_files} += 1;
 	}#
 
@@ -242,7 +242,7 @@ sub pvt__create_surf
 			$origin->{last_time_used} = time - handicap;
 
 			if ($origin->{surf}) {
-				$self->add_picture ($path, $origin);
+				$self->add_picture($path, $origin);
 			}
 			else {
 				$origin->{surf} = pvt__get_dummy_surface;
@@ -261,8 +261,8 @@ sub pvt__create_surf
 	}
 	else {
 		my $item = { %$origin };
-		$item->{surf} = pvt__zoom ($origin->{surf}, $zoom);
-		$self->add_picture ($path, $item);
+		$item->{surf} = pvt__zoom($origin->{surf}, $zoom);
+		$self->add_picture($path, $item);
 		$origin->{last_time_used} = time - handicap;
 		return $item;
 	}

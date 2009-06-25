@@ -38,7 +38,7 @@ sub new
 		-f $file  or die "$file not found";
 
 		my $f;
-		push @{$self->{fonts}}, $f=SDL::TTFont->new (
+		push @{$self->{fonts}}, $f=SDL::TTFont->new(
 			-name => $file,
 			-size => $size,
 			-bg => $SDL::Color::black,
@@ -68,16 +68,16 @@ sub print
 						$taller_font = $font
 							if not defined $taller_font
 							or $taller_font->height > $font->height;
-						$width += $font->width ($arg);
+						$width += $font->width($arg);
 					}
 					else {
-						$font->print ($surf,
+						$font->print($surf,
 							$self->{x},
 							$self->{y}
 								+$taller_font->height  +$taller_font->descent
 								-       $font->height  -       $font->descent,
 							$arg);
-						$self->{x} += $font->width ($arg);
+						$self->{x} += $font->width($arg);
 					}
 				}
 				default { die }
@@ -86,9 +86,9 @@ sub print
 
 		if ($mode eq 'layout') {
 			my $height = .5*$self->{border} + $taller_font->height;
-			$surf->fill (
-				SDL::Rect->new (-x => 0, -y => $self->{y}, -width => $width, -height => $height),
-				SDL::Color->new (-r => 0, -g => 0, -b => 0),
+			$surf->fill(
+				SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $width, -height => $height),
+				SDL::Color->new(-r => 0, -g => 0, -b => 0),
 			);
 		}
 	}

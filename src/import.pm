@@ -22,7 +22,7 @@ sub exif2path
 	}
 
 	use Image::ExifTool qw(:Public);
-	my $exif = ImageInfo ($source_file);
+	my $exif = ImageInfo($source_file);
 
 	my $date_key;
 	foreach (qw/DateTimeOriginal FileModifyDate/) {
@@ -61,7 +61,7 @@ sub import_file
 	$source_file =~ m/$args{basedir}/
 		and die "importing file $source_file from inside basedir $args{basedir}";
 
-	my ($dir, $basename, $ext) = exif2path ($source_file);
+	my ($dir, $basename, $ext) = exif2path($source_file);
 	defined $dir or return undef;
 
 	my $target_file;
@@ -99,10 +99,10 @@ sub import_files
 {my (@files) = @_;
 
 	use File::Find;
-	find (
+	find(
 		{
 			no_chdir => 1,
-			wanted => sub { import_file ($_) unless -d },
+			wanted => sub { import_file($_) unless -d },
 		},
 		@files
 	);
@@ -132,7 +132,7 @@ sub import_any
 {my ($files_ref) = @_;
 
 	if (defined $files_ref and scalar @$files_ref) {
-		import_files (@$files_ref);
+		import_files(@$files_ref);
 	}
 	else {
 		import_gphoto2;
