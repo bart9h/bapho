@@ -18,30 +18,45 @@ use view;
 
 #}#
 
-sub get_window_geometry
+sub get_root_geometry
 {my ($self) = @_;
 
-	my ($w, $h) = (0, 0);
+	state ($w, $h);
 
-	if (defined $args{geometry}) {
-		($w, $h) = $args{geometry} =~ /(\d+)x(\d+)/ ? ($1, $2) : (0, 0)
-	}
+	unless ($w and $h) {
 
-	if ($args{fullscreen}) {
-		if ($w == 0) {
-			($w, $h) = `xdpyinfo` =~ /\b(\d{2,})x(\d{2,})\b/s ? ($1, $2) : (0, 0);
-			for (2 .. 10)
-			{#{my ugly hack: fix multi-monitor}
-				$_ = 12 - $_;
-				if ($w > $_*$h) {
-					$w = int ($w/$_);
-					last;
-				}
-			}#
-		}
+		`xdpyinfo` =~ /\b(\d{2,})x(\d{2,})\b/s
+			or return (0, 0);
+		($w, $h) = ($1, $2);
+
+		for (2 .. 10)
+		{#{my ugly hack: fix multi-monitor}
+			$_ = 12 - $_;
+			if ($w > $_*$h) {
+				$w = int($w/$_);
+				last;
+			}
+		}#
+
 	}
 
 	($w, $h);
+}#
+
+sub get_window_geometry
+{my ($self) = @_;
+
+	if (defined $args{geometry}) {
+		$args{geometry} =~ /(\d+)x(\d+)/
+		? ($1, $2)
+		: (0, 0)
+	}
+	elsif ($args{fullscreen}) {
+		get_root_geometry;
+	}
+	else {
+		(0, 0);
+	}
 }#
 
 sub enter_tag_mode
@@ -120,6 +135,36 @@ sub enter_star_view
 	pick ($self->{views}, $self->{star_view});
 }#
 
+sub fullscreen_toggle
+{my ($self) = @_;
+
+	$args{fullscreen} = not $args{fullscreen};
+
+	my ($w, $h);
+	if ($args{fullscreen}) {
+		($w, $h) = $args{geometry} ? get_window_geometry : get_root_geometry;
+	}
+	else {
+		if ($args{geometry}) {
+			($w, $h) = get_window_geometry;
+		}
+		else {
+			($w, $h) = get_root_geometry;
+			$w /= 2;
+			$h /= 2;
+		}
+	}
+
+	if ($args{fullscreen}) {
+		$self->{app}->resize($w, $h);
+		$self->{app}->fullscreen;
+	}
+	else {
+		$self->{app}->fullscreen;
+		$self->{app}->resize($w, $h);
+	}
+}#
+
 sub do
 {my ($self, $command) = @_;
 
@@ -129,8 +174,8 @@ sub do
 	my $view = $self->{views}->[0];
 
 	given ($command) {
-
 		when (/^control-d$/)    { $view->pic->develop }
+		when (/^f$/)            { $self->fullscreen_toggle }
 		when (/^p$/)            { say join "\n", keys %{$view->pic->{files}} }
 		when (/^s$/)            { $view->pic->toggle_tag('_star') }
 		when (/^control-s$/)    { $self->enter_star_view }
