@@ -78,10 +78,16 @@ sub save_tags
 	if ($self->{dirty}) {
 		unless ($args{nop}) {
 			my $filename = $self->get_tag_filename;
-			open F, '>', $filename  or die "$filename: $!";
-			say "saving $filename"  if $args{verbose};
-			print F "$_\n"  foreach sort keys %{$self->{tags}};
-			close F;
+
+			if (scalar keys %{$self->{tags}} > 0) {
+				open F, '>', $filename  or die "$filename: $!";
+				say "saving $filename"  if $args{verbose};
+				print F "$_\n"  foreach sort keys %{$self->{tags}};
+				close F;
+			}
+			else {
+				unlink $filename if -e $filename;
+			}
 		}
 		$self->{dirty} = 0;
 	}
