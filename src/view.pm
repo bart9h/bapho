@@ -15,6 +15,7 @@ sub new
 		collection => $collection,
 		ins        => $ins,
 		outs       => $outs,
+		ids        => [], # will be filled in $self->update
 		cursor     => 0,
 		page_first => 0,
 		rows       => 1,
@@ -122,6 +123,19 @@ sub seek_date
 		$self->{cursor} = $last  if $self->{cursor} < 0;
 
 		last  if part($k,$self->pic) ne part($k,$current_pic);
+	}
+}#
+
+sub seek_id
+{my ($self, $id) = @_;
+
+	my $idx = 0;
+	foreach (@{$self->{ids}}) {
+		if ($_ eq $id) {
+			$self->{cursor} = $idx;
+			last;
+		}
+		$idx++;
 	}
 }#
 

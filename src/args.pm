@@ -35,7 +35,12 @@ our %args = (
 		],
 );
 
-sub read_args (@)
+sub state_filename
+{#
+	$args{basedir}.'/.bapho-state';
+}#
+
+sub read_args
 {# read cmdline parameters into %args
 
 	my $process_args = 1;
@@ -87,6 +92,38 @@ sub read_args (@)
 		push @{$args{files}}, $_;
 	}
 	1;
+}#
+
+sub save_state
+{#
+	my ($h) = @_;
+
+	unless (open F, '>', state_filename) {
+		printf ">%s: $!\n", state_filename;
+		return;
+	}
+
+	foreach (keys %$h) {
+		print F "$_=$h->{$_}\n";
+	}
+
+	close F;
+}#
+
+sub load_state
+{#
+	unless (open F, state_filename) {
+		printf "<%s: $!\n", state_filename;
+		return;
+	}
+
+	while (<F>) {
+		chomp;
+		/^([^=]+)=(.*)$/ or die;
+		$args{$1} = $2;
+	}
+
+	close F;
 }#
 
 1;

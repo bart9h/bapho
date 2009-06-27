@@ -77,6 +77,7 @@ sub pvt__add_file
 	caller eq __PACKAGE__ or die;
 
 	return if -d $file;
+	return if $file =~ m{/\.bapho-state$};
 	return if $file =~ m{/\.([^/]*-)?trash/}i;
 	return if $file =~ m{/\.qiv-select/}i;
 

@@ -263,7 +263,24 @@ sub quit
 	foreach (keys %{$P}) {
 		$P->{$_}->save_tags;
 	}
+
+	args::save_state {
+		cursor_id => $self->{views}->[0]->pic->{id},
+	};
+
 	exit(0);
+}#
+
+sub load_state
+{my ($self) = @_;
+
+	args::load_state;
+
+	my $id = $args{cursor_id};
+	if (defined $id) {
+		$_->seek_id($id)
+			foreach @{$self->{views}};
+	}
 }#
 
 sub main
@@ -318,6 +335,8 @@ sub main
 	};
 
 	push @{$self->{views}}, view::new($self->{collection}, [], []);
+
+	$self->load_state;
 
 	SDL::ShowCursor(0);
 
