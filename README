@@ -4,7 +4,7 @@ bapho -- the [ba]rt9h's [ph]oto [o]rganizer
 http://github.com/bart9h/bapho
 
 
-system requirements:
+System requirements:
 
 - Perl 5.10
 
@@ -18,7 +18,7 @@ system requirements:
   any Linux system (mkdir, which, cmp, rm, mv, cp, xdpyinfo)
 
 
-optional external tools:
+Optional external tools:
 
 - ufraw, to develop raw files
 

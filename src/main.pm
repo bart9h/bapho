@@ -247,7 +247,7 @@ sub handle_event
 					3 => 'toggle info',
 					4 => 'page down',
 					5 => 'page up',
-				}->{$event->button}
+				}->{$event->button} // 'button-'.$event->button
 			);
 		}
 		when ($_ == SDL_VIDEORESIZE()) {

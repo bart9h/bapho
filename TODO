@@ -1,5 +1,7 @@
 Poor man's issue tracker (roughly sorted by priority):
 
+* Shortcut to repeat last tag entered.
+
 * Interface to define new views (edit in/out filters).
 
 * Cycle through multiple files of a picture.
@@ -10,9 +12,11 @@ Poor man's issue tracker (roughly sorted by priority):
 
 * Image rotation.
 
-* Text editor (to enter new tags).
+* Text line editing (to enter new tags).
 
 * Asynchronous file loading.
+
+* Mouse support (IMGUI).
 
 * Faster startup time (avoid `find $basedir`).
   * Asynchronous directory loading;
@@ -22,4 +26,6 @@ Poor man's issue tracker (roughly sorted by priority):
 * Display image histogram.
 
 * OSD transparency.
+
+* PicasaWeb upload.
 

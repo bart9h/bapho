@@ -19,19 +19,22 @@ our %args = (
 		nop => undef,
 		import => undef,
 		cache_size_mb => undef,
-		exif_tags => [ qw/
-			Model
-			LensID
-			ISO
-			ShutterSpeedValue
-			ApertureValue
-			FocalLength
-			Flash
-			FocusMode
-			ColorTemperature
-			Orientation
-			UserComment
+		exif_tags => [
+		#{#
+			qw/
+				Model
+				LensID
+				ISO
+				ShutterSpeedValue
+				ApertureValue
+				FocalLength
+				Flash
+				FocusMode
+				ColorTemperature
+				Orientation
+				UserComment
 			/
+		#}#
 		],
 );
 
