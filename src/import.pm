@@ -111,17 +111,17 @@ sub import_files
 sub import_gphoto2
 {#{my}
 
-	my $dir = $args{temp_dir}.'/bapho-gphoto2';
-	mkdir $dir  or die $!;
-	chdir $dir  or die $!;
+	my $dir = "$args{temp_dir}/bapho-gphoto2";
+	my $cmd = join '; ', ("set -e",
+		"test -d \"$dir\" || mkdir -v \"$dir\"",
+		"cd \"$dir\"",
+		"sudo gphoto2 -P",
+		"sudo chown $ENV{USER} *",
+	);
 
-	my $cmd = 'sudo gphoto2 -P';
 	if (0 == system $cmd) {
-		my $rc = import_files <*>;
-		unlink <*>;
-		chdir $args{temp_dir}  or die $!;
-		rmdir $dir  or die $!;
-		$rc;
+		import_files $dir;
+		rmdir $dir  or die "files left on $dir/?";
 	}
 	else {
 		die "$cmd failed";
