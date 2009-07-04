@@ -173,7 +173,10 @@ sub do
 
 	my $view = $self->{views}->[0];
 
+	$self->{dirty} = 1;
+
 	given ($command) {
+
 		when (/^control-d$/)    { $view->pic->develop }
 		when (/^f$/)            { $self->fullscreen_toggle }
 		when (/^p$/)            { say join "\n", keys %{$view->pic->{files}} }
@@ -215,27 +218,38 @@ sub handle_event
 
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
-			$self->{dirty} = 1;
-			my %ev2cmd = (
-				k         => 'up',
-				j         => 'down',
-				h         => 'left',
-				l         => 'right',
-				q         => 'quit',
-				escape    => 'quit',
-				space     => 'page down',
-				backspace => 'page up',
-				i         => 'toggle info',
-				'-'       => 'zoom out',
-				'='       => 'zoom in',
-			);
-
 			my $key = $event->key_name;
 			$shift   = 1  if $key =~ m{^(left|right)\ shift$};
 			$control = 1  if $key =~ m{^(left|right)\ ctrl$};
 			$key = uc $key          if $shift;
 			$key = 'control-'.$key  if $control;
-			$self->do($ev2cmd{$key} // $key);
+
+			if ($self->{key_hold}) {
+				$key = "$self->{key_hold}-$key";
+				$self->{key_hold} = '';
+			}
+			if ($key =~ /^[g]$/) {
+				$self->{key_hold} = $key;
+			}
+			else {
+				$self->do(
+					{
+						i         => 'toggle info',
+						'-'       => 'zoom out',
+						'='       => 'zoom in',
+						k         => 'up',
+						j         => 'down',
+						h         => 'left',
+						l         => 'right',
+						q         => 'quit',
+						escape    => 'quit',
+						space     => 'page down',
+						backspace => 'page up',
+						'g-g'     => 'home',
+						G         => 'end',
+					}->{$key} // $key
+				)
+			}
 		}
 		when ($_ == SDL_KEYUP()) {
 			$shift   = 0  if $event->key_name =~ m{^(left|right)\ shift$};
@@ -320,6 +334,7 @@ sub main
 		views      => [],
 		star_view  => undef,
 		menu       => menu::new,
+		key_hold   => '',
 
 		# rendering state
 		info_modes => [ qw/none title tags exif/ ],
