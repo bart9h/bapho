@@ -52,6 +52,13 @@ sub add
 	}
 }#
 
+sub set_tag
+{my ($self, $tag) = @_;
+
+	$self->{tags}->{$tag} = 1;
+	$self->{dirty} = 1;
+}#
+
 sub toggle_tag
 {my ($self, $tag) = @_;
 

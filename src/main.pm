@@ -217,7 +217,7 @@ sub do
 		when (/^control-s$/)    { $self->enter_star_view }
 		when (/^t$/)            { $self->enter_tag_mode }
 		when (/^[dmy]$/i)       { $view->seek_date($_) }
-		when (/^\.$/)           { $view->pic->{tags}->{$self->{last_tag}} = 1 }
+		when (/^\.$/)           { $view->pic->set_tag($self->{last_tag}) }
 
 		when (/^left$/)         { $view->{cursor}-- }
 		when (/^right$/)        { $view->{cursor}++ }
