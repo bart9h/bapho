@@ -18,6 +18,33 @@ use view;
 
 #}#
 
+sub rotate
+{my ($array_ref) = @_;
+
+	push @$array_ref, shift @$array_ref;
+}#
+
+sub pick
+{my ($array_ref, $item) = @_;
+
+	my $idx;
+	foreach (0 .. (scalar @$array_ref - 1)) {
+		if ($array_ref->[$_] eq $item) {
+			$idx = $_;
+			last;
+		}
+	}
+
+	if (defined $idx) {
+		if ($idx > 0) {
+			@$array_ref = @$array_ref[ $idx,  0 .. $idx-1,  $idx+1 .. $#$array_ref ];
+		}
+	}
+	else {
+		unshift @$array_ref, $item;
+	}
+}#
+
 sub get_root_geometry
 {my ($self) = @_;
 
@@ -59,10 +86,74 @@ sub get_window_geometry
 	}
 }#
 
+sub fullscreen_toggle
+{my ($self) = @_;
+
+	$args{fullscreen} = not $args{fullscreen};
+
+	my ($w, $h);
+	if ($args{fullscreen}) {
+		($w, $h) = $args{geometry} ? get_window_geometry : get_root_geometry;
+	}
+	else {
+		if ($args{geometry}) {
+			($w, $h) = get_window_geometry;
+		}
+		else {
+			($w, $h) = get_root_geometry;
+			$w /= 2;
+			$h /= 2;
+		}
+	}
+
+	if ($args{fullscreen}) {
+		$self->{app}->resize($w, $h);
+		$self->{app}->fullscreen;
+	}
+	else {
+		$self->{app}->fullscreen;
+		$self->{app}->resize($w, $h);
+	}
+}#
+
+sub load_state
+{my ($self) = @_;
+
+	args::load_state;
+
+	my $id = $args{cursor_id};
+	if (defined $id) {
+		$_->seek_id($id)
+			foreach @{$self->{views}};
+	}
+}#
+
+sub quit
+{my ($self) = @_;
+
+	my $P = $self->{collection}->{pics};
+	foreach (keys %{$P}) {
+		$P->{$_}->save_tags;
+	}
+
+	args::save_state {
+		cursor_id => $self->{views}->[0]->pic->{id},
+	};
+
+	exit(0);
+}#
+
 sub enter_tag_mode
 {my ($self) = @_;
 
 	$self->{menu}->enter('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
+}#
+
+sub enter_star_view
+{my ($self) = @_;
+
+	$self->{star_view} //= view::new($self->{collection}, ['_star'], []);
+	pick($self->{views}, $self->{star_view});
 }#
 
 sub do_menu
@@ -106,70 +197,6 @@ sub do_menu
 	}
 
 	return 1;
-}#
-
-sub rotate
-{my ($array_ref) = @_;
-
-	push @$array_ref, shift @$array_ref;
-}#
-
-sub pick
-{my ($array_ref, $item) = @_;
-
-	my $idx;
-	foreach (0 .. (scalar @$array_ref - 1)) {
-		if ($array_ref->[$_] eq $item) {
-			$idx = $_;
-			last;
-		}
-	}
-
-	if (defined $idx) {
-		if ($idx > 0) {
-			@$array_ref = @$array_ref[ $idx,  0 .. $idx-1,  $idx+1 .. $#$array_ref ];
-		}
-	}
-	else {
-		unshift @$array_ref, $item;
-	}
-}#
-
-sub enter_star_view
-{my ($self) = @_;
-
-	$self->{star_view} //= view::new($self->{collection}, ['_star'], []);
-	pick($self->{views}, $self->{star_view});
-}#
-
-sub fullscreen_toggle
-{my ($self) = @_;
-
-	$args{fullscreen} = not $args{fullscreen};
-
-	my ($w, $h);
-	if ($args{fullscreen}) {
-		($w, $h) = $args{geometry} ? get_window_geometry : get_root_geometry;
-	}
-	else {
-		if ($args{geometry}) {
-			($w, $h) = get_window_geometry;
-		}
-		else {
-			($w, $h) = get_root_geometry;
-			$w /= 2;
-			$h /= 2;
-		}
-	}
-
-	if ($args{fullscreen}) {
-		$self->{app}->resize($w, $h);
-		$self->{app}->fullscreen;
-	}
-	else {
-		$self->{app}->fullscreen;
-		$self->{app}->resize($w, $h);
-	}
 }#
 
 sub do
@@ -276,33 +303,6 @@ sub handle_event
 		when ($_ == SDL_QUIT()) {
 			$self->quit;
 		}
-	}
-}#
-
-sub quit
-{my ($self) = @_;
-
-	my $P = $self->{collection}->{pics};
-	foreach (keys %{$P}) {
-		$P->{$_}->save_tags;
-	}
-
-	args::save_state {
-		cursor_id => $self->{views}->[0]->pic->{id},
-	};
-
-	exit(0);
-}#
-
-sub load_state
-{my ($self) = @_;
-
-	args::load_state;
-
-	my $id = $args{cursor_id};
-	if (defined $id) {
-		$_->seek_id($id)
-			foreach @{$self->{views}};
 	}
 }#
 
