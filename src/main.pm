@@ -78,6 +78,8 @@ sub do_menu
 		when (/^tag_editor$/) {
 			if (defined $activated) {
 				$view->pic->toggle_tag($activated);
+				$self->{last_tag} = $activated
+					if $view->pic->{tags}->{$activated};
 			}
 			elsif (not $self->{dirty}) {
 				$self->{dirty} = 1;
@@ -188,6 +190,7 @@ sub do
 		when (/^control-s$/)    { $self->enter_star_view }
 		when (/^t$/)            { $self->enter_tag_mode }
 		when (/^[dmy]$/i)       { $view->seek_date($_) }
+		when (/^\.$/)           { $view->pic->{tags}->{$self->{last_tag}} = 1 }
 
 		when (/^left$/)         { $view->{cursor}-- }
 		when (/^right$/)        { $view->{cursor}++ }
@@ -337,6 +340,7 @@ sub main
 		star_view  => undef,
 		menu       => menu::new,
 		key_hold   => '',
+		last_tag   => '',
 		dirty      => 1,
 
 		# rendering state
