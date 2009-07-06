@@ -18,7 +18,7 @@ sub enter
 	$self->{action}   = $action;
 	$self->{items}    = $items;
 	$self->{cursor}   = 0;
-	$self->{selected} = undef;
+	$self->{activated} = undef;
 }#
 
 sub leave
@@ -27,18 +27,17 @@ sub leave
 	$self->{action}   = '';
 	$self->{items}    = [];
 	$self->{cursor}   = 0;
-	$self->{selected} = undef;
+	$self->{activated} = undef;
 }#
 
 sub do
 {my ($self, $command) = @_;
 
-	return unless defined $command;
+	return 0 unless defined $command;
 
 	my $N = scalar @{$self->{items}};
+	$self->{activated} = undef;
 
-	$self->{selected} = undef;
-	my $rc = 1;
 	given ($command) {
 		when (/^up$/)           { $self->{cursor}-- }
 		when (/^down$/)         { $self->{cursor}++ }
@@ -46,17 +45,17 @@ sub do
 		when (/^end$/)          { $self->{cursor} = $N - 1 }
 		when (/^quit$/)         { $self->leave }
 		when (/^(page down|enter|return)$/) {
-			$self->{selected} = $self->{items}->[$self->{cursor}];
+			$self->{activated} = $self->{items}->[$self->{cursor}];
 		}
 		default {
-			$rc = 0;
+			return 0;
 		}
 	}
 
 	$self->{cursor} = 0     if $self->{cursor} <  0;
 	$self->{cursor} = $N-1  if $self->{cursor} >= $N;
 
-	return $rc;
+	return 1;
 }#
 
 1;

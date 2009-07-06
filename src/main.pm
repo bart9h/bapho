@@ -71,14 +71,16 @@ sub do_menu
 	return 0 unless $self->{menu}->{action};
 	my $view = $self->{views}->[0];
 
-	my $rc = $self->{menu}->do($command);
+	$self->{dirty} = $self->{menu}->do($command);
+	my $activated = $self->{menu}->{activated};
+
 	given ($self->{menu}->{action}) {
 		when (/^tag_editor$/) {
-			if ($rc) {
-				my $tag = $self->{menu}->{selected};
-				$view->pic->toggle_tag($tag)  if defined $tag;
+			if (defined $activated) {
+				$view->pic->toggle_tag($activated);
 			}
-			else {
+			elsif (not $self->{dirty}) {
+				$self->{dirty} = 1;
 				given ($command) {
 					when (/^(t|toggle info)$/) {
 						$self->{menu}->leave;
@@ -92,6 +94,9 @@ sub do_menu
 						$view->{collection}->update_tags;
 						$self->enter_tag_mode;
 						$self->display;
+					}
+					default {
+						$self->{dirty} = 0;
 					}
 				}
 			}
@@ -169,11 +174,10 @@ sub do
 {my ($self, $command) = @_;
 
 	return unless defined $command;
+	$self->{dirty} = 1;
 	return if $self->do_menu($command);
 
 	my $view = $self->{views}->[0];
-
-	$self->{dirty} = 1;
 
 	given ($command) {
 
@@ -206,8 +210,6 @@ sub do
 	}
 
 	$view->adjust_page_and_cursor;
-
-	1;
 }#
 
 sub handle_event
@@ -256,7 +258,7 @@ sub handle_event
 			$control = 0  if $event->key_name =~ m{^(left|right)\ ctrl$};
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
-			$self->{dirty} = $self->do(
+			$self->do(
 				{
 					3 => 'toggle info',
 					4 => 'page down',
@@ -335,6 +337,7 @@ sub main
 		star_view  => undef,
 		menu       => menu::new,
 		key_hold   => '',
+		dirty      => 1,
 
 		# rendering state
 		info_modes => [ qw/none title tags exif/ ],
@@ -364,15 +367,15 @@ sub main
 	use SDL::Constants;
 	my $event = new SDL::Event;
 	SDL::Event->set_key_repeat(200, 30);
-	$self->display;
 
 	while(1) {
+
+		$self->display  if $self->{dirty};
+
 		$event->wait;
 		do {
 			$self->handle_event($event);
 		} while ($event->poll);
-
-		$self->display  if $self->{dirty};
 	}
 
 }#
