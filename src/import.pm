@@ -12,14 +12,18 @@ use args qw/%args/;
 
 #}#
 
+sub datetime2path
+{my ($year, $mon, $mday, $hour, $min, $sec) = @_;
+
+	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
+
+	my $basename = sprintf '%02d%02d%02d-%02d%02d%02d', $year, $mon, $mday, $hour, $min, $sec;
+
+	return ($dir, $basename);
+}#
+
 sub exif2path
 {my ($source_file) = @_;
-
-	my ($ext) = $source_file =~ /\.([^.]+)$/;
-	unless (defined $ext) {
-		warn "ignoring \"$source_file\": no extension.\n";
-		return undef;
-	}
 
 	use Image::ExifTool qw(:Public);
 	my $exif = ImageInfo($source_file);
@@ -48,12 +52,10 @@ sub exif2path
 		}
 	}
 
-	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
-	my $basename = sprintf '%02d%02d%02d-%02d%02d%02d', $year, $mon, $mday, $hour, $min, $sec;
-	return ($dir, $basename, lc $ext);
+	return datetime2path($year, $mon, $mday, $hour, $min, $sec);
 }#
 
-sub import_file
+sub get_target_path
 {my ($source_file) = @_;
 
 	#FIXME: $args{quiet}
@@ -61,7 +63,14 @@ sub import_file
 	$source_file =~ m/$args{basedir}/
 		and die "importing file $source_file from inside basedir $args{basedir}";
 
-	my ($dir, $basename, $ext) = exif2path($source_file);
+	my ($ext) = $source_file =~ /\.([^.]+)$/;
+	unless (defined $ext) {
+		warn "ignoring \"$source_file\": no extension.\n";
+		return undef;
+	}
+	$ext = lc $ext;
+
+	my ($dir, $basename) = exif2path($source_file);
 	defined $dir or return undef;
 
 	my $target_file;
@@ -69,18 +78,28 @@ sub import_file
 		$_  or die 'duplicated timestamp overflow';
 		$target_file = "$dir/$basename$_.$ext";
 		if (!-e $target_file) {
-			last;
+			return $target_file;
 		}
 		else {
 			if (0 == system "cmp \"$source_file\" \"$target_file\"") {
 				say "skipping \"$source_file\" == \"$target_file\""  unless $args{quiet};
 				system "rm \"$source_file\"".($args{quiet}?'':' -v')  if $args{mv};
-				return $target_file;
+				return undef;
 			}
 		}
 	}
+}#
 
-	# move the file target_file it's new place/name
+sub import_file
+{my ($source_file) = @_;
+
+	my $target_file = get_target_path($source_file)
+		or return;
+
+	$target_file =~ m{^(.*)/[^/]+$} or die;
+	my $dir = $1;
+
+	# move the file target_file to it's new place/name
 	my $v = $args{quiet} ? '' : 'v';
 	my $cmd = join ' && ',(
 		-d $dir ? () : "mkdir -p$v \"$dir\"",
