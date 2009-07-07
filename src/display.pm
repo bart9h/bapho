@@ -121,7 +121,8 @@ sub pvt__display_info
 	$ext =~ s{^.*/[^.]+\.(.*)$}{$1};
 
 	my $str = join '/', $view->{cursor}+1, scalar @{$view->{ids}};
-	if (my $s = $view->{cur_surf}) {
+	my $s = $view->{cur_surf};
+	if ($s and $s->{width} and $s->{height}) {
 		my $zoom = $s->{surf}->width/$s->{width};
 		$str .= '  '.$s->{width}.'x'.$s->{height};
 		$str .= '  '.int($zoom*100).'%';
