@@ -1,6 +1,18 @@
-Poor man's issue tracker (roughly sorted by priority):
+------------------------
+Poor man's issue tracker
+------------------------
 
-* Shortcut to repeat last tag entered.
+
+Missing features:
+
+* Handle .mpg files.
+  * Press a key to play with external player.
+  * Display a frame or thumbnail as image.
+  * How to handle the lack of timestamp metadata?
+
+* Handle folders (browsing and tagging).
+
+* Import with --tag=foo
 
 * Interface to define new views (edit in/out filters).
 
@@ -14,18 +26,36 @@ Poor man's issue tracker (roughly sorted by priority):
 
 * Text line editing (to enter new tags).
 
-* Asynchronous file loading.
+
+Enhancements:
+
+* Slideshow.
 
 * Mouse support (IMGUI).
+
+* Display image histogram.
+
+* PicasaWeb upload.
+
+* Screensaver.
+
+* Set a picture as wallpaper.
+
+
+Optimizations:
+
+* Asynchronous image loading.
 
 * Faster startup time (avoid `find $basedir`).
   * Asynchronous directory loading;
   or
   * Save collection data to a database (how to sync?).
 
-* Display image histogram.
+* Faster image loading.
+  * Save jpegs of with fullscreen size, and maybe thumbnails too.
+
+* Read-ahead image (and directory) loading.
 
 * OSD transparency.
 
-* PicasaWeb upload.
 

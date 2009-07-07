@@ -1,0 +1,74 @@
+.TH bapho 1 "9 Jul 2009"
+.SH NAME
+bapho \- the [ba]rt9h's [ph]oto [o]rganizer
+.SH SYNOPSIS
+.BR bapho "  [ " \-f " ] "
+
+.BR "bapho --import" "  [ " file... " ] "
+.SH OPTIONS
+.TP
+.B \-f --fullscreen
+Start in fullscreen mode.
+.TP
+.BI --basedir= dir
+Directory of your photo collection.
+.TP
+.BI --temp_dir= dir
+Directory for temporary files.
+.TP
+.B --mv=0
+When importing files, do not remove originals.
+.TP
+.B \-v --verbose
+Say what it's doing.
+.TP
+.BI --geometry= width x height
+Initial resolution.
+.TP
+.B --nop
+When importing files, do nothing, just print what would be done.
+.TP
+\fB--import \fR[ \fIfile \fR... ]
+Import files to basedir, then exits (otherwise, start interactive browsing mode).
+If no files are specified, try to download from camera with \fBgphoto2\fR(1).
+.TP
+.BI --cache_size_mb= size
+Amount of memory, in megabytes, used to hold used images.
+.SH KEYS
+.IP "\fBq \fRor \fBescape"
+Exits the program.
+.IP "\fBarrow keys\fR, \fBpage up/down\fR, \fBmouse wheel"
+Jump to next/prev picture/page (space/backspace = page down/up).
+.IP "\fBhome\fR/\fBend"
+Jump to first/last picture.
+.IP "\fBd\fR/\fBm\fR/\fBy"
+Jump to first image of next day/month/year.
+.IP "\fBD\fR/\fBM\fR/\fBY"
+Jump to last image of previous day/month/year.
+.IP \fBi
+Cycle through info display modes.
+.IP \fBf
+Toggle fullscreen.
+.IP "\fB+\fR/\fB-"
+Zoom thumbnails in/out.
+.IP \fBs
+Toggle "_star" flag.
+.IP \fBt
+Toggle tag editor.
+.IP \fB.
+Set last used tag.
+.IP \fBcontrol-s
+Enter "_star" view.
+.IP \fBtab
+Switch between different views.
+.IP \fBe
+In tag editor, call external editor to edit the .tags file.
+.IP \fBdelete
+Move files of current picture to ./bapho-trash/
+.IP \fBcontrol-d
+Calls \fBufraw\fR(1) to develop raw files, \fBgimp\fR(1) to edit the others.
+.IP \fBp
+Print, in stdout, the paths of the files assiciated with the current picture.
+.IP "\fBk j l h gg G"
+As in vi.
+
