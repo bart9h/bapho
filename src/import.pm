@@ -55,6 +55,15 @@ sub exif2path
 	return datetime2path($year, $mon, $mday, $hour, $min, $sec);
 }#
 
+sub filedate2path
+{my ($source_file) = @_;
+
+	my @s = stat $source_file;
+	my $mtime = $s[9];
+	my ($sec,$min,$hour,$mday,$mon,$year) = gmtime $mtime;
+	return datetime2path($year+1900, $mon+1, $mday, $hour, $min, $sec);
+}#
+
 sub get_target_path
 {my ($source_file) = @_;
 
@@ -71,7 +80,13 @@ sub get_target_path
 	$ext = lc $ext;
 
 	my ($dir, $basename) = exif2path($source_file);
-	defined $dir or return undef;
+	unless (defined $dir) {
+		($dir, $basename) = filedate2path($source_file);
+		defined $dir or return undef;
+		print "Use file modification time ($basename)? [Y/n] ";
+		my $answer = <STDIN>; chomp $answer;
+		return unless $answer eq '' or lc $answer eq 'y';
+	}
 
 	my $target_file;
 	foreach ('a' .. 'z', 0) {
