@@ -84,20 +84,21 @@ sub pvt__display_thumbnails
 	caller eq __PACKAGE__ or die;
 
 	my ($W, $H) = ($self->{app}->width, $self->{app}->height);
+	my $view = $self->{views}->[0];
 
 	my $d = (sort $W, $H)[0];  # smallest window dimention
-	my $n = -$self->{zoom};    # number of pictures across that dimention
-	($self->{cols}, $self->{rows}) = (int($W/($d/$n)), int($H/($d/$n)));
-	my ($w, $h) = (int($W/$self->{cols}), int($H/$self->{rows}));  # thumbnail area
+	my $n = -$view->{zoom};  # number of pictures across that dimention
+	($view->{cols}, $view->{rows}) = (int($W/($d/$n)), int($H/($d/$n)));
+	my ($w, $h) = (int($W/$view->{cols}), int($H/$view->{rows}));  # thumbnail area
 
-	my $i = $self->{page_first};
-	THUMB: foreach my $y (0 .. $self->{rows}-1) {
-		foreach my $x (0 .. $self->{cols}-1) {
+	my $i = $view->{page_first};
+	THUMB: foreach my $y (0 .. $view->{rows}-1) {
+		foreach my $x (0 .. $view->{cols}-1) {
 			$self->pvt__display_pic($i,
 				$w, $h, $x*$w, $y*$h,
-				$i==$self->{cursor});
+				$i==$view->{cursor});
 			++$i;
-			last THUMB if $i >= scalar @{$self->{ids}};
+			last THUMB if $i >= scalar @{$view->{ids}};
 		}
 	}
 }#
