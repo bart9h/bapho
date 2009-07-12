@@ -41,22 +41,26 @@ sub new
 		push @{$self->{fonts}}, $f=SDL::TTFont->new(
 			-name => $file,
 			-size => $size,
+			#-mode => SDL::TEXT_BLENDED, # XXX SDL_Perl 2.1.3: crash;
+			-mode => SDL::TEXT_SHADED,   # XXX (default) only available with transparency,
+			                             # which is wrong because it DOES have anti-aliasing
+										 # to the background color and feels wrong on other 
+										 # background, but here will feel so so on the shaded
+										 # transparent background we will force later;
+			#-mode => SDL::TEXT_SOLID,   # XXX transparent blit, without anti-aliasing
 			-bg => $SDL::Color::black,
 			-fg => $SDL::Color::white,
 		);
-		$f->text_shaded();
 	}
 
 	$self;
 }#
 
 sub print
-{my ($self, $dest, @args) = @_;
+{my ($self, $surf, @args) = @_;
 
 	my $taller_font;
 	my $width = 2*$self->{border};
-	my $height;
-	my $surf;
 	foreach my $mode ('layout', 'draw') {
 		for (my $i = 0;  $i < $#args;  $i += 2) {
 			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
@@ -66,21 +70,20 @@ sub print
 				}
 				when (/text/) {
 					my $font = $self->{fonts}->[$self->{font}]  or die;
+					my $w = $font->width($arg);
 
 					if ($mode eq 'layout') {
 						$taller_font = $font
 							if not defined $taller_font
 							or $taller_font->height > $font->height;
-						$width += $font->width($arg);
+						$width += $w;
 					}
 					else {
 						$font->print($surf,
 							$self->{x},
-							$self->{y}
-								+$taller_font->height  +$taller_font->descent
-								-       $font->height  -       $font->descent,
+							$self->{y} + $taller_font->ascent - $font->ascent,
 							$arg);
-						$self->{x} += $font->width($arg);
+						$self->{x} += $w;
 					}
 				}
 				default { die }
@@ -88,18 +91,16 @@ sub print
 		}
 
 		if ($mode eq 'layout') {
-			$height = .5*$self->{border} + $taller_font->height;
-			$surf = SDL::Surface->new(-flags=>SDL::SDL_SRCALPHA(), -width=>$width, -height=>$height);
-			$surf->display_format();
-			$surf->fill(
-				SDL::Rect->new(-x=>0, -y=>$self->{y}, -width=>$width, -height=>$height),
-				SDL::Color->new(-r=>0, -g=>0, -b=>0),
+			my $height = .5*$self->{border} + $taller_font->height;
+			my $shade = SDL::Surface->new(-width => $width, -height => $height);
+			$shade->fill(0, $SDL::Color::black);
+			$shade->set_alpha(SDL::SDL_SRCALPHA, 0x40);
+			$shade->blit(0, $surf, 
+				SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $width, -height => $height),
 			);
 		}
 	}
 
-	$surf->set_alpha(SDL::SDL_SRCALPHA(), 0x80);
-	$surf->blit(0, $dest, SDL::Rect->new(-x=>0, -y=>$self->{y}, -width=>$width, -height=>$height));
 	$self->{y} += $taller_font->height;
 	$self->{x} = $self->{border};
 
