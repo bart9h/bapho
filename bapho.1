@@ -4,7 +4,7 @@ bapho \- the [ba]rt9h's [ph]oto [o]rganizer
 .SH SYNOPSIS
 .BR bapho "  [ " \-f " ] "
 
-.BR "bapho --import" "  [ " file... " ] "
+.BR "bapho --import" "  [ " file " ... ] "
 .SH OPTIONS
 .TP
 .B \-f --fullscreen
@@ -71,4 +71,7 @@ Calls \fBufraw\fR(1) to develop raw files, \fBgimp\fR(1) to edit the others.
 Print, in stdout, the paths of the files assiciated with the current picture.
 .IP "\fBk j l h gg G"
 As in vi.
-
+.SH ENVIRONMENT VARIABLES
+All bapho options can be passed through environment variables of the same name, prefixed with \fBBAPHO_\fR.
+.P
+Examples: \fBBAPHO_BASEDIR\fR, \fBBAPHO_CACHE_SIZE_MB, \fBBAPHO_FULLSCREEN\fR.

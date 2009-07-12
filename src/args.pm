@@ -46,6 +46,11 @@ sub state_filename
 sub read_args
 {# read cmdline parameters into %args
 
+	foreach (keys %ENV) {
+		/^BAPHO_(\w+)$/ or next;
+		$args{lc $1} = $ENV{$_};
+	}
+
 	my $process_args = 1;
 	foreach (@_) {
 		if ($process_args) {
