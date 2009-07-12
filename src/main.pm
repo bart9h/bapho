@@ -268,7 +268,9 @@ sub handle_event
 					{
 						i         => 'toggle info',
 						'-'       => 'zoom out',
+						'[-]'     => 'zoom out',
 						'='       => 'zoom in',
+						'[+]'     => 'zoom in',
 						k         => 'up',
 						j         => 'down',
 						h         => 'left',
