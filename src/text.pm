@@ -35,22 +35,29 @@ sub new
 
 		my $file = `fc-match -v '$name' | grep file: | cut -d \\\" -f 2`;
 		chomp $file;
-		-f $file  or die "$file not found";
 
 		my $f;
-		push @{$self->{fonts}}, $f=SDL::TTFont->new(
-			-name => $file,
-			-size => $size,
-			#-mode => SDL::TEXT_BLENDED, # XXX SDL_Perl 2.1.3: crash;
-			-mode => SDL::TEXT_SHADED,   # XXX (default) only available with transparency,
-			                             # which is wrong because it DOES have anti-aliasing
-										 # to the background color and feels wrong on other 
-										 # background, but here will feel so so on the shaded
-										 # transparent background we will force later;
-			#-mode => SDL::TEXT_SOLID,   # XXX transparent blit, without anti-aliasing
-			-bg => $SDL::Color::black,
-			-fg => $SDL::Color::white,
-		);
+		push @{$self->{fonts}}, {
+			fill => SDL::TTFont->new(
+				-name => $file,
+				-size => $size,
+				#-mode => SDL::TEXT_BLENDED, # XXX SDL_Perl 2.1.3: crash;
+				-mode => SDL::TEXT_SHADED,   # XXX (default) only available with transparency,
+											 # which is wrong because it DOES have anti-aliasing
+											 # to the background color and feels wrong on other 
+											 # background, but here will feel so so on the shaded
+											 # transparent background we will force later;
+				#-mode => SDL::TEXT_SOLID,   # XXX transparent blit, without anti-aliasing
+				-bg => $SDL::Color::black,
+				-fg => $SDL::Color::white,
+			),
+			border => SDL::TTFont->new(
+				-name => $file,
+				-size => $size,
+				-mode => SDL::TEXT_SOLID,
+				-fg => $SDL::Color::black,
+			),
+		};
 	}
 
 	$self;
@@ -69,7 +76,8 @@ sub print
 					$self->{font} = $arg;
 				}
 				when (/text/) {
-					my $font = $self->{fonts}->[$self->{font}]  or die;
+					my $font        = $self->{fonts}->[$self->{font}]->{fill}    or die;
+					my $font_border = $self->{fonts}->[$self->{font}]->{border}  or die;
 					my $w = $font->width($arg);
 
 					if ($mode eq 'layout') {
@@ -79,10 +87,16 @@ sub print
 						$width += $w;
 					}
 					else {
-						$font->print($surf,
-							$self->{x},
-							$self->{y} + $taller_font->ascent - $font->ascent,
-							$arg);
+						my $x0 = $self->{x};
+						my $y0 = $self->{y} + $taller_font->ascent - $font->ascent;
+
+						for(my $x = $x0-1; $x <= $x0+1; $x+=2) {
+							for(my $y = $y0-1; $y <= $y0+1; $y+=2) {
+								$font_border->print($surf, $x, $y, $arg);
+							}
+						}
+
+						$font->print($surf, $x0, $y0, $arg);
 						$self->{x} += $w;
 					}
 				}
