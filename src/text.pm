@@ -44,16 +44,19 @@ sub new
 			-bg => $SDL::Color::black,
 			-fg => $SDL::Color::white,
 		);
+		$f->text_shaded();
 	}
 
 	$self;
 }#
 
 sub print
-{my ($self, $surf, @args) = @_;
+{my ($self, $dest, @args) = @_;
 
 	my $taller_font;
-	my $width = 2*$self->{border};;
+	my $width = 2*$self->{border};
+	my $height;
+	my $surf;
 	foreach my $mode ('layout', 'draw') {
 		for (my $i = 0;  $i < $#args;  $i += 2) {
 			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
@@ -85,14 +88,18 @@ sub print
 		}
 
 		if ($mode eq 'layout') {
-			my $height = .5*$self->{border} + $taller_font->height;
+			$height = .5*$self->{border} + $taller_font->height;
+			$surf = SDL::Surface->new(-flags=>SDL::SDL_SRCALPHA(), -width=>$width, -height=>$height);
+			$surf->display_format();
 			$surf->fill(
-				SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $width, -height => $height),
-				SDL::Color->new(-r => 0, -g => 0, -b => 0),
+				SDL::Rect->new(-x=>0, -y=>$self->{y}, -width=>$width, -height=>$height),
+				SDL::Color->new(-r=>0, -g=>0, -b=>0),
 			);
 		}
 	}
 
+	$surf->set_alpha(SDL::SDL_SRCALPHA(), 0x80);
+	$surf->blit(0, $dest, SDL::Rect->new(-x=>0, -y=>$self->{y}, -width=>$width, -height=>$height));
 	$self->{y} += $taller_font->height;
 	$self->{x} = $self->{border};
 
