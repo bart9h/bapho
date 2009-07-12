@@ -5,10 +5,10 @@ package collection;
 use strict;
 use warnings;
 use 5.010;
-
-use factory;
+use Data::Dumper;
 
 use args qw/%args/;
+use factory;
 
 #}#
 

@@ -1,9 +1,15 @@
 package text;
+
+#{my uses
+
 use strict;
 use warnings;
 use 5.010;
+use Data::Dumper;
 
 use SDL::TTFont;
+
+#}#
 
 sub home
 {my ($self) = @_;

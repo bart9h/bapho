@@ -145,9 +145,6 @@ sub pvt__load_file
 
 	if ($path =~ m/\.cr2$/i) {
 		my ($surf, $exif) = pvt__load_exif_preview($path, $width, $height);
-		#use Data::Dumper;
-		#print Dumper  { map { $_ => $exif->{$_} } @{$args{exif_tags}} };
-		#exit;
 		$item = {
 			surf   => $surf,
 			width  => $exif->{ExifImageWidth},

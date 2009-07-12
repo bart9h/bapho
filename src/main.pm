@@ -5,6 +5,7 @@ package main;
 use strict;
 use warnings;
 use 5.010;
+use Data::Dumper;
 
 use SDL::App;
 
@@ -106,6 +107,8 @@ sub fullscreen_toggle
 		}
 	}
 
+	# This two different orders for in and out of fullscreen
+	# is to avoid changing screen resolutions.
 	if ($args{fullscreen}) {
 		$self->{app}->resize($w, $h);
 		$self->{app}->fullscreen;

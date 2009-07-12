@@ -1,11 +1,16 @@
 package args;
 
+#{# uses
+
 use strict;
 use warnings;
 use 5.010;
+use Data::Dumper;
 
 use base 'Exporter';
 our @EXPORT = qw(%args);
+
+#}#
 
 our %args = (
 		basedir => $ENV{HOME}.'/fotos',
