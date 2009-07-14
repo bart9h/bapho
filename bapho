@@ -1,6 +1,10 @@
 #!/usr/bin/perl
 use 5.010;
 use File::Basename;
-BEGIN { unshift @INC, dirname($0)."/src"; }
+BEGIN {
+	unshift @INC,
+		$ENV{BAPHO_LIBDIR},
+		readlink(dirname($0)).'/src';
+}
 use main;
 main (@ARGV);
