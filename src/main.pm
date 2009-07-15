@@ -270,6 +270,7 @@ sub handle_event
 				$self->do(
 					{
 						i         => 'toggle info',
+						f11       => 'f',
 						'-'       => 'zoom out',
 						'[-]'     => 'zoom out',
 						'='       => 'zoom in',
