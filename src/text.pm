@@ -41,6 +41,8 @@ sub new
 
 		my $file = `fc-match -v '$name' | grep file: | cut -d \\\" -f 2`;
 		chomp $file;
+		-f $file  or die "$file not found";
+
 
 		my $f;
 		push @{$self->{fonts}}, {
