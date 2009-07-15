@@ -30,12 +30,15 @@ our %args = (
 				Model
 				LensID
 				ISO
-				ShutterSpeedValue
-				ApertureValue
+				ShutterSpeed
+				Aperture
 				FocalLength
 				Flash
 				FocusMode
 				ColorTemperature
+				WhiteBalance
+				ExposureCompensation
+				Sharpness
 				Orientation
 				UserComment
 			/
