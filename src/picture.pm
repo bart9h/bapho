@@ -111,9 +111,19 @@ sub get_tags
 sub develop
 {my ($self) = @_;
 
-	my $file = $self->{sel};
-	$file =~ s/\.[^.]+$/\.ufraw/;
-	-e $file or $file = $self->{sel};
+	sub guess_source
+	{my ($self) = @_;
+
+		foreach (qw/ufraw xcf cr2 tif png/) {
+			foreach (glob "$self->{dir}/$self->{id}*.$_") {
+				-r and return $_;
+			}
+		}
+
+		return $self->{sel};
+	}#
+
+	my $file = $self->guess_source;
 
 	my $cmd;
 	given ($file) {
@@ -141,7 +151,7 @@ sub delete
 	my ($dirname, $basename) = ($1, $2);
 	my $trash = "$dirname/.bapho-trash";
 	-d $trash or print `mkdir -v "$trash"`;
-	while (<$dirname/$basename.*>) {
+	while (glob "$dirname/$basename.*") {
 		print `mv -v "$_" "$trash/"`;
 	}
 }#
