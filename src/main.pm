@@ -157,6 +157,7 @@ sub enter_hidden_view
 sub do_menu
 {my ($self, $command) = @_;
 
+	$self->{dirty} = 1;
 	return 0 unless $self->{menu}->{action};
 	my $view = $self->{views}->[0];
 
@@ -201,46 +202,131 @@ sub do
 {my ($self, $command) = @_;
 
 	return unless defined $command;
-	$self->{dirty} = 1;
 	return if $self->do_menu($command);
 
-	my $view = $self->{views}->[0];
+	my ($app, $view) = ($self, $self->{views}->[0]);
+	my %actions = (#{my
 
-	given ($command) {
+		edit_file => {
+			keys => [ qw/control-d/ ],
+			code => sub { $view->pic->develop },
+		},
+		toggle_fullscreen => {
+			keys => [ qw/f f11/ ],
+			code => sub { $app->fullscreen_toggle },
+		},
+		print_files => {
+			keys => [ qw/p/ ],
+			code => sub { say join "\n", keys %{$view->pic->{files}} },
+		},
+		toggle_star => {
+			keys => [ qw/s/ ],
+			code => sub { $view->pic->toggle_tag('_star') },
+		},
+		toggle_hidden => {
+			keys => [ qw/shift-1/ ],
+			code => sub { $view->pic->toggle_tag('_hidden') },
+		},
+		starred_view => {
+			keys => [ qw/control-s/ ],
+			code => sub { $app->enter_star_view },
+		},
+		hidden_view => {
+			keys => [ qw/control-shift-h/ ],
+			code => sub { $self->enter_hidden_view },
+		},
+		close_view => {
+			keys => [ qw/control-w escape q/ ],
+			code => sub { $self->close_view },
+		},
+		tag_edit => {
+			keys => [ qw/t/ ],
+			code => sub { $app->enter_tag_mode },
+		},
+		date_seek => {
+			keys => [ qw/d m y shift-d shift-m shift-y/ ],
+			code => sub { $view->seek_date($command) },
+		},
+		repeat_last_tag => {
+			keys => [ qw/./ ],
+			code => sub { $view->pic->set_tag($app->{last_tag}) },
+		},
 
-		when (/^control-d$/)       { $view->pic->develop }
-		when (/^f$/)               { $self->fullscreen_toggle }
-		when (/^p$/)               { say join "\n", keys %{$view->pic->{files}} }
-		when (/^s$/)               { $view->pic->toggle_tag('_star') }
-		when (/^shift-1$/)         { $view->pic->toggle_tag('_hidden') }
-		when (/^control-s$/)       { $self->enter_star_view }
-		when (/^control-shift-h$/) { $self->enter_hidden_view }
-		when (/^t$/)               { $self->enter_tag_mode }
-		when (/^(shift-)?[dmy]$/)  { $view->seek_date($_) }
-		when (/^\.$/)              { $view->pic->set_tag($self->{last_tag}) }
+		previous_picture => {
+			keys => [ qw/left h/ ],
+			code => sub { $view->{cursor}-- },
+		},
+		next_picture => {
+			keys => [ qw/right l/ ],
+			code => sub { $view->{cursor}++ },
+		},
+		previous_line => {
+			keys => [ qw/up k/ ],
+			code => sub { $view->{cursor} -= $view->{cols} },
+		},
+		next_line => {
+			keys => [ qw/down j/ ],
+			code => sub { $view->{cursor} += $view->{cols} },
+		},
+		previous_page => {
+			keys => [ qw/page_up backspace/ ],
+			code => sub { $view->{cursor} -= $view->{rows}*$view->{cols} },
+		},
+		next_page => {
+			keys => [ qw/page_down space/ ],
+			code => sub { $view->{cursor} += $view->{rows}*$view->{cols} },
+		},
+		first_picture => {
+			keys => [ qw/home g-g/ ],
+			code => sub { $view->{cursor} = 0 },
+		},
+		last_picture => {
+			keys => [ qw/end G/ ],
+			code => sub { $view->{cursor} = scalar @{$view->{ids}} - 1 },
+		},
 
-		when (/^left$/)            { $view->{cursor}-- }
-		when (/^right$/)           { $view->{cursor}++ }
-		when (/^up$/)              { $view->{cursor} -= $view->{cols} }
-		when (/^down$/)            { $view->{cursor} += $view->{cols} }
-		when (/^page up$/)         { $view->{cursor} -= $view->{rows}*$view->{cols} }
-		when (/^page down$/)       { $view->{cursor} += $view->{rows}*$view->{cols} }
-		when (/^home$/)            { $view->{cursor} = 0 }
-		when (/^end$/)             { $view->{cursor} = scalar @{$view->{ids}} - 1 }
+		delete_picture => {
+			keys => [ qw/delete/ ],
+			code => sub { $view->delete_current },
+		},
+		info_toggle => {
+			keys => [ qw/i/ ],
+			code => sub { rotate $app->{info_modes} },
+		},
+		switch_views => {
+			keys => [ qw/tab/ ],
+			code => sub { rotate $app->{views}; $app->{views}->[0]->update },
+		},
+		zoom_in => {
+			keys => [ qw/= [+]/ ],
+			code => sub { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; },
+		},
+		zoom_out => {
+			keys => [ qw/- [-]/ ],
+			code => sub { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; },
+		},
+		zoom_reset => {
+			keys => [ qw// ],
+			code => sub { $view->{zoom} = 1 },
+		},
+		quit => {
+			keys => [ qw/q escape/ ],
+			code => sub { $app->quit },
+		},
 
-		when (/^delete$/)          { $view->delete_current }
-		when (/^toggle info$/)     { rotate $self->{info_modes} }
-		when (/^tab$/)             { rotate $self->{views}; $self->{views}->[0]->update }
-		when (/^zoom in$/)         { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
-		when (/^zoom out$/)        { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; }
-		when (/^zoom reset$/)      { $view->{zoom} = 1 }
-		when (/^close$/)           { $self->close_view }
-		when (/^quit$/)            { $self->quit }
+	);#}#
 
-		default                    { $self->{dirty} = 0 }
+	ACTION:
+	foreach my $action (keys %actions) {
+		foreach ($action, @{$actions{$action}->{keys}}) {
+			if ($command eq $_) {
+				$self->{dirty} = 1;
+				&{$actions{$action}->{code}}($command);
+				$view->adjust_page_and_cursor;
+				last ACTION;
+			}
+		}
 	}
-
-	$view->adjust_page_and_cursor;
 }#
 
 sub handle_event
@@ -265,28 +351,8 @@ sub handle_event
 				$self->{key_hold} = $key;
 			}
 			else {
-				$self->do(
-					{
-						i           => 'toggle info',
-						f11         => 'f',
-						'-'         => 'zoom out',
-						'[-]'       => 'zoom out',
-						'='         => 'zoom in',
-						'[+]'       => 'zoom in',
-						k           => 'up',
-						j           => 'down',
-						h           => 'left',
-						l           => 'right',
-						'control-q' => 'quit',
-						'control-w' => 'close',
-						q           => 'close',
-						escape      => 'close',
-						space       => 'page down',
-						backspace   => 'page up',
-						'g-g'       => 'home',
-						'shift-g'   => 'end',
-					}->{$key} // $key
-				)
+				$key =~ s/\ /_/g;
+				$self->do($key);
 			}
 		}
 		when ($_ == SDL_KEYUP()) {
@@ -296,9 +362,9 @@ sub handle_event
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
 			$self->do(
 				{
-					3 => 'toggle info',
-					4 => 'page down',
-					5 => 'page up',
+					3 => 'info_toggle',
+					4 => 'page_down',
+					5 => 'page_up',
 				}->{$event->button} // 'button-'.$event->button
 			);
 		}
