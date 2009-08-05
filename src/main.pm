@@ -198,6 +198,18 @@ sub do_menu
 	return 1;
 }#
 
+sub add_tag_to_actions
+{my ($tag, $actions) = @_;
+
+	foreach (keys %{$actions}) {
+		my $a = $actions->{$_};
+		$a->{tags} //= [];
+		push @{$a->{tags}}, $tag;
+	}
+
+	%{$actions};
+}#
+
 sub do
 {my ($self, $command) = @_;
 
@@ -207,112 +219,129 @@ sub do
 	my ($app, $view) = ($self, $self->{views}->[0]);
 	my %actions = (#{my
 
-		edit_file => {
-			keys => [ qw/control-d/ ],
-			code => sub { $view->pic->develop },
-		},
-		toggle_fullscreen => {
-			keys => [ qw/f f11/ ],
-			code => sub { $app->fullscreen_toggle },
-		},
-		print_files => {
-			keys => [ qw/p/ ],
-			code => sub { say join "\n", keys %{$view->pic->{files}} },
-		},
-		toggle_star => {
-			keys => [ qw/s/ ],
-			code => sub { $view->pic->toggle_tag('_star') },
-		},
-		toggle_hidden => {
-			keys => [ qw/shift-1/ ],
-			code => sub { $view->pic->toggle_tag('_hidden') },
-		},
-		starred_view => {
-			keys => [ qw/control-s/ ],
-			code => sub { $app->enter_star_view },
-		},
-		hidden_view => {
-			keys => [ qw/control-shift-h/ ],
-			code => sub { $self->enter_hidden_view },
-		},
-		close_view => {
-			keys => [ qw/control-w escape q/ ],
-			code => sub { $self->close_view },
-		},
-		tag_edit => {
-			keys => [ qw/t/ ],
-			code => sub { $app->enter_tag_mode },
-		},
-		date_seek => {
-			keys => [ qw/d m y shift-d shift-m shift-y/ ],
-			code => sub { $view->seek_date($command) },
-		},
-		repeat_last_tag => {
-			keys => [ qw/./ ],
-			code => sub { $view->pic->set_tag($app->{last_tag}) },
-		},
+		add_tag_to_actions('global',
+		{#{my}
+			quit => {
+				keys => [],
+				code => sub { $app->quit },
+			},
+			toggle_fullscreen => {
+				keys => [ 'f', 'f11' ],
+				code => sub { $app->fullscreen_toggle },
+				tags => [ 'global' ],
+			},
+			info_toggle => {
+				keys => [ 'i' ],
+				code => sub { rotate $app->{info_modes} },
+			},
+		}), #}#
 
-		previous_picture => {
-			keys => [ qw/left h/ ],
-			code => sub { $view->{cursor}-- },
-		},
-		next_picture => {
-			keys => [ qw/right l/ ],
-			code => sub { $view->{cursor}++ },
-		},
-		previous_line => {
-			keys => [ qw/up k/ ],
-			code => sub { $view->{cursor} -= $view->{cols} },
-		},
-		next_line => {
-			keys => [ qw/down j/ ],
-			code => sub { $view->{cursor} += $view->{cols} },
-		},
-		previous_page => {
-			keys => [ qw/page_up backspace/ ],
-			code => sub { $view->{cursor} -= $view->{rows}*$view->{cols} },
-		},
-		next_page => {
-			keys => [ qw/page_down space/ ],
-			code => sub { $view->{cursor} += $view->{rows}*$view->{cols} },
-		},
-		first_picture => {
-			keys => [ qw/home g-g/ ],
-			code => sub { $view->{cursor} = 0 },
-		},
-		last_picture => {
-			keys => [ qw/end G/ ],
-			code => sub { $view->{cursor} = scalar @{$view->{ids}} - 1 },
-		},
+		add_tag_to_actions('browser',
+		{#{my}
+			previous_picture => {
+				keys => [ 'left', 'h' ],
+				code => sub { $view->{cursor}-- },
+			},
+			next_picture => {
+				keys => [ 'right', 'l' ],
+				code => sub { $view->{cursor}++ },
+			},
+			date_seek => {
+				keys => [ 'd', 'm', 'y', 'shift-d', 'shift-m', 'shift-y' ],
+				code => sub { $view->seek_date($command) },
+			},
+			previous_line => {
+				keys => [ 'up', 'k' ],
+				code => sub { $view->{cursor} -= $view->{cols} },
+			},
+			next_line => {
+				keys => [ 'down', 'j' ],
+				code => sub { $view->{cursor} += $view->{cols} },
+			},
+			previous_page => {
+				keys => [ 'page_up', 'backspace' ],
+				code => sub { $view->{cursor} -= $view->{rows}*$view->{cols} },
+			},
+			next_page => {
+				keys => [ 'page_down', 'space' ],
+				code => sub { $view->{cursor} += $view->{rows}*$view->{cols} },
+			},
+			first_picture => {
+				keys => [ 'home', 'g-g' ],
+				code => sub { $view->{cursor} = 0 },
+			},
+			last_picture => {
+				keys => [ 'end', 'G' ],
+				code => sub { $view->{cursor} = scalar @{$view->{ids}} - 1 },
+			},
+			zoom_in => {
+				keys => [ '=', '[+]' ],
+				code => sub { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; },
+				tags => [ 'pic' ],
+			},
+			zoom_out => {
+				keys => [ '-', '[-]' ],
+				code => sub { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; },
+				tags => [ 'pic' ],
+			},
+			zoom_reset => {
+				keys => [  ],
+				code => sub { $view->{zoom} = 1 },
+				tags => [ 'pic' ],
+			},
+			switch_views => {
+				keys => [ 'tab' ],
+				code => sub { rotate $app->{views}; $app->{views}->[0]->update },
+			},
+			starred_view => {
+				keys => [ 'control-s' ],
+				code => sub { $app->enter_star_view },
+			},
+			hidden_view => {
+				keys => [ 'control-shift-h' ],
+				code => sub { $self->enter_hidden_view },
+			},
+			close_view => {
+				keys => [ 'control-w', 'escape', 'q' ],
+				code => sub { $self->close_view },
+			},
+		}), #}#
 
-		delete_picture => {
-			keys => [ qw/delete/ ],
-			code => sub { $view->delete_current },
-		},
-		info_toggle => {
-			keys => [ qw/i/ ],
-			code => sub { rotate $app->{info_modes} },
-		},
-		switch_views => {
-			keys => [ qw/tab/ ],
-			code => sub { rotate $app->{views}; $app->{views}->[0]->update },
-		},
-		zoom_in => {
-			keys => [ qw/= [+]/ ],
-			code => sub { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; },
-		},
-		zoom_out => {
-			keys => [ qw/- [-]/ ],
-			code => sub { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; },
-		},
-		zoom_reset => {
-			keys => [ qw// ],
-			code => sub { $view->{zoom} = 1 },
-		},
-		quit => {
-			keys => [ qw/q escape/ ],
-			code => sub { $app->quit },
-		},
+		add_tag_to_actions('pic',
+		{#{my}
+			edit_file => {
+				keys => [ 'control-d' ],
+				code => sub { $view->pic->develop },
+			},
+			print_files => {
+				keys => [ 'p' ],
+				code => sub { say join "\n", keys %{$view->pic->{files}} },
+			},
+			toggle_star => {
+				keys => [ 's' ],
+				code => sub { $view->pic->toggle_tag('_star') },
+			},
+			toggle_hidden => {
+				keys => [ 'shift-1' ],
+				code => sub { $view->pic->toggle_tag('_hidden') },
+			},
+			tag_edit => {
+				keys => [ 't' ],
+				code => sub { $app->enter_tag_mode },
+			},
+			repeat_last_tag => {
+				keys => [ '.' ],
+				code => sub { $view->pic->set_tag($app->{last_tag}) },
+			},
+			delete_picture => {
+				keys => [ 'delete' ],
+				code => sub { $view->delete_current },
+			},
+		}), #}#
+
+		add_tag_to_actions('menu',
+		{#{my}
+		}), #}#
 
 	);#}#
 
