@@ -157,7 +157,6 @@ sub enter_hidden_view
 sub do_menu
 {my ($self, $command) = @_;
 
-	$self->{dirty} = 1;
 	return 0 unless $self->{menu}->{action};
 	my $view = $self->{views}->[0];
 
@@ -349,9 +348,9 @@ sub do
 	foreach my $action (keys %actions) {
 		foreach ($action, @{$actions{$action}->{keys}}) {
 			if ($command eq $_) {
-				$self->{dirty} = 1;
 				&{$actions{$action}->{code}}($command);
 				$view->adjust_page_and_cursor;
+				$self->{dirty} = 1;
 				last ACTION;
 			}
 		}
@@ -474,7 +473,10 @@ sub main
 
 	while(1) {
 
-		$self->display  if $self->{dirty};
+		if ($self->{dirty}) {
+			$self->display;
+			$self->{dirty} = 0;
+		}
 
 		$event->wait;
 		do {
