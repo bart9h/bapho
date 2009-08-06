@@ -4,7 +4,7 @@ use File::Basename;
 BEGIN {
 	unshift @INC,
 		$ENV{BAPHO_LIBDIR},
-		readlink(dirname($0)).'/src';
+		dirname(-l $0 ? readlink $0 : $0).'/src';
 }
 use main;
 main (@ARGV);
