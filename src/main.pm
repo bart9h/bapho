@@ -145,7 +145,13 @@ sub enter_tag_mode
 sub enter_star_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, view::new($self->{collection}, ['_star'], []);
+	unshift @{$self->{views}}, view::new($self->{collection}, ['_star'], ['_hidden']);
+}#
+
+sub enter_hidden_view
+{my ($self) = @_;
+
+	unshift @{$self->{views}}, view::new($self->{collection}, ['_hidden'], []);
 }#
 
 sub do_menu
@@ -206,7 +212,9 @@ sub do
 		when (/^f$/)               { $self->fullscreen_toggle }
 		when (/^p$/)               { say join "\n", keys %{$view->pic->{files}} }
 		when (/^s$/)               { $view->pic->toggle_tag('_star') }
+		when (/^shift-1$/)         { $view->pic->toggle_tag('_hidden') }
 		when (/^control-s$/)       { $self->enter_star_view }
+		when (/^control-shift-h$/) { $self->enter_hidden_view }
 		when (/^t$/)               { $self->enter_tag_mode }
 		when (/^(shift-)?[dmy]$/)  { $view->seek_date($_) }
 		when (/^\.$/)              { $view->pic->set_tag($self->{last_tag}) }
@@ -357,7 +365,7 @@ sub main
 
 	};
 
-	push @{$self->{views}}, view::new($self->{collection}, [], []);
+	push @{$self->{views}}, view::new($self->{collection}, [], ['_hidden']);
 
 	$self->load_state;
 

@@ -134,7 +134,8 @@ sub pvt__display_info
 	$self->pvt__print(
 		font=>0, text=>$view->pic->{id},
 		font=>1, text=>".$ext  $str",
-		$view->pic->{tags}->{_star} ? (font=>0, text=>'  (*)') : (),
+		$view->pic->{tags}->{_star}   ? (font=>0, text=>'  (*)') : (),
+		$view->pic->{tags}->{_hidden} ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 		$v>1 ? (font=>0, text=>"  [$v views]") : (),
 	);
 
