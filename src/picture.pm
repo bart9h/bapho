@@ -40,7 +40,9 @@ sub add
 			if (open F, $path) {
 				$self->{tags} = {};
 				foreach (<F>) {
-					chomp;
+					s/^\s*(.*?)\s*$/$1/;
+					next if m/^#/;
+					next if $_ eq '';
 					$self->{tags}->{$_} = 1;
 				}
 			}
