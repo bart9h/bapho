@@ -25,27 +25,6 @@ sub rotate
 	push @$array_ref, shift @$array_ref;
 }#
 
-sub pick
-{my ($array_ref, $item) = @_;
-
-	my $idx;
-	foreach (0 .. (scalar @$array_ref - 1)) {
-		if ($array_ref->[$_] eq $item) {
-			$idx = $_;
-			last;
-		}
-	}
-
-	if (defined $idx) {
-		if ($idx > 0) {
-			@$array_ref = @$array_ref[ $idx,  0 .. $idx-1,  $idx+1 .. $#$array_ref ];
-		}
-	}
-	else {
-		unshift @$array_ref, $item;
-	}
-}#
-
 sub get_root_geometry
 {my ($self) = @_;
 
@@ -131,16 +110,27 @@ sub load_state
 	}
 }#
 
-sub quit
+sub close_view
 {my ($self) = @_;
+
+	my $cursor_id = $self->{views}->[0]->pic->{id};
+
+	shift @{$self->{views}};
+
+	@{$self->{views}} or $self->quit ($cursor_id);
+}#
+
+sub quit
+{my ($self, $cursor_id) = @_;
 
 	my $P = $self->{collection}->{pics};
 	foreach (keys %{$P}) {
 		$P->{$_}->save_tags;
 	}
 
+	#TODO: save all views
 	args::save_state {
-		cursor_id => $self->{views}->[0]->pic->{id},
+		cursor_id => $cursor_id // $self->{views}->[0]->pic->{id},
 	};
 
 	exit(0);
@@ -155,8 +145,7 @@ sub enter_tag_mode
 sub enter_star_view
 {my ($self) = @_;
 
-	$self->{star_view} //= view::new($self->{collection}, ['_star'], []);
-	pick($self->{views}, $self->{star_view});
+	unshift @{$self->{views}}, view::new($self->{collection}, ['_star'], []);
 }#
 
 sub do_menu
@@ -237,6 +226,7 @@ sub do
 		when (/^zoom in$/)      { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
 		when (/^zoom out$/)     { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; }
 		when (/^zoom reset$/)   { $view->{zoom} = 1 }
+		when (/^close$/)        { $self->close_view }
 		when (/^quit$/)         { $self->quit }
 
 		default                 { $self->{dirty} = 0 }
@@ -269,22 +259,24 @@ sub handle_event
 			else {
 				$self->do(
 					{
-						i         => 'toggle info',
-						f11       => 'f',
-						'-'       => 'zoom out',
-						'[-]'     => 'zoom out',
-						'='       => 'zoom in',
-						'[+]'     => 'zoom in',
-						k         => 'up',
-						j         => 'down',
-						h         => 'left',
-						l         => 'right',
-						q         => 'quit',
-						escape    => 'quit',
-						space     => 'page down',
-						backspace => 'page up',
-						'g-g'     => 'home',
-						G         => 'end',
+						i           => 'toggle info',
+						f11         => 'f',
+						'-'         => 'zoom out',
+						'[-]'       => 'zoom out',
+						'='         => 'zoom in',
+						'[+]'       => 'zoom in',
+						k           => 'up',
+						j           => 'down',
+						h           => 'left',
+						l           => 'right',
+						'control-q' => 'quit',
+						'control-w' => 'close',
+						q           => 'close',
+						escape      => 'close',
+						space       => 'page down',
+						backspace   => 'page up',
+						'g-g'       => 'home',
+						G           => 'end',
 					}->{$key} // $key
 				)
 			}
@@ -343,7 +335,6 @@ sub main
 		collection => collection::new,
 
 		views      => [],
-		star_view  => undef,
 		menu       => menu::new,
 		key_hold   => '',
 		last_tag   => '',

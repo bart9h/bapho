@@ -130,10 +130,12 @@ sub pvt__display_info
 		$str .= '  '.int($zoom*100).'%';
 	}
 
+	my $v = scalar @{$self->{views}};
 	$self->pvt__print(
 		font=>0, text=>$view->pic->{id},
 		font=>1, text=>".$ext  $str",
 		$view->pic->{tags}->{_star} ? (font=>0, text=>'  (*)') : (),
+		$v>1 ? (font=>0, text=>"  [$v views]") : (),
 	);
 
 	given ($self->{info_modes}->[0]) {

@@ -48,7 +48,7 @@ sub do
 		when (/^down$/)         { $self->{cursor}++ }
 		when (/^home$/)         { $self->{cursor} = 0 }
 		when (/^end$/)          { $self->{cursor} = $N - 1 }
-		when (/^quit$/)         { $self->leave }
+		when (/^close$/)        { $self->leave }
 		when (/^(page down|enter|return)$/) {
 			$self->{activated} = $self->{items}->[$self->{cursor}];
 		}
