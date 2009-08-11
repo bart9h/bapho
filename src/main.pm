@@ -197,6 +197,14 @@ sub do_menu
 	return 1;
 }#
 
+sub action_has_tag
+{my ($action, $tag) = @_;
+
+	foreach (@{$action->{tags}}) {
+		return 1 if $tag eq $_;
+	}
+}#
+
 sub add_tag_to_actions
 {my ($tag, $actions) = @_;
 
