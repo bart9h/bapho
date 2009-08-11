@@ -106,7 +106,9 @@ sub adjust_page_and_cursor
 sub seek_date
 {my ($self, $key) = @_;
 
-	our $k = lc $key;
+	$key =~ m/(shift-)?([a-z])/;
+	my ($shift, $k) = ($1, $2);
+
 	sub part($$) { substr $_[1]->{id}, 0, {d=>8,m=>6,y=>4}->{$_[0]} }
 
 	my $last = (scalar @{$self->{ids}}) - 1;
@@ -116,7 +118,7 @@ sub seek_date
 
 	# loop to find next pic with different date part
 	my $current_pic = $self->pic;
-	my $direction = $key =~ /[a-z]/ ? 1 : -1;
+	my $direction = $shift ? -1 : 1;
 	while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
 
 		$self->{cursor} += $direction;

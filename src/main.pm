@@ -202,34 +202,34 @@ sub do
 
 	given ($command) {
 
-		when (/^control-d$/)    { $view->pic->develop }
-		when (/^f$/)            { $self->fullscreen_toggle }
-		when (/^p$/)            { say join "\n", keys %{$view->pic->{files}} }
-		when (/^s$/)            { $view->pic->toggle_tag('_star') }
-		when (/^control-s$/)    { $self->enter_star_view }
-		when (/^t$/)            { $self->enter_tag_mode }
-		when (/^[dmy]$/i)       { $view->seek_date($_) }
-		when (/^\.$/)           { $view->pic->set_tag($self->{last_tag}) }
+		when (/^control-d$/)       { $view->pic->develop }
+		when (/^f$/)               { $self->fullscreen_toggle }
+		when (/^p$/)               { say join "\n", keys %{$view->pic->{files}} }
+		when (/^s$/)               { $view->pic->toggle_tag('_star') }
+		when (/^control-s$/)       { $self->enter_star_view }
+		when (/^t$/)               { $self->enter_tag_mode }
+		when (/^(shift-)?[dmy]$/)  { $view->seek_date($_) }
+		when (/^\.$/)              { $view->pic->set_tag($self->{last_tag}) }
 
-		when (/^left$/)         { $view->{cursor}-- }
-		when (/^right$/)        { $view->{cursor}++ }
-		when (/^up$/)           { $view->{cursor} -= $view->{cols} }
-		when (/^down$/)         { $view->{cursor} += $view->{cols} }
-		when (/^page up$/)      { $view->{cursor} -= $view->{rows}*$view->{cols} }
-		when (/^page down$/)    { $view->{cursor} += $view->{rows}*$view->{cols} }
-		when (/^home$/)         { $view->{cursor} = 0 }
-		when (/^end$/)          { $view->{cursor} = scalar @{$view->{ids}} - 1 }
+		when (/^left$/)            { $view->{cursor}-- }
+		when (/^right$/)           { $view->{cursor}++ }
+		when (/^up$/)              { $view->{cursor} -= $view->{cols} }
+		when (/^down$/)            { $view->{cursor} += $view->{cols} }
+		when (/^page up$/)         { $view->{cursor} -= $view->{rows}*$view->{cols} }
+		when (/^page down$/)       { $view->{cursor} += $view->{rows}*$view->{cols} }
+		when (/^home$/)            { $view->{cursor} = 0 }
+		when (/^end$/)             { $view->{cursor} = scalar @{$view->{ids}} - 1 }
 
-		when (/^delete$/)       { $view->delete_current }
-		when (/^toggle info$/)  { rotate $self->{info_modes} }
-		when (/^tab$/)          { rotate $self->{views}; $self->{views}->[0]->update }
-		when (/^zoom in$/)      { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
-		when (/^zoom out$/)     { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; }
-		when (/^zoom reset$/)   { $view->{zoom} = 1 }
-		when (/^close$/)        { $self->close_view }
-		when (/^quit$/)         { $self->quit }
+		when (/^delete$/)          { $view->delete_current }
+		when (/^toggle info$/)     { rotate $self->{info_modes} }
+		when (/^tab$/)             { rotate $self->{views}; $self->{views}->[0]->update }
+		when (/^zoom in$/)         { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; }
+		when (/^zoom out$/)        { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; }
+		when (/^zoom reset$/)      { $view->{zoom} = 1 }
+		when (/^close$/)           { $self->close_view }
+		when (/^quit$/)            { $self->quit }
 
-		default                 { $self->{dirty} = 0 }
+		default                    { $self->{dirty} = 0 }
 	}
 
 	$view->adjust_page_and_cursor;
@@ -246,7 +246,7 @@ sub handle_event
 			my $key = $event->key_name;
 			$shift   = 1  if $key =~ m{^(left|right)\ shift$};
 			$control = 1  if $key =~ m{^(left|right)\ ctrl$};
-			$key = uc $key          if $shift;
+			$key =   'shift-'.$key  if $shift;
 			$key = 'control-'.$key  if $control;
 
 			if ($self->{key_hold}) {
@@ -276,7 +276,7 @@ sub handle_event
 						space       => 'page down',
 						backspace   => 'page up',
 						'g-g'       => 'home',
-						G           => 'end',
+						'shift-g'   => 'end',
 					}->{$key} // $key
 				)
 			}
