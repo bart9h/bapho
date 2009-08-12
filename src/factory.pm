@@ -114,8 +114,9 @@ sub pvt__load_exif_preview
 	$exif->Options(Binary => 1);
 	my $info = $exif->ImageInfo($path);
 
-	my $tag = 'PreviewImage';
-	#TODO: use thumbnail if $width,$height fits
+	my $tag = ($width<=160 && $height<=120) ? 'ThumbnailImage' : 'PreviewImage';
+	#FIXME: better method to do this (thumbnail size may vary)
+
 	if (defined $info->{$tag}) {
 
 		my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
