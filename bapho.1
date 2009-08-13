@@ -35,7 +35,9 @@ If no files are specified, try to download from camera with \fBgphoto2\fR(1).
 .BI --cache_size_mb= size
 Amount of memory, in megabytes, used to hold used images.
 .SH KEYS
-.IP "\fBq \fRor \fBescape"
+.IP "\fBq\fR, \fBcontrol-w \fRor \fBescape"
+Closes current view.  Closing last view exits the program.
+.IP "\fBcontrol-q"
 Exits the program.
 .IP "\fBarrow keys\fR, \fBpage up/down\fR, \fBmouse wheel"
 Jump to next/prev picture/page (space/backspace = page down/up).
@@ -47,18 +49,22 @@ Jump to first image of next day/month/year.
 Jump to last image of previous day/month/year.
 .IP \fBi
 Cycle through info display modes.
-.IP \fBf
+.IP \fBf \fRor \fBF11
 Toggle fullscreen.
 .IP "\fB+\fR/\fB-"
 Zoom thumbnails in/out.
 .IP \fBs
 Toggle "_star" flag.
+.IP \fB!
+Toggle "_hidden" flag.
 .IP \fBt
 Toggle tag editor.
 .IP \fB.
 Set last used tag.
 .IP \fBcontrol-s
 Enter "_star" view.
+.IP \fBcontrol-shift-h
+Enter "_hidden" view.
 .IP \fBtab
 Switch between different views.
 .IP \fBe
@@ -72,6 +78,6 @@ Print, in stdout, the paths of the files assiciated with the current picture.
 .IP "\fBk j l h gg G"
 As in vi.
 .SH ENVIRONMENT VARIABLES
-All bapho options can be passed through environment variables of the same name, prefixed with \fBBAPHO_\fR.
+All bapho options can be passed through environment variables of the same name, uppercased, and prefixed with \fBBAPHO_\fR.
 .P
 Examples: \fBBAPHO_BASEDIR\fR, \fBBAPHO_CACHE_SIZE_MB, \fBBAPHO_FULLSCREEN\fR.
