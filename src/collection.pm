@@ -49,6 +49,7 @@ sub new
 sub update_tags
 {my ($self) = @_;
 
+	%{$self->{tags}} = ();
 	foreach my $pic (keys %{$self->{pics}}) {
 		foreach my $tag ($self->{pics}->{$pic}->get_tags) {
 			$self->{tags}->{$tag}++;
