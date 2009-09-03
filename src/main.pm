@@ -278,7 +278,7 @@ sub do
 				code => sub { $view->{cursor} = 0 },
 			},
 			last_picture => {
-				keys => [ 'end', 'G' ],
+				keys => [ 'end', 'shift-g' ],
 				code => sub { $view->{cursor} = scalar @{$view->{ids}} - 1 },
 			},
 			zoom_in => {
@@ -348,6 +348,7 @@ sub do
 
 		add_tag_to_actions('menu',
 		{#{my}
+
 		}), #}#
 
 	);#}#
