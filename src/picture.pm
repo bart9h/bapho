@@ -29,10 +29,16 @@ sub add
 
 	die 'duplicate file'  if exists $self->{files}->{$path};
 
-	$path =~ m{^(.*)/[^.]+\.([^/]+)} or die;
+	unless ($path =~ m{^(.*)/[^.]+\.([^/]+)}) {
+		warn "invalid filename \"$path\"\n";
+		return;
+	}
+
 	my ($dir, $ext) = ($1, $2);
-	die "$path\nalso exists in\n$self->{dir}\n"
-		if defined $self->{dir} and $self->{dir} ne $dir;
+	if (defined $self->{dir} and $self->{dir} ne $dir) {
+		warn "$path\nalso exists in\n$self->{dir}\n";
+		return;
+	}
 	$self->{dir} //= $dir;
 
 	given ($ext) {

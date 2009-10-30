@@ -93,7 +93,7 @@ sub pvt__add_file
 		$pic->add($file);
 	}
 	else {
-		warn "strange filename ($file)";
+		warn "strange filename '$file'";
 	}
 }#
 
