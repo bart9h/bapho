@@ -15,6 +15,10 @@ sub home
 {my ($self) = @_;
 
 	$self->{x} = $self->{y} = $self->{border};
+
+	if ($self->{print_error}) {
+		print "\n";
+	}
 }#
 
 sub new
