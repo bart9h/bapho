@@ -108,23 +108,7 @@ sub pvt__print
 {my ($self, @args) = @_;
 	caller eq __PACKAGE__ or die;
 
-	state $print_error = 0;
-	if (!$print_error) {
-		eval {
-			$self->{text}->print($self->{app}, @args);
-		};
-		if ($@) {
-			print $@;
-			$print_error = 1;
-		}
-	}
-	if ($print_error) {
-		for (my $i = 0;  $i < $#args;  $i += 2) {
-			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
-			print $arg if $cmd eq 'text';
-		}
-		print "\n";
-	}
+	$self->{text}->print($self->{app}, @args);
 }#
 
 sub pvt__display_info
