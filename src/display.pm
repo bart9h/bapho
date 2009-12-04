@@ -118,6 +118,13 @@ sub pvt__print
 			$print_error = 1;
 		}
 	}
+	if ($print_error) {
+		for (my $i = 0;  $i < $#args;  $i += 2) {
+			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
+			print $arg if $cmd eq 'text';
+		}
+		print "\n";
+	}
 }#
 
 sub pvt__display_info
