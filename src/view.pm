@@ -103,6 +103,25 @@ sub adjust_page_and_cursor
 
 }#
 
+sub seek
+{my ($self, $dir) = @_;
+
+	given ($dir) {
+		when (/^first$/) {
+			$self->{cursor} = 0;
+		}
+		when (/^last$/)  {
+			$self->{cursor} = scalar @{$self->{ids}} - 1;
+		}
+		when (/^[+-]/)   {
+			$dir =~ s/line/$self->{cols}/e;
+			$dir =~ s/page/$self->{cols}*$self->{rows}/e;
+			$self->{cursor} += $dir;
+		}
+	}
+
+}#
+
 sub seek_date
 {my ($self, $key) = @_;
 

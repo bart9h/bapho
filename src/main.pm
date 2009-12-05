@@ -219,14 +219,14 @@ sub do
 		when (/^(shift-)?[dmy]$/)  { $view->seek_date($_) }
 		when (/^\.$/)              { $view->pic->set_tag($self->{last_tag}) }
 
-		when (/^left$/)            { $view->{cursor}-- }
-		when (/^right$/)           { $view->{cursor}++ }
-		when (/^up$/)              { $view->{cursor} -= $view->{cols} }
-		when (/^down$/)            { $view->{cursor} += $view->{cols} }
-		when (/^page up$/)         { $view->{cursor} -= $view->{rows}*$view->{cols} }
-		when (/^page down$/)       { $view->{cursor} += $view->{rows}*$view->{cols} }
-		when (/^home$/)            { $view->{cursor} = 0 }
-		when (/^end$/)             { $view->{cursor} = scalar @{$view->{ids}} - 1 }
+		when (/^left$/)            { $view->seek('-1') }
+		when (/^right$/)           { $view->seek('+1') }
+		when (/^up$/)              { $view->seek('-line') }
+		when (/^down$/)            { $view->seek('+line') }
+		when (/^page up$/)         { $view->seek('-page') }
+		when (/^page down$/)       { $view->seek('+page') }
+		when (/^home$/)            { $view->seek('first') }
+		when (/^end$/)             { $view->seek('last') }
 
 		when (/^delete$/)          { $view->delete_current }
 		when (/^toggle info$/)     { rotate $self->{info_modes} }
