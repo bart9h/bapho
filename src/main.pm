@@ -365,7 +365,16 @@ sub main
 
 	};
 
-	push @{$self->{views}}, view::new($self->{collection}, [], ['_hidden']);
+	push @{$self->{views}}, view::new(
+		$self->{collection},
+		[ (split /,/, $args{include}) ],
+		[ (split /,/, $args{exclude}), '_hidden' ]
+	);
+
+	if (scalar @{$self->{views}[0]{ids}} == 0) {
+		say 'no pictures matching the filter';
+		return;
+	}
 
 	$self->load_state;
 
