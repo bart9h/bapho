@@ -81,6 +81,7 @@ sub pvt__add_file
 	return if $file =~ m{/\.bapho-state$};
 	return if $file =~ m{/\.([^/]*-)?trash/}i;
 	return if $file =~ m{/\.qiv-select/}i;
+	return if $file =~ m{/Picasa.ini$};
 
 	if ($file =~ m|^
 		$args{basedir}
