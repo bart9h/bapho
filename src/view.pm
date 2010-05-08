@@ -52,6 +52,7 @@ sub update
 	];
 }#
 
+#TODO: substituir por interadoras {first,last,next,prev}_pic()
 sub pic
 {my ($self, $idx) = @_;
 

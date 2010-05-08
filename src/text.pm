@@ -57,7 +57,7 @@ sub new
 				#-mode => SDL::TEXT_BLENDED, # XXX SDL_Perl 2.1.3: crash;
 				-mode => SDL::TEXT_SHADED,   # XXX (default) only available with transparency,
 											 # which is wrong because it DOES have anti-aliasing
-											 # to the background color and feels wrong on other 
+											 # to the background color and feels wrong on other
 											 # background, but here will feel so so on the shaded
 											 # transparent background we will force later;
 				#-mode => SDL::TEXT_SOLID,   # XXX transparent blit, without anti-aliasing

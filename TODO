@@ -8,7 +8,8 @@ Missing features:
 * Handle .mpg files.
   * Press a key to play with external player.
   * Display a frame or thumbnail as image.
-  * How to handle the lack of timestamp metadata?
+  * [!!!] How to handle the lack of timestamp metadata?
+    * one possibility: ask user, providing a guess based on other files on the same import batch.
 
 * Handle folders (browsing and tagging).
 
@@ -24,14 +25,14 @@ Missing features:
 
 * Image rotation.
 
-* Text line editing (to enter new tags).
+* Text line editing (to enter new tags, renaming files/dirs).
 
 
 Enhancements:
 
 * Slideshow.
 
-* Mouse support (IMGUI).
+* Mouse support (GUI).
 
 * Display image histogram.
 
