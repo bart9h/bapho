@@ -86,7 +86,8 @@ sub print
 				when (/text/) {
 					my $font        = $self->{fonts}->[$self->{font}]->{fill}    or die;
 					my $font_border = $self->{fonts}->[$self->{font}]->{border}  or die;
-					my $w = $font->width($arg);
+					my $w = 16 * length $arg;
+					$w //= $font->width($arg);
 
 					if ($mode eq 'layout') {
 						$taller_font = $font
