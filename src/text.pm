@@ -15,10 +15,6 @@ sub home
 {my ($self) = @_;
 
 	$self->{x} = $self->{y} = $self->{border};
-
-	if ($self->{print_error}) {
-		print "\n";
-	}
 }#
 
 sub new
@@ -89,66 +85,58 @@ sub print
 					$self->{font} = $arg;
 				}
 				when (/text/) {
+					my $font        = $self->{fonts}->[$self->{font}]->{fill}    or die;
+					my $font_border = $self->{fonts}->[$self->{font}]->{border}  or die;
+
+					my $w;
 					if (!$self->{print_error}) {
 						eval {
-							my $font        = $self->{fonts}->[$self->{font}]->{fill}    or die;
-							my $font_border = $self->{fonts}->[$self->{font}]->{border}  or die;
-							my $w = $font->width($arg);
-
-							if ($mode eq 'layout') {
-								$taller_font = $font
-								if not defined $taller_font
-									or $taller_font->height > $font->height;
-								$width += $w;
-							}
-							else {
-								my $x0 = $self->{x};
-								my $y0 = $self->{y} + $taller_font->ascent - $font->ascent;
-
-								for(my $x = $x0-1; $x <= $x0+1; $x+=2) {
-									for(my $y = $y0-1; $y <= $y0+1; $y+=2) {
-										$font_border->print($surf, $x, $y, $arg);
-									}
-								}
-
-								$font->print($surf, $x0, $y0, $arg);
-								$self->{x} += $w;
-							}
+							$w = $font->width($arg);
 						};
 						if ($@) {
 							print $@;
 							$self->{print_error} = 1;
 						}
 					}
-					if ($self->{print_error} and $mode eq 'layout') {
-						print $arg if $cmd eq 'text';
+					$w //= 16 * length $arg;
+
+					if ($mode eq 'layout') {
+						$taller_font = $font
+							if not defined $taller_font
+							or $taller_font->height > $font->height;
+						$width += $w;
 					}
+					else {
+						my $x0 = $self->{x};
+						my $y0 = $self->{y} + $taller_font->ascent - $font->ascent;
+
+						for(my $x = $x0-1; $x <= $x0+1; $x+=2) {
+							for(my $y = $y0-1; $y <= $y0+1; $y+=2) {
+								$font_border->print($surf, $x, $y, $arg);
+							}
+						}
+
+						$font->print($surf, $x0, $y0, $arg);
+						$self->{x} += $w;
 				}
-				default { die }
+			}
+			default { die }
 			}
 		}
 
 		if ($mode eq 'layout') {
-			if (!$self->{print_error}) {
-				my $height = .5*$self->{border} + $taller_font->height;
-
-				my $shade = SDL::Surface->new(-width => $width, -height => $height);
-				$shade->fill(0, $SDL::Color::black);
-				$shade->set_alpha(SDL::SDL_SRCALPHA, 0x40);
-				$shade->blit(0, $surf,
-					SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $width, -height => $height),
-				);
-			}
-			else {
-				print "\n";
-			}
+			my $height = .5*$self->{border} + $taller_font->height;
+			my $shade = SDL::Surface->new(-width => $width, -height => $height);
+			$shade->fill(0, $SDL::Color::black);
+			$shade->set_alpha(SDL::SDL_SRCALPHA, 0x40);
+			$shade->blit(0, $surf,
+				SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $width, -height => $height),
+			);
 		}
 	}
 
-	do {
-		$self->{y} += $taller_font->height;
-		$self->{x} = $self->{border};
-	} unless $self->{print_error};
+	$self->{y} += $taller_font->height;
+	$self->{x} = $self->{border};
 
 }#
 

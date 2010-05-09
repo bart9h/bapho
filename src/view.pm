@@ -134,7 +134,7 @@ sub seek_date
 	my $last = (scalar @{$self->{ids}}) - 1;
 
 	# prevent endless loop
-	return if part($k,$self->pic(0)) eq part($k,$self->pic($last));
+	return undef if part($k,$self->pic(0)) eq part($k,$self->pic($last));
 
 	# loop to find next pic with different date part
 	my $current_pic = $self->pic;
@@ -142,11 +142,13 @@ sub seek_date
 	while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
 
 		$self->{cursor} += $direction;
-		$self->{cursor} = 0      if $self->{cursor} > $last;
-		$self->{cursor} = $last  if $self->{cursor} < 0;
+		$self->{cursor}  = 0      if $self->{cursor} > $last;
+		$self->{cursor}  = $last  if $self->{cursor} < 0;
 
 		last  if part($k,$self->pic) ne part($k,$current_pic);
 	}
+
+	1;
 }#
 
 sub seek_id
