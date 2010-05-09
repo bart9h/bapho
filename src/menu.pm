@@ -44,12 +44,12 @@ sub do
 	$self->{activated} = undef;
 
 	given ($command) {
-		when (/^up$/)           { $self->{cursor}-- }
-		when (/^down$/)         { $self->{cursor}++ }
-		when (/^home$/)         { $self->{cursor} = 0 }
-		when (/^end$/)          { $self->{cursor} = $N - 1 }
-		when (/^close$/)        { $self->leave }
-		when (/^(space|enter|return)$/) {
+		when (/^(k|up)$/)            { $self->{cursor}-- }
+		when (/^(j|down)$/)          { $self->{cursor}++ }
+		when (/^(g-g|home)$/)        { $self->{cursor} = 0 }
+		when (/^(shift-g|end)$/)     { $self->{cursor} = $N - 1 }
+		when (/^(q|escape|close)$/)  { $self->leave }
+		when (/^(l|space|enter|return)$/) {
 			$self->{activated} = $self->{items}->[$self->{cursor}];
 		}
 		default {
