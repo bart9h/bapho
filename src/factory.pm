@@ -24,21 +24,23 @@ sub new
 			$args{cache_size_mb}*1024*1024;
 		}
 		else {
-			my $kb;
+			my ($total_kb, $free_kb);
 			if (open F, '/proc/meminfo') {
 				while (<F>) {
 					if (m/^MemTotal:\s+(\d+)\s+kB/) {
-						$kb = ($1*1024)/4;
-						last;
+						$total_kb = $1;
+					}
+					elsif (m/^MemFree:\s+(\d+)\s+kB/) {
+						$free_kb = $1;
 					}
 				}
 				close F;
 			}
+			$total_kb and $free_kb or die;
 
-			#FIXME
-			$kb //= 64*1024*1024;
-
-			return $kb;
+			# 1/4 of total memory, or half the free memory
+			my ($a, $b) = ($total_kb/4, $free_kb/2);
+			return ($a>$b ? $a : $b)*1024;
 		}
 	}#
 
