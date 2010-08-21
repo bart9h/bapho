@@ -14,6 +14,7 @@ our @EXPORT = qw(%args);
 
 our %args = (
 		basedir => $ENV{HOME}.'/fotos',
+		editor => $ENV{EDITOR} // 'gedit',
 		temp_dir => '/tmp',
 		dir_fmt => '%04d/%02d-%02d',
 		jpeg_quality => 80,
