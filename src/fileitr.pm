@@ -1,3 +1,5 @@
+package dir;
+
 #{my uses
 
 use strict;
@@ -7,86 +9,83 @@ use Data::Dumper;
 
 #}#
 
-package folder;
-
 sub new
 {my ($path) = @_;
 
 	bless my $self = {
-		path    => $path,
-		entries => undef,
-		cursor  => undef,
+		cursor => 0,
+		parent => $path,
+		files  => [],
 	};
+
+	if (-d $path) {
+		$self->readdir;
+	}
+	else {
+		my $file;
+		if ($path =~ m{^(.*?)/([^/]+)$}) {
+			$self->{parent} = $1;
+			$file = $2;
+		}
+		else {
+			die; #TODO
+		}
+		$self->find($file);
+	}
 
 	return $self;
 }#
 
-sub load
+sub find
+{my ($self, $name) = @_;
+
+	$self->readdir or die;
+	for (; $self->{cursor} < scalar @{$self->{files}}; ++$self->{cursor}) {
+		last if $self->{files}->[$self->{cursor}] eq $name;
+	}
+}#
+
+sub next
 {my ($self) = @_;
 
-	return if $self->{entries};
-
-	my $dh;
-	unless (opendir ($dh, $self->{path})) {
-		say "can't opendir $self->{path}: $!";
-		return undef;
+	if (++$self->{cursor} >= scalar @{$self->{files}}) {
+		$self->{parent} =~ m{^(.*?)/([^/]+)$} or die; #TODO
+		$self->{parent} = $1;
+		$self->{cursor} = 0;
+		$self->find($2);
+		$self->next;
+		my $dest = $self->{files}->[$self->{cursor}];
+		if (-d $dest) {
+		}
 	}
+	$self;
+}#
 
-	$self->{entries} =
-		map  { ref -f $_ ? $_ : folder::new($_) }
+sub readdir
+{my ($self) = @_;
+
+	opendir(my $dh, $self->{parent})
+		|| die "opendir $self->{parent}: $!";
+
+	$self->{files} = [
 		sort { (-f $a and -d $b) ? -1 : (-d $a and -f $b) ? 1 : $a cmp $b }
-		grep { not /^\./ and (-f or -d) }
-		readdir($dh);
-
+		grep { not /^\./ }#and (-f or -d) }
+		readdir($dh)
+	];
 	closedir $dh;
 
-	$self->{cursor}  = 0;
-
+	die 'empty dir' unless scalar @{$self->{files}};
 }#
 
-sub entry
-{my ($self, $idx) = @_;
+=cut
+sub seek
+{my ($self, $d) = @_;
 
-	$self->{entries}->[ $idx // $self->{cursor} ];
-}#
-
-sub size
-{my ($self, $idx) = @_;
-
-	scalar @{$self->{entries}};
-}#
-
-package dir;
-
-sub new
-{my ($basedir) = @_;
-
-	bless my $self = {
-		basedir => $basedir,
-		root => folder::new($basedir),
-		cursor => undef,
-	};
-
-	return $self;
-}#
-
-sub pvt__first_or_last
-{my ($self, $direction) = @_;
-
-	my $i = $self->{root};
-	while(1) {
-		$i->load;
-		return undef  unless $i->size;
-		my $idx = $direction eq 'first' ? 0 : $i->size-1;
-		if (!ref $i->entry($idx)) {
-			return $self->{cursor} = $i->entry($idx)
-		}
-		$i = $i->entry($idx);
+	my @a = readdir($path);
+	for (my $i = 0; $i <= $#path; ++$i) {
+		if ($a[$i] eq '')
 	}
 }#
-
-sub first { $_[0]->pvt__first_or_last('first') }
-sub last  { $_[0]->pvt__first_or_last('last' ) }
 
 sub next
 {my ($self) = @_;
@@ -112,22 +111,7 @@ sub prev
 	$self->{cursor} //= $self->last;
 }#
 
-sub readdir
-{my ($path) = @_;
-
-	unless (opendir (my $dh, $path)) {
-		say "can't opendir $path: $!";
-		return ();
-	}
-
-	my @entries =
-		sort { (-f $a and -d $b) ? -1 : (-d $a and -f $b) ? 1 : $a cmp $b }
-		grep { not /^\./ and (-f or -d) }
-		readdir($dh);
-	closedir $dh;
-
-	return @entries;
-}#
+=cut
 
 1;
 # vim600:fdm=marker:fmr={my,}#:
