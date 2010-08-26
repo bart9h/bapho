@@ -1,5 +1,3 @@
-package fileitr;
-
 #{my uses
 
 use strict;
@@ -8,6 +6,35 @@ use 5.010;
 use Data::Dumper;
 
 #}#
+
+sub test
+{#{my}
+
+	my $i = fileitr::new($_[0]);
+	my $dir = 1;
+	my $dbg = 0;
+	while(1) {
+		print Dumper $i if $dbg;
+		say $i->path;
+		local $_ = <STDIN>;
+		chomp;
+		given ($_) {
+			when (/^q$/) {
+				last;
+			}
+			when (/^d$/) {
+				$dbg = !$dbg;
+				next;
+			}
+			when (/^([+-]?\d+)$/) {
+				$dir = $1;
+			}
+		}
+		$i->seek($dir);
+	}
+}#
+
+package fileitr;
 
 sub new
 {my ($path) = @_;
