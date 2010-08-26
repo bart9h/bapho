@@ -42,21 +42,18 @@ Enhancements:
 
 * Set a picture as wallpaper.
 
+* OSD transparency.
+
 
 Optimizations:
 
 * Asynchronous image loading.
 
 * Faster startup time (avoid `find $basedir`).
-  * Asynchronous directory loading;
-  or
-  * Save collection data to a database (how to sync?).
+  * On-demand directory loading.
 
 * Faster image loading.
   * Save jpegs of with fullscreen size, and maybe thumbnails too.
 
-* Read-ahead image (and directory) loading.
-
-* OSD transparency.
-
+* Read-ahead image loading.
 
