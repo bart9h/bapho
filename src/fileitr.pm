@@ -7,6 +7,9 @@ use Data::Dumper;
 
 #}#
 
+# test usage:
+#    perl -Mfileitr -e test
+#    perl -Mfileitr -e 'test "/some/path"'
 sub test
 {#{my}
 
@@ -44,6 +47,11 @@ sub test
 	}
 }#
 
+
+# package usage:
+#   my $file = fileitr::new("/some/path");
+#   $file->seek(+1);
+#   say $file->path;
 package fileitr;
 
 sub new
@@ -82,6 +90,7 @@ sub seek
 	}
 	$self;
 }#
+
 
 sub pvt__seek
 {my ($self, $dir) = @_;
