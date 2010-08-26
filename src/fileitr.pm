@@ -1,4 +1,4 @@
-package dir;
+package fileitr;
 
 #{my uses
 
@@ -19,49 +19,77 @@ sub new
 	};
 
 	if (-d $path) {
-		$self->readdir;
+		$self->pvt__readdir;
+		$self->pvt__down(1);
 	}
 	else {
-		my $file;
-		if ($path =~ m{^(.*?)/([^/]+)$}) {
-			$self->{parent} = $1;
-			$file = $2;
-		}
-		else {
-			die; #TODO
-		}
-		$self->find($file);
+		$self->pvt__up;
 	}
 
-	return $self;
+	$self;
 }#
 
-sub find
-{my ($self, $name) = @_;
-
-	$self->readdir or die;
-	for (; $self->{cursor} < scalar @{$self->{files}}; ++$self->{cursor}) {
-		last if $self->{files}->[$self->{cursor}] eq $name;
-	}
-}#
-
-sub next
+sub path
 {my ($self) = @_;
 
-	if (++$self->{cursor} >= scalar @{$self->{files}}) {
-		$self->{parent} =~ m{^(.*?)/([^/]+)$} or die; #TODO
-		$self->{parent} = $1;
-		$self->{cursor} = 0;
-		$self->find($2);
-		$self->next;
-		my $dest = $self->{files}->[$self->{cursor}];
-		if (-d $dest) {
-		}
+	$self->{parent}.'/'.$self->{files}->[$self->{cursor}];
+}#
+
+sub seek
+{my ($self, $dir) = @_;
+
+	while($dir) {
+		my $d = $dir>0?1:-1;
+		$self->pvt__seek($d);
+		$dir -= $d;
 	}
 	$self;
 }#
 
-sub readdir
+sub pvt__seek
+{my ($self, $dir) = @_;
+
+	$self->{cursor} += $dir;
+	if ($self->{cursor} >= 0 and $self->{cursor} < scalar @{$self->{files}}) {
+		$self->pvt__down($dir);
+	}
+	else {
+		$self->pvt__up;
+		$self->pvt__seek($dir);
+		$self->pvt__down($dir);
+	}
+}#
+
+sub pvt__up
+{my ($self) = @_;
+
+	$self->{parent} =~ m{^(.*?)/([^/]+)$} or die; #TODO
+	$self->{parent} = $1;
+	$self->pvt__find($2);
+}#
+
+sub pvt__down
+{my ($self, $dir) = @_;
+
+	while (-d $self->path) {
+		$self->{parent} = $self->path;
+		$self->pvt__readdir;
+		$self->{cursor} = scalar @{$self->{files}} - 1
+			if $dir == -1;
+	}
+}#
+
+sub pvt__find
+{my ($self, $name) = @_;
+
+	$self->pvt__readdir;
+	for (; $self->{cursor} < scalar @{$self->{files}}; ++$self->{cursor}) {
+		last if $self->{files}->[$self->{cursor}] eq $name;
+	}
+	$self;
+}#
+
+sub pvt__readdir
 {my ($self) = @_;
 
 	opendir(my $dh, $self->{parent})
@@ -69,49 +97,15 @@ sub readdir
 
 	$self->{files} = [
 		sort { (-f $a and -d $b) ? -1 : (-d $a and -f $b) ? 1 : $a cmp $b }
-		grep { not /^\./ }#and (-f or -d) }
+		grep { not /^\./ } #and (-f $_ or -d $_) }
 		readdir($dh)
 	];
 	closedir $dh;
 
-	die 'empty dir' unless scalar @{$self->{files}};
+	die 'empty dir' unless scalar @{$self->{files}};  #TODO: nao morrer
+	$self->{cursor} = 0;
+	$self;
 }#
-
-=cut
-sub seek
-{my ($self, $d) = @_;
-
-	my @a = readdir($path);
-	for (my $i = 0; $i <= $#path; ++$i) {
-		if ($a[$i] eq '')
-	}
-}#
-
-sub next
-{my ($self) = @_;
-
-	unless ($self->{cursor}) {
-		return $self->{cursor} = $self->first;
-	}
-
-	my $dir;
-	if (-d $path) {
-		$dir = $path;
-	}
-	else {
-		$path =~ m{^(.*)/[^/]+$} or die;
-		$dir = $1;
-		-d $dir or die;
-	}
-}#
-
-sub prev
-{my ($self) = @_;
-
-	$self->{cursor} //= $self->last;
-}#
-
-=cut
 
 1;
 # vim600:fdm=marker:fmr={my,}#:
