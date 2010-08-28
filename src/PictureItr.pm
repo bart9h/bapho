@@ -12,10 +12,10 @@ use FileItr;
 #}#
 
 sub new
-{my ($path) = @_;
+{my ($class, $path) = @_;
 
-	bless my $self = {};
-	$self->{itr} = FileItr::new($path);
+	bless my $self = {}, $class;
+	$self->{itr} = FileItr->new($path);
 	$self->{id} = path2id($self->{itr}->path) or $self->seek(1);
 
 	$self->pvt__collect;
@@ -39,6 +39,12 @@ sub seek
 	}
 
 	$self->pvt__collect;
+}#
+
+sub path
+{my ($self) = @_;
+
+	$self->{itr}->path;
 }#
 
 sub path2id
