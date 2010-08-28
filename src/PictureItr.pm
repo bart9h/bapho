@@ -14,10 +14,9 @@ use FileItr;
 sub new
 {my ($path) = @_;
 
-	bless my $self = {
-		itr   => FileItr::new($path),
-		files => [],
-	};
+	bless my $self = {};
+	$self->{itr} = FileItr::new($path);
+	$self->{id} = path2id($self->{itr}->path) or $self->seek(1);
 
 	$self->pvt__collect;
 }#
@@ -27,12 +26,26 @@ sub seek
 
 	while($dir) {
 		my $d = $dir>0?1:-1;
-		my $id = $self->pvt__id;
-		$self->{itr}->pvt__seek($d) until $self->pvt__id ne $id;
+		while(1) {
+			$self->{itr}->pvt__seek($d);
+			my $id = path2id($self->{itr}->path);
+			next unless defined $id;
+			if ($id ne $self->{id}) {
+				$self->{id} = $id;
+				last;
+			}
+		}
 		$dir -= $d;
 	}
 
 	$self->pvt__collect;
+}#
+
+sub path2id
+{my ($path) = @_;
+
+	$path =~ m{^(.*)\.[^.]+$};
+	$1 // '';
 }#
 
 sub pvt__collect
@@ -40,25 +53,15 @@ sub pvt__collect
 
 	$self->{files} = [];
 
-	my $id = $self->pvt__id;
-	$self->{itr}->seek(-1) while $self->pvt__id eq $id;
+	$self->{itr}->seek(-1) while path2id($self->{itr}->path) eq $self->{id};
 	$self->{itr}->seek(+1);
 
-	while ($self->pvt__id eq $id) {
+	while (path2id($self->{itr}->path) eq $self->{id}) {
 		push @{$self->{files}}, $self->{itr}->path;
 		$self->{itr}->seek(+1);
 	}
 	$self->{itr}->seek(-1);
-
-	$self->pvt__id eq $id or die;
 	$self;
-}#
-
-sub pvt__id
-{my ($self) = @_;
-
-	$self->{itr}->path =~ m{^(.*)\.[^.]+$} or die; #TODO
-	$1;
 }#
 
 1;
