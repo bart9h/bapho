@@ -20,9 +20,6 @@ sub new
 	};
 
 	$self->pvt__collect;
-
-	print Dumper($self);
-	$self;
 }#
 
 sub seek
@@ -36,8 +33,6 @@ sub seek
 	}
 
 	$self->pvt__collect;
-	print Dumper($self);
-	$self;
 }#
 
 sub pvt__collect
@@ -56,6 +51,7 @@ sub pvt__collect
 	$self->{itr}->seek(-1);
 
 	$self->pvt__id eq $id or die;
+	$self;
 }#
 
 sub pvt__id
