@@ -29,7 +29,7 @@ sub seek
 		while(1) {
 			$self->{itr}->pvt__seek($d);
 			my $id = path2id($self->{itr}->path);
-			next unless defined $id;
+			next if $id eq '';
 			if ($id ne $self->{id}) {
 				$self->{id} = $id;
 				last;
