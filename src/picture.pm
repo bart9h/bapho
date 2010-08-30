@@ -19,7 +19,6 @@ sub new
 		files          => {},
 		tags           => {},
 		dir            => undef,  #dir: where files are
-		dirty          => 0,      #bool: has to save tags?
 		sel            => undef,  #path: which file was choosen to display
 	};
 }#
@@ -66,7 +65,7 @@ sub set_tag
 {my ($self, $tag) = @_;
 
 	$self->{tags}->{$tag} = 1;
-	$self->{dirty} = 1;
+	$self->save_tags;
 }#
 
 sub toggle_tag
@@ -79,7 +78,7 @@ sub toggle_tag
 		$self->{tags}->{$tag} = 1;
 	}
 
-	$self->{dirty} = 1;
+	$self->save_tags;
 }#
 
 sub get_tag_filename
@@ -92,21 +91,18 @@ sub get_tag_filename
 sub save_tags
 {my ($self) = @_;
 
-	if ($self->{dirty}) {
-		unless ($args{nop}) {
-			my $filename = $self->get_tag_filename;
+	unless ($args{nop}) {
+		my $filename = $self->get_tag_filename;
 
-			if (scalar keys %{$self->{tags}} > 0) {
-				open F, '>', $filename  or die "$filename: $!";
-				say "saving $filename"  if $args{verbose};
-				print F "$_\n"  foreach sort keys %{$self->{tags}};
-				close F;
-			}
-			else {
-				unlink $filename if -e $filename;
-			}
+		if (scalar keys %{$self->{tags}} > 0) {
+			open F, '>', $filename  or die "$filename: $!";
+			say "saving $filename"  if $args{verbose};
+			print F "$_\n"  foreach sort keys %{$self->{tags}};
+			close F;
 		}
-		$self->{dirty} = 0;
+		else {
+			unlink $filename if -e $filename;
+		}
 	}
 }#
 
