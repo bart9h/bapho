@@ -9,7 +9,7 @@ use Data::Dumper;
 
 sub test
 {
-	my $class = shift;
+	my $class = shift or die 'which module?';
 	eval "require $class";
 	my $i = $class->new($_[0] // $ENV{PWD});
 	my $dir = 1;
@@ -20,7 +20,7 @@ sub test
 		chomp;
 		given ($_) {
 			when (/^(help|\?)$/) {
-				say 'q=quit, d=toggle dump, <[+/-]number>=direction';
+				say 'q=quit, d=toggle dump, <[+/-]number>=direction, n|j=+1, p|k=-1';
 				next;
 			}
 			when (/^$/) {
@@ -31,6 +31,12 @@ sub test
 			when (/^d$/) {
 				print Dumper $i if $dbg = !$dbg;
 				next;
+			}
+			when (/^(n|j)$/) {
+				$dir = +1;
+			}
+			when (/^(p|k)$/) {
+				$dir = -1;
 			}
 			when (/^([+-]?\d+)$/) {
 				$dir = $1;
