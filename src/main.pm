@@ -123,11 +123,6 @@ sub close_view
 sub quit
 {my ($self, $cursor_id) = @_;
 
-	my $P = $self->{collection}->{pics};
-	foreach (keys %{$P}) {
-		$P->{$_}->save_tags;
-	}
-
 	#TODO: save all views
 	args::save_state {
 		cursor_id => $cursor_id // $self->{views}->[0]->pic->{id},
@@ -175,10 +170,8 @@ sub do_menu
 				given ($command) {
 					when (/^(t|toggle info)$/) {
 						$self->{menu}->leave;
-						$view->pic->save_tags;
 					}
 					when (/^e$/ and not $args{fullscreen}) {
-						$view->pic->save_tags;
 						my $filename = $view->pic->get_tag_filename;
 						system "\$EDITOR $filename";
 						$view->pic->add($filename);
