@@ -18,8 +18,7 @@ sub new
 		id             => $id,
 		files          => {},
 		tags           => {},
-		dir            => undef,  #dir: where files are
-		sel            => undef,  #path: which file was choosen to display
+		sel            => undef, #path: which file was choosen to display
 	};
 }#
 
@@ -28,19 +27,11 @@ sub add
 
 	die 'duplicate file'  if exists $self->{files}->{$path};
 
-	unless ($path =~ m{^(.*)/[^.]+\.([^/]+)}) {
+	unless ($path =~ m{^.*/[^.]+\.([^/]+)}) {
 		warn "invalid filename \"$path\"\n";
 		return;
 	}
-
-	my ($dir, $ext) = ($1, $2);
-	if (defined $self->{dir} and $self->{dir} ne $dir) {
-		warn "$path\nalso exists in\n$self->{dir}\n";
-		return;
-	}
-	$self->{dir} //= $dir;
-
-	given ($ext) {
+	given ($1) {
 		when (/^tags$/) {
 			if (open F, $path) {
 				$self->{tags} = {};
@@ -71,32 +62,7 @@ sub toggle_tag
 		$self->{tags}->{$tag} = 1;
 	}
 
-	$self->save_tags;
-}#
-
-sub get_tag_filename
-{my ($self) = @_;
-
-	defined $self->{dir} or die;
-	"$self->{dir}/$self->{id}.tags";
-}#
-
-sub save_tags
-{my ($self) = @_;
-
-	unless ($args{nop}) {
-		my $filename = $self->get_tag_filename;
-
-		if (scalar keys %{$self->{tags}} > 0) {
-			open F, '>', $filename  or die "$filename: $!";
-			say "saving $filename"  if $args{verbose};
-			print F "$_\n"  foreach sort keys %{$self->{tags}};
-			close F;
-		}
-		else {
-			unlink $filename if -e $filename;
-		}
-	}
+	$self->pvt__save_tags;
 }#
 
 sub get_tags
@@ -112,7 +78,7 @@ sub develop
 	{my ($self) = @_;
 
 		foreach (qw/ufraw xcf cr2 tif png/) {
-			foreach (glob "$self->{dir}/$self->{id}*.$_") {
+			foreach (glob "$self->{id}*.$_") {
 				-r and return $_;
 			}
 		}
@@ -133,7 +99,6 @@ sub develop
 	}
 	if (defined $cmd) {
 		say $cmd if $args{verbose};
-		#TODO: catch editor termination to update index?
 		system "$cmd $file &";
 	}
 }#
@@ -153,6 +118,24 @@ sub delete
 	}
 }#
 
+
+sub pvt__save_tags
+{my ($self) = @_;
+
+	unless ($args{nop}) {
+		my $filename = $self->{id}.'.tags';
+
+		if (scalar keys %{$self->{tags}} > 0) {
+			open F, '>', $filename  or die "$filename: $!";
+			say "saving $filename"  if $args{verbose};
+			print F "$_\n"  foreach sort keys %{$self->{tags}};
+			close F;
+		}
+		else {
+			unlink $filename if -e $filename;
+		}
+	}
+}#
 
 sub pvt__extval
 {my ($path) = @_;

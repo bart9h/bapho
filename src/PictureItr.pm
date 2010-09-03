@@ -8,6 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use FileItr;
+use picture;
 
 #}#
 
@@ -17,7 +18,7 @@ sub new
 	bless my $self = {}, $class;
 	$self->{itr} = FileItr->new($path);
 	if ($self->{id} = path2id($self->{itr}->path)) {
-		$self->pvt__collect;
+		$self->pvt__build_pic;
 	} else {
 		$self->seek(1);
 	}
@@ -45,13 +46,7 @@ sub seek
 		$dir -= $d;
 	}
 
-	$self->pvt__collect;
-}#
-
-sub path
-{my ($self) = @_;
-
-	$self->{itr}->path;
+	$self->pvt__build_pic;
 }#
 
 sub path2id
@@ -61,16 +56,16 @@ sub path2id
 	$1 // '';
 }#
 
-sub pvt__collect
+sub pvt__build_pic
 {my ($self) = @_;
-
-	$self->{files} = [];
 
 	$self->{itr}->seek(-1) while path2id($self->{itr}->path) eq $self->{id};
 	$self->{itr}->seek(+1);
 
+	$self->{pic} = picture::new($self->{id});
+
 	while (path2id($self->{itr}->path) eq $self->{id}) {
-		push @{$self->{files}}, $self->{itr}->path;
+		$self->{pic}->add($self->{itr}->path);
 		$self->{itr}->seek(+1);
 	}
 	$self->{itr}->seek(-1);

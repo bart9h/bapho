@@ -12,11 +12,11 @@ use PictureItr;
 #}#
 
 sub new
-{my ($pic, $ins, $outs) = @_;
-	$pic or die;
+{my ($picitr, $ins, $outs) = @_;
+	$picitr or die;
 
 	bless my $self = {
-		pic        => $pic,
+		picitr     => $picitr,
 		count      => 1,
 		ins        => $ins,
 		outs       => $outs,
@@ -30,12 +30,14 @@ sub new
 	return $self;
 }#
 
+sub pic { $_[0]->{picitr}->{pic} }
+
 sub delete_current
 {my ($self) = @_;
 
-	my $next = $self->{pic}->seek(1) // $self->{pic}->seek(-1); #TODO: definir melhor o q fazer nos extremos
-	$self->{pic}->delete;
-	$self->{pic} = $next;
+	my $next = $self->{picitr}->seek(1) // $self->{picitr}->seek(-1); #TODO: definir melhor o q fazer nos extremos
+	$self->pic->delete;
+	$self->{picitr} = $next;
 }#
 
 sub adjust_page_and_cursor
@@ -77,10 +79,10 @@ sub pvt__filter
 {my ($self) = @_;
 
 	foreach (@{$self->{ins}}) {
-		return 0 unless $self->{pic}->{tags}->{$_};
+		return 0 unless $self->pic->{tags}->{$_};
 	}
 	foreach (@{$self->{outs}}) {
-		return 0 if $self->{pic}->{tags}->{$_};
+		return 0 if $self->pic->{tags}->{$_};
 	}
 	1;
 }#
@@ -102,9 +104,9 @@ sub seek
 			my $d = $dir>0?1:-1;
 			while ($dir) {
 
-				my $old = $self->{pic};
-				$self->{pic}->seek($d);
-				last if $old eq $self->{pic};
+				my $old = $self->{picitr};
+				$self->{picitr}->seek($d);
+				last if $old eq $self->{picitr};
 				next unless $self->pvt__filter;
 			}
 		}
