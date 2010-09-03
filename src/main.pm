@@ -10,8 +10,8 @@ use Data::Dumper;
 use SDL::App;
 
 use args qw/%args/;
-use collection;
 use display;
+use factory;
 use menu;
 use picture;
 use text;
@@ -105,15 +105,16 @@ sub load_state
 
 	my $id = $args{cursor_id};
 	if (defined $id) {
-		$_->seek_id($id)
-			foreach @{$self->{views}};
+		warn;
+		#$_->seek_id($id)
+		#foreach @{$self->{views}};
 	}
 }#
 
 sub close_view
 {my ($self) = @_;
 
-	my $cursor_id = $self->{views}->[0]->pic->{id};
+	my $cursor_id = $self->{views}->[0]->{pic}->{id};
 
 	shift @{$self->{views}};
 
@@ -125,7 +126,7 @@ sub quit
 
 	#TODO: save all views
 	args::save_state {
-		cursor_id => $cursor_id // $self->{views}->[0]->pic->{id},
+		cursor_id => $cursor_id // $self->{views}->[0]->{pic}->{id},
 	};
 
 	exit(0);
@@ -134,19 +135,20 @@ sub quit
 sub enter_tag_mode
 {my ($self) = @_;
 
-	$self->{menu}->enter('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
+	warn;
+	#$self->{menu}->enter('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
 }#
 
 sub enter_star_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, view::new($self->{collection}, ['_star'], ['_hidden']);
+	unshift @{$self->{views}}, view::new($self->{views}->[0]->{pic}, ['_star'], ['_hidden']);
 }#
 
 sub enter_hidden_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, view::new($self->{collection}, ['_hidden'], []);
+	unshift @{$self->{views}}, view::new($self->{views}->[0]->{pic}, ['_hidden'], []);
 }#
 
 sub do_menu
@@ -161,9 +163,9 @@ sub do_menu
 	given ($self->{menu}->{action}) {
 		when (/^tag_editor$/) {
 			if (defined $activated) {
-				$view->pic->toggle_tag($activated);
+				$view->{pic}->toggle_tag($activated);
 				$self->{last_tag} = $activated
-					if $view->pic->{tags}->{$activated};
+					if $view->{pic}->{tags}->{$activated};
 			}
 			elsif (not $self->{dirty}) {
 				$self->{dirty} = 1;
@@ -172,10 +174,10 @@ sub do_menu
 						$self->{menu}->leave;
 					}
 					when (/^e$/ and not $args{fullscreen}) {
-						my $filename = $view->pic->get_tag_filename;
+						my $filename = $view->{pic}->get_tag_filename;
 						system "\$EDITOR $filename";
-						$view->pic->add($filename);
-						$view->{collection}->update_tags;
+						$view->{pic}->add($filename);
+						#$view->{collection}->update_tags;
 						$self->enter_tag_mode;
 						$self->display;
 					}
@@ -248,7 +250,7 @@ sub do
 			},
 			date_seek => {
 				keys => [ 'd', 'm', 'y', 'shift-d', 'shift-m', 'shift-y' ],
-				code => sub { $view->seek_date($command) },
+				code => sub { warn },
 			},
 			previous_line => {
 				keys => [ 'up', 'k' ],
@@ -291,7 +293,7 @@ sub do
 			},
 			switch_views => {
 				keys => [ 'tab' ],
-				code => sub { rotate $app->{views}; $app->{views}->[0]->update },
+				code => sub { rotate $app->{views} },
 			},
 			starred_view => {
 				keys => [ 'control-s' ],
@@ -311,19 +313,19 @@ sub do
 		{#{my}
 			edit_file => {
 				keys => [ 'control-d' ],
-				code => sub { $view->pic->develop },
+				code => sub { $view->{pic}->develop },
 			},
 			print_files => {
 				keys => [ 'p' ],
-				code => sub { say join "\n", keys %{$view->pic->{files}} },
+				code => sub { say join "\n", keys %{$view->{pic}->{files}} },
 			},
 			toggle_star => {
 				keys => [ 's' ],
-				code => sub { $view->pic->toggle_tag('_star') },
+				code => sub { $view->{pic}->toggle_tag('_star') },
 			},
 			toggle_hidden => {
 				keys => [ 'shift-1' ],
-				code => sub { $view->pic->toggle_tag('_hidden') },
+				code => sub { $view->{pic}->toggle_tag('_hidden') },
 			},
 			tag_edit => {
 				keys => [ 't' ],
@@ -331,7 +333,7 @@ sub do
 			},
 			repeat_last_tag => {
 				keys => [ '.' ],
-				code => sub { $view->pic->set_tag($app->{last_tag}) },
+				code => sub { $view->{pic}->set_tag($app->{last_tag}) },
 			},
 			delete_picture => {
 				keys => [ 'delete' ],
@@ -436,10 +438,8 @@ sub main
 	my ($w, $h) = get_window_geometry;
 	bless my $self = {
 
-		# data
-		collection => collection::new,
-
 		views      => [],
+		factory    => factory::new,
 		menu       => menu::new,
 		key_hold   => '',
 		last_tag   => '',
@@ -463,15 +463,15 @@ sub main
 	};
 
 	push @{$self->{views}}, view::new(
-		$self->{collection},
+		PictureItr->new($args{startdir} // $args{basedir}),
 		[ (split /,/, $args{include}) ],
 		[ (split /,/, $args{exclude}), '_hidden' ]
 	);
 
-	if (scalar @{$self->{views}[0]{ids}} == 0) {
-		say 'no pictures matching the filter';
-		return;
-	}
+	#if (scalar @{$self->{views}[0]{ids}} == 0) {
+	#	say 'no pictures matching the filter';
+	#	return;
+	#}
 
 	$self->load_state;
 

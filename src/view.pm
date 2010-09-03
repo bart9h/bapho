@@ -7,16 +7,19 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
+use PictureItr;
+
 #}#
 
 sub new
-{my ($collection, $ins, $outs) = @_;
+{my ($pic, $ins, $outs) = @_;
+	$pic or die;
 
 	bless my $self = {
-		collection => $collection,
+		pic        => $pic,
+		count      => 1,
 		ins        => $ins,
 		outs       => $outs,
-		ids        => [], # will be filled in $self->update
 		cursor     => 0,
 		page_first => 0,
 		rows       => 1,
@@ -24,55 +27,21 @@ sub new
 		zoom       => 1,
 	};
 
-	$self->update;
-
 	return $self;
-}#
-
-sub update
-{my ($self) = @_;
-
-	sub filter
-	{my ($tags, $ins, $outs) = @_;
-		foreach (@$ins) {
-			return 0 unless $tags->{$_};
-		}
-		foreach (@$outs) {
-			return 0 if $tags->{$_};
-		}
-		1;
-	}#
-
-	# sorted array of (the ids of) filtered pictures
-	my $pics = $self->{collection}->{pics};
-	$self->{ids} = [
-		sort grep {
-			filter($pics->{$_}->{tags}, $self->{ins}, $self->{outs})
-		} keys %$pics
-	];
-}#
-
-#TODO: substituir por interadoras {first,last,next,prev}_pic()
-sub pic
-{my ($self, $idx) = @_;
-
-	$idx //= $self->{cursor};
-
-	$self->{collection}->{pics}->{$self->{ids}->[$idx]};
 }#
 
 sub delete_current
 {my ($self) = @_;
 
-	$self->{collection}->delete($self->pic);
-
-	$self->update;
+	my $next = $self->{pic}->seek(1) // $self->{pic}->seek(-1); #TODO: definir melhor o q fazer nos extremos
+	$self->{pic}->delete;
+	$self->{pic} = $next;
 }#
 
 sub adjust_page_and_cursor
 {my ($self) = @_;
 
-	my $last = (scalar @{$self->{ids}}) - 1;
+	my $last = $self->{count} - 1;
 	my $page_size = $self->{rows}*$self->{cols};
 
 	if ($self->{cursor} < 0) {
@@ -83,7 +52,7 @@ sub adjust_page_and_cursor
 		$self->{cursor} = $self->{page_first} = 0;
 	}
 	elsif ($page_size > 1) {
-		if (scalar @{$self->{ids}} > $page_size) {
+		if ($self->{count} > $page_size) {
 			$self->{page_first} += $page_size
 				while $self->{cursor}-$self->{page_first} >= $page_size;
 
@@ -93,7 +62,7 @@ sub adjust_page_and_cursor
 			$self->{page_first} = 0
 				if $self->{page_first} < 0;
 
-			my $last_page = (scalar @{$self->{ids}}) - $page_size;
+			my $last_page = $self->{count} - $page_size;
 			$self->{page_first} = $last_page
 				if $self->{page_first} > $last_page;
 		}
@@ -104,64 +73,43 @@ sub adjust_page_and_cursor
 
 }#
 
+sub pvt__filter
+{my ($self) = @_;
+
+	foreach (@{$self->{ins}}) {
+		return 0 unless $self->{pic}->{tags}->{$_};
+	}
+	foreach (@{$self->{outs}}) {
+		return 0 if $self->{pic}->{tags}->{$_};
+	}
+	1;
+}#
+
 sub seek
 {my ($self, $dir) = @_;
 
 	given ($dir) {
 		when (/^first$/) {
-			$self->{cursor} = 0;
+			warn;
 		}
 		when (/^last$/)  {
-			$self->{cursor} = scalar @{$self->{ids}} - 1;
+			warn;
 		}
 		when (/^[+-]/)   {
 			$dir =~ s/line/$self->{cols}/e;
 			$dir =~ s/page/$self->{cols}*$self->{rows}/e;
-			$self->{cursor} += $dir;
+
+			my $d = $dir>0?1:-1;
+			while ($dir) {
+
+				my $old = $self->{pic};
+				$self->{pic}->seek($d);
+				last if $old eq $self->{pic};
+				next unless $self->pvt__filter;
+			}
 		}
 	}
 
-}#
-
-sub seek_date
-{my ($self, $key) = @_;
-
-	$key =~ m/(shift-)?([a-z])/;
-	my ($shift, $k) = ($1, $2);
-
-	sub part($$) { substr $_[1]->{id}, 0, {d=>8,m=>6,y=>4}->{$_[0]} }
-
-	my $last = (scalar @{$self->{ids}}) - 1;
-
-	# prevent endless loop
-	return undef if part($k,$self->pic(0)) eq part($k,$self->pic($last));
-
-	# loop to find next pic with different date part
-	my $current_pic = $self->pic;
-	my $direction = $shift ? -1 : 1;
-	while ($self->{cursor} >= 0  and  $self->{cursor} <= $last) {
-
-		$self->{cursor} += $direction;
-		$self->{cursor}  = 0      if $self->{cursor} > $last;
-		$self->{cursor}  = $last  if $self->{cursor} < 0;
-
-		last  if part($k,$self->pic) ne part($k,$current_pic);
-	}
-
-	1;
-}#
-
-sub seek_id
-{my ($self, $id) = @_;
-
-	my $idx = 0;
-	foreach (@{$self->{ids}}) {
-		if ($_ eq $id) {
-			$self->{cursor} = $idx;
-			last;
-		}
-		$idx++;
-	}
 }#
 
 1;

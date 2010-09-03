@@ -16,9 +16,11 @@ sub new
 
 	bless my $self = {}, $class;
 	$self->{itr} = FileItr->new($path);
-	$self->{id} = path2id($self->{itr}->path) or $self->seek(1);
-
-	$self->pvt__collect;
+	if ($self->{id} = path2id($self->{itr}->path)) {
+		$self->pvt__collect;
+	} else {
+		$self->seek(1);
+	}
 }#
 
 sub seek
@@ -28,7 +30,12 @@ sub seek
 		my $d = $dir>0?1:-1;
 		while(1) {
 			$self->{itr}->pvt__seek($d);
-			my $id = path2id($self->{itr}->path);
+			local $_ = $self->{itr}->path;
+			next if m{/\.bapho-state$};
+			next if m{/\.([^/]*-)?trash/}i;
+			next if m{/\.qiv-select/};
+			next if m{/Picasa.ini$};
+			my $id = path2id($_);
 			next if $id eq '';
 			if ($id ne $self->{id}) {
 				$self->{id} = $id;
