@@ -61,13 +61,6 @@ sub add
 	}
 }#
 
-sub set_tag
-{my ($self, $tag) = @_;
-
-	$self->{tags}->{$tag} = 1;
-	$self->save_tags;
-}#
-
 sub toggle_tag
 {my ($self, $tag) = @_;
 

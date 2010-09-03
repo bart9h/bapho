@@ -333,7 +333,7 @@ sub do
 			},
 			repeat_last_tag => {
 				keys => [ '.' ],
-				code => sub { $view->{pic}->set_tag($app->{last_tag}) },
+				code => sub { $view->{pic}->toggle_tag($app->{last_tag}) },
 			},
 			delete_picture => {
 				keys => [ 'delete' ],
