@@ -11,11 +11,11 @@ use SDL::App;
 
 use args qw/%args/;
 use display;
-use factory;
-use menu;
-use picture;
-use text;
-use view;
+use Factory;
+use Menu;
+use Picture;
+use Text;
+use View;
 
 #}#
 
@@ -144,13 +144,13 @@ sub enter_tag_mode
 sub enter_star_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, view::new($self->pic, ['_star'], ['_hidden']);
+	unshift @{$self->{views}}, View::new($self->pic, ['_star'], ['_hidden']);
 }#
 
 sub enter_hidden_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, view::new($self->pic, ['_hidden'], []);
+	unshift @{$self->{views}}, View::new($self->pic, ['_hidden'], []);
 }#
 
 sub do_menu
@@ -440,15 +440,15 @@ sub main
 	bless my $self = {
 
 		views      => [],
-		factory    => factory::new,
-		menu       => menu::new,
+		factory    => Factory::new,
+		menu       => Menu::new,
 		key_hold   => '',
 		last_tag   => '',
 		dirty      => 1,
 
 		# rendering state
 		info_modes => [ qw/none title tags exif/ ],
-		text => text::new(
+		text => Text::new(
 			'Bitstream Vera Sans Mono:20',
 			':18',
 		),
@@ -463,7 +463,7 @@ sub main
 
 	};
 
-	push @{$self->{views}}, view::new(
+	push @{$self->{views}}, View::new(
 		PictureItr->new($args{startdir} // $args{basedir}),
 		[ (split /,/, $args{include}) ],
 		[ (split /,/, $args{exclude}), '_hidden' ]

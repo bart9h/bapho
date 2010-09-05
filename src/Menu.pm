@@ -1,4 +1,4 @@
-package menu;
+package Menu;
 
 #{my uses
 

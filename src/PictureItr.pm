@@ -8,7 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use FileItr;
-use picture;
+use Picture;
 
 #}#
 
@@ -62,7 +62,7 @@ sub pvt__build_pic
 	$self->{itr}->seek(-1) while path2id($self->{itr}->path) eq $self->{id};
 	$self->{itr}->seek(+1);
 
-	$self->{pic} = picture::new($self->{id});
+	$self->{pic} = Picture::new($self->{id});
 
 	while (path2id($self->{itr}->path) eq $self->{id}) {
 		$self->{pic}->add($self->{itr}->path);

@@ -1,4 +1,4 @@
-package view;
+package View;
 
 #{my uses
 

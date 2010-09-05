@@ -1,4 +1,4 @@
-package picture;
+package Picture;
 
 #{my uses
 
