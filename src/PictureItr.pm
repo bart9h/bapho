@@ -64,9 +64,10 @@ sub pvt__build_pic
 
 	$self->{pic} = Picture::new($self->{id});
 
-	while (path2id($self->{itr}->path) eq $self->{id}) {
+	for(;;) {
 		$self->{pic}->add($self->{itr}->path);
 		$self->{itr}->seek(+1);
+		last if path2id($self->{itr}->path) ne $self->{id};
 	}
 	$self->{itr}->seek(-1);
 	$self;
