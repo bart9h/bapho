@@ -41,6 +41,7 @@ sub add
 				next if $_ eq '';
 				$self->{tags}->{$_} = 1;
 			}
+			close F;
 		}
 	}
 	else {
