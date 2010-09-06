@@ -138,8 +138,7 @@ sub quit
 sub enter_tag_mode
 {my ($self) = @_;
 
-	#TODO
-	$self->{menu}->enter('tag_editor', [ sort Tags::all ]);
+	$self->{menu}->enter('tag_editor', [ sort(Tags::all()) ]);
 }#
 
 sub enter_star_view

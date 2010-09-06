@@ -11,6 +11,9 @@ use args qw/%args/;
 
 #}#
 
+my %all_tags = ();
+sub all { grep { /^[^_]/ } keys %all_tags; }
+
 sub new
 {my ($class, $id) = @_;
 
@@ -40,6 +43,7 @@ sub add
 				next if m/^#/;
 				next if $_ eq '';
 				$self->{tags}->{$_} = 1;
+				$all_tags{$_} = 1;
 			}
 			close F;
 		}
@@ -48,6 +52,7 @@ sub add
 		my $tag = $something;
 
 		$self->{tags}->{$tag} = 1;
+		$all_tags{$tag} = 1;
 		$self->pvt__save_tags;
 	}
 }#
@@ -60,6 +65,7 @@ sub toggle
 	}
 	else {
 		$self->{tags}->{$tag} = 1;
+		$all_tags{$tag} = 1;
 	}
 
 	$self->pvt__save_tags;

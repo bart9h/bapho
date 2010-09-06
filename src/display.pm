@@ -8,6 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use args qw/%args/;
+use Tags;
 
 #}#
 
@@ -172,10 +173,10 @@ sub pvt__display_tag_editor
 	);
 
 	my $i = 0;
-	foreach (sort Tags::all) {
-		my @s = split //, $i==$self->{menu}->{cursor}  ?  '[]' : '  ';  # cursor
-		my $t = $view->pic->{tags}->get($_)  ?  '*' : ' ';  # tag
-		$self->pvt__print(text => $s[0].$t.$_.$t.$s[1]);
+	foreach (@{$self->{menu}->{items}}) {
+		my @C = split //, $i==$self->{menu}->{cursor}  ?  '[]' : '  ';  # cursor
+		my $T = $view->pic->{tags}->get($_)  ?  '*' : ' ';  # tag
+		$self->pvt__print(text => $C[0].$T.$_.$T.$C[1]);
 		++$i;
 	}
 }#
