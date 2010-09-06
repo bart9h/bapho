@@ -11,7 +11,8 @@ use args qw/%args/;
 
 #}#
 
-my %all_tags = ();
+my $all_path = $args{basedir}.'/.bapho-tags';
+my %all_tags = map { $_ => 1 } pvt__read_tags($all_path);
 sub all { grep { /^[^_]/ } keys %all_tags; }
 
 sub new
@@ -35,14 +36,8 @@ sub add
 {my ($self, $something) = @_;
 
 	if ($something =~ m{/}) {
-		if (open F, $something) {
-			foreach (<F>) {
-				s/^\s*(.*?)\s*$/$1/;
-				next if m/^#/;
-				next if $_ eq '';
-				$self->pvt__set_tag($_);
-			}
-			close F;
+		foreach (pvt__read_tags($something)) {
+			$self->pvt__set_tag($_);
 		}
 	}
 	else {
@@ -70,7 +65,7 @@ sub pvt__set_tag
 	$self->{tags}->{$tag} = 1;
 	unless (defined $all_tags{$tag}) {
 		$all_tags{$tag} = 1;
-		$self->pvt__save_all_tags;
+		pvt__save_tags($all_path, \%all_tags);
 	}
 }#
 
@@ -78,12 +73,6 @@ sub pvt__save_pic_tags
 {my ($self) = @_;
 
 	pvt__save_tags($self->{id}.'.tags', $self->{tags});
-}#
-
-sub pvt__save_all_tags
-{my ($self) = @_;
-
-	pvt__save_tags($args{basedir}.'/.bapho-tags', \%all_tags);
 }#
 
 sub pvt__save_tags
@@ -103,6 +92,26 @@ sub pvt__save_tags
 	}
 }#
 
+sub pvt__read_tags
+{my ($filename) = @_;
+	wantarray or die;
+
+	if (open F, $filename) {
+		say "reading $filename"  if $args{verbose};
+		my @rc = ();
+		foreach (<F>) {
+			s/^\s*(.*?)\s*$/$1/;
+			next if m/^#/;
+			next if $_ eq '';
+			push @rc, $_;
+		}
+		close F;
+		@rc;
+	}
+	else {
+		();
+	}
+}#
 
 1;
 # vim600:fdm=marker:fmr={my,}#:
