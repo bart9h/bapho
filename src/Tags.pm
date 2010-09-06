@@ -81,6 +81,7 @@ sub pvt__save_tags
 	unless ($args{nop}) {
 
 		if (scalar keys %$tags > 0) {
+			-e $filename or FileItr->dirty();
 			open F, '>', $filename  or die "$filename: $!";
 			say "saving $filename"  if $args{verbose};
 			print F "$_\n"  foreach sort keys %$tags;

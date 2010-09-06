@@ -21,6 +21,9 @@ use Data::Dumper;
 
 #}#
 
+my $dirty = 0;
+sub dirty { $dirty = 1 }
+
 sub new
 {my ($class, $path) = @_;
 
@@ -62,6 +65,11 @@ sub seek
 
 sub pvt__seek
 {my ($self, $dir) = @_;
+
+	if ($dirty) {
+		$self->pvt__find($self->{files}->[$self->{cursor}]);
+		$dirty = 0;
+	}
 
 	$self->{cursor} += $dir;
 	if ($self->{cursor} >= 0 and $self->{cursor} < scalar @{$self->{files}}) {

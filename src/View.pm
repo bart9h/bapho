@@ -35,9 +35,9 @@ sub pic { $_[0]->{picitr}->{pic} }
 sub delete_current
 {my ($self) = @_;
 
-	my $next = $self->{picitr}->seek(1) // $self->{picitr}->seek(-1); #TODO: definir melhor o q fazer nos extremos
-	$self->pic->delete;
-	$self->{picitr} = $next;
+	$self->{picitr}->{pic}->delete;
+	$self->{picitr}->seek(1) // $self->{picitr}->seek(-1); #TODO: definir melhor o q fazer nos extremos
+	FileItr->dirty();
 }#
 
 sub adjust_page_and_cursor
