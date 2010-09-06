@@ -8,6 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use args qw/%args/;
+use Tags;
 
 #}#
 
@@ -17,7 +18,7 @@ sub new
 	bless {
 		id             => $id,
 		files          => {},
-		tags           => {},
+		tags           => Tags->new($id),
 		sel            => undef, #path: which file was choosen to display
 	};
 }#
@@ -33,15 +34,7 @@ sub add
 	}
 	given ($1) {
 		when (/^tags$/) {
-			if (open F, $path) {
-				$self->{tags} = {};
-				foreach (<F>) {
-					s/^\s*(.*?)\s*$/$1/;
-					next if m/^#/;
-					next if $_ eq '';
-					$self->{tags}->{$_} = 1;
-				}
-			}
+			$self->{tags}->add($path);
 		}
 		when (/^ufraw$/) {
 		}
@@ -50,25 +43,6 @@ sub add
 			$self->{sel} = $path  if pvt__extval($path) > pvt__extval($self->{sel});
 		}
 	}
-}#
-
-sub toggle_tag
-{my ($self, $tag) = @_;
-
-	if (exists $self->{tags}->{$tag}) {
-		delete $self->{tags}->{$tag};
-	}
-	else {
-		$self->{tags}->{$tag} = 1;
-	}
-
-	$self->pvt__save_tags;
-}#
-
-sub get_tags
-{my ($self) = @_;
-
-	grep {!/^_/} sort keys %{$self->{tags}};
 }#
 
 sub develop
@@ -118,24 +92,6 @@ sub delete
 	}
 }#
 
-
-sub pvt__save_tags
-{my ($self) = @_;
-
-	unless ($args{nop}) {
-		my $filename = $self->{id}.'.tags';
-
-		if (scalar keys %{$self->{tags}} > 0) {
-			open F, '>', $filename  or die "$filename: $!";
-			say "saving $filename"  if $args{verbose};
-			print F "$_\n"  foreach sort keys %{$self->{tags}};
-			close F;
-		}
-		else {
-			unlink $filename if -e $filename;
-		}
-	}
-}#
 
 sub pvt__extval
 {my ($path) = @_;

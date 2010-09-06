@@ -134,8 +134,8 @@ sub pvt__display_info
 	$self->pvt__print(
 		font=>0, text=>$view->pic->{id},
 		font=>1, text=>".$ext  $str",
-		$view->pic->{tags}->{_star}   ? (font=>0, text=>'  (*)') : (),
-		$view->pic->{tags}->{_hidden} ? (font=>0, text=>'  (!)') : (), #TODO:loopify
+		$view->pic->{tags}->get('_star')   ? (font=>0, text=>'  (*)') : (),
+		$view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 		$v>1 ? (font=>0, text=>"  [$v views]") : (),
 	);
 
@@ -143,7 +143,7 @@ sub pvt__display_info
 		when (/tags/) {
 			$self->pvt__print(font=>1, text=>'tags:');
 			$self->pvt__print(text=>$_)
-				foreach map { ' '.$_ } $view->pic->get_tags;
+				foreach map { ' '.$_ } $view->pic->{tags}->get;
 		}
 		when (/exif/) {
 			$self->pvt__print(font=>1, text=>'exif:');
@@ -172,9 +172,9 @@ sub pvt__display_tag_editor
 	);
 
 	my $i = 0;
-	foreach (sort keys %{$view->{collection}->{tags}}) {
+	foreach (sort Tags::all) {
 		my @s = split //, $i==$self->{menu}->{cursor}  ?  '[]' : '  ';  # cursor
-		my $t = exists $view->pic->{tags}->{$_}  ?  '*' : ' ';  # tag
+		my $t = $view->pic->{tags}->get($_)  ?  '*' : ' ';  # tag
 		$self->pvt__print(text => $s[0].$t.$_.$t.$s[1]);
 		++$i;
 	}

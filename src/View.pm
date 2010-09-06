@@ -79,10 +79,10 @@ sub pvt__filter
 {my ($self) = @_;
 
 	foreach (@{$self->{ins}}) {
-		return 0 unless $self->pic->{tags}->{$_};
+		return 0 unless $self->pic->{tags}->get($_);
 	}
 	foreach (@{$self->{outs}}) {
-		return 0 if $self->pic->{tags}->{$_};
+		return 0 if     $self->pic->{tags}->get($_);
 	}
 	1;
 }#

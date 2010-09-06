@@ -138,7 +138,7 @@ sub enter_tag_mode
 {my ($self) = @_;
 
 	#TODO
-	#$self->{menu}->enter('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
+	$self->{menu}->enter('tag_editor', [ sort Tags::all ]);
 }#
 
 sub enter_star_view
@@ -164,9 +164,9 @@ sub do_menu
 	given ($self->{menu}->{action}) {
 		when (/^tag_editor$/) {
 			if (defined $activated) {
-				$self->pic->toggle_tag($activated);
+				$self->pic->{tags}->toggle($activated);
 				$self->{last_tag} = $activated
-					if $self->pic->{tags}->{$activated};
+					if $self->pic->{tags}->get($activated);
 			}
 			elsif (not $self->{dirty}) {
 				$self->{dirty} = 1;
@@ -322,7 +322,7 @@ sub do
 			},
 			toggle_star => {
 				keys => [ 's' ],
-				code => sub { $view->pic->toggle_tag('_star') },
+				code => sub { $view->pic->{tags}->toggle('_star') },
 			},
 			toggle_hidden => {
 				keys => [ 'shift-1' ],
@@ -334,7 +334,7 @@ sub do
 			},
 			repeat_last_tag => {
 				keys => [ '.' ],
-				code => sub { $view->pic->toggle_tag($app->{last_tag}) },
+				code => sub { $view->pic->{tags}->toggle($app->{last_tag}) },
 			},
 			delete_picture => {
 				keys => [ 'delete' ],
