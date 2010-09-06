@@ -32,6 +32,7 @@ sub new
 
 	if (-d $path) {
 		$self->pvt__readdir;
+		$self->{cursor} = 0;
 		$self->pvt__down(1);
 	}
 	else {
@@ -87,8 +88,7 @@ sub pvt__down
 	while (-d $self->path) {
 		$self->{parent} = $self->path;
 		$self->pvt__readdir;
-		$self->{cursor} = scalar @{$self->{files}} - 1
-			if $dir == -1;
+		$self->{cursor} = $dir>0 ? 0 : (scalar @{$self->{files}} - 1);
 	}
 }#
 
@@ -96,7 +96,7 @@ sub pvt__find
 {my ($self, $name) = @_;
 
 	$self->pvt__readdir;
-	for (; $self->{cursor} < scalar @{$self->{files}}; ++$self->{cursor}) {
+	for ($self->{cursor} = 0;  $self->{cursor} < scalar @{$self->{files}};  ++$self->{cursor}) {
 		last if $self->{files}->[$self->{cursor}] eq $name;
 	}
 	$self;
@@ -116,7 +116,6 @@ sub pvt__readdir
 	closedir $dh;
 
 	die "empty dir \"$self->{parent}\""  unless scalar @{$self->{files}};  #TODO: nao morrer
-	$self->{cursor} = 0;
 	$self;
 }#
 
