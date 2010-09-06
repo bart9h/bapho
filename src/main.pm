@@ -107,9 +107,10 @@ sub load_state
 
 	my $id = $args{cursor_id};
 	if (defined $id) {
-		#TODO
-		#$_->seek_id($id)
-		#foreach @{$self->{views}};
+=a TODO
+		$_->seek_id($id)
+		foreach @{$self->{views}};
+=cut
 	}
 }#
 

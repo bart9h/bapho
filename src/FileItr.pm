@@ -1,16 +1,25 @@
+package FileItr;
+
+#{my documentation
+
+=head1 SYNOPSIS
+
+	my $file = FileItr->new("/some/path");
+	$file->seek(+1);
+	say $file->path;
+
+=cut
+
+#}#
+
 #{my uses
 
 use strict;
 use warnings;
 use 5.010;
+use Data::Dumper;
 
 #}#
-
-# package usage:
-#   my $file = FileItr::new("/some/path");
-#   $file->seek(+1);
-#   say $file->path;
-package FileItr;
 
 sub new
 {my ($class, $path) = @_;
@@ -106,7 +115,7 @@ sub pvt__readdir
 	];
 	closedir $dh;
 
-	die 'empty dir' unless scalar @{$self->{files}};  #TODO: nao morrer
+	die "empty dir \"$self->{parent}\""  unless scalar @{$self->{files}};  #TODO: nao morrer
 	$self->{cursor} = 0;
 	$self;
 }#

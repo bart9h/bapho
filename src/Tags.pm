@@ -29,10 +29,12 @@ sub get
 }#
 
 sub add
-{my ($self, $path_or_tag) = @_;
+{my ($self, $something) = @_;
 
-	if ($path_or_tag =~ m{/}) {
-		if (open F, $path_or_tag) {
+	if ($something =~ m{/}) {
+		my $path = $something;
+
+		if (open F, $path) {
 			foreach (<F>) {
 				s/^\s*(.*?)\s*$/$1/;
 				next if m/^#/;
@@ -42,7 +44,9 @@ sub add
 		}
 	}
 	else {
-		$self->{tags}->{$path_or_tag} = 1;
+		my $tag = $something;
+
+		$self->{tags}->{$tag} = 1;
 		$self->pvt__save_tags;
 	}
 }#

@@ -92,10 +92,10 @@ sub seek
 
 	given ($dir) {
 		when (/^first$/) {
-			warn;
+			warn 'TODO';
 		}
 		when (/^last$/)  {
-			warn;
+			warn 'TODO';
 		}
 		when (/^[+-]/)   {
 			$dir =~ s/line/$self->{cols}/e;
