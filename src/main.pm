@@ -106,11 +106,9 @@ sub load_state
 	args::load_state;
 
 	my $id = $args{cursor_id};
-	if (defined $id) {
-=a TODO
-		$_->seek_id($id)
+	if (defined $id and not defined $args{startdir}) {
+		$_->{picitr}->seek_id($id)
 		foreach @{$self->{views}};
-=cut
 	}
 }#
 

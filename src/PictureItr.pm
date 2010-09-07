@@ -49,6 +49,22 @@ sub seek
 	$self->pvt__build_pic;
 }#
 
+sub seek_id
+{my ($self, $id) = @_;
+
+	$self->{id} = $id;
+	$id =~ m{^(.*)/([^/]+)$} or die;
+	my $dir = $1;
+	$self->{itr} = FileItr->new($dir);
+	while(1) {
+		last if path2id($self->{itr}->path) eq $id;
+		$self->{itr}->seek(1);
+		die if $self->{itr}->{parent} ne $dir;
+	}
+
+	$self->pvt__build_pic;
+}#
+
 sub path2id
 {my ($path) = @_;
 
