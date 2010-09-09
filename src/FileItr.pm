@@ -27,6 +27,8 @@ sub dirty { $dirty = 1 }
 sub new
 {my ($class, $path) = @_;
 
+	$path =~ s{/$}{};
+
 	bless my $self = {
 		cursor => 0,
 		parent => $path,
