@@ -26,7 +26,7 @@ sub display
 	else {
 		$view->{rows} = $view->{cols} = 1;
 		$self->pvt__display_pic(
-			$view->{cursor},
+			$view->pic,
 			$self->{app}->width, $self->{app}->height,
 			0, 0);
 	}
@@ -49,9 +49,8 @@ sub pvt__display_pic
 	caller eq __PACKAGE__ or die;
 
 	my $view = $self->{views}->[0];
-	my $id = $view->{ids}->[$pic_idx];
 	my $surf = $self->{factory}->get($view->pic->{sel}, $w, $h);
-	$view->{cur_surf} = $surf  if $pic_idx == $view->{cursor};
+	$view->{cur_surf} = $surf  ;#TODO if $pic_idx == $view->{cursor};
 
 	my $dest = SDL::Rect->new(
 		-x => $x + ($w - $surf->{surf}->width)/2,
@@ -123,7 +122,7 @@ sub pvt__display_info
 	my $ext = $view->pic->{sel};
 	$ext =~ s{^.*/[^.]+\.(.*)$}{$1};
 
-	my $str = join '/', $view->{cursor}+1, scalar @{$view->{ids}};
+	my $str = ''; #join '/', $view->{cursor}+1, scalar @{$view->{ids}};
 	my $s = $view->{cur_surf};
 	if ($s and $s->{width} and $s->{height}) {
 		my $zoom = $s->{surf}->width/$s->{width};

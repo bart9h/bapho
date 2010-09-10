@@ -17,11 +17,9 @@ sub new
 
 	bless my $self = {
 		picitr     => $picitr,
-		count      => 1,
 		ins        => $ins,
 		outs       => $outs,
-		cursor     => 0,
-		page_first => 0,
+		page_first => $picitr,
 		rows       => 1,
 		cols       => 1,
 		zoom       => 1,
@@ -43,6 +41,7 @@ sub delete_current
 sub adjust_page_and_cursor
 {my ($self) = @_;
 
+=a TODO
 	my $last = $self->{count} - 1;
 	my $page_size = $self->{rows}*$self->{cols};
 
@@ -73,6 +72,7 @@ sub adjust_page_and_cursor
 		$self->{page_first} = $self->{cursor};
 	}
 
+=cut
 }#
 
 sub pvt__filter
