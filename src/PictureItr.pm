@@ -55,12 +55,18 @@ sub seek_id
 	$self->{id} = $id;
 	$id =~ m{^(.*)/([^/]+)$} or die;
 	my $dir = $1;
-	$self->{itr} = FileItr->new($dir);
+	-d $dir or die;
+
+	#XXX
+	$self->{itr}->{parent} = $dir;
+	$self->{itr}->{cursor} = 0;
+	$self->{itr}->pvt__readdir;
 	while(1) {
 		last if path2id($self->{itr}->path) eq $id;
-		$self->{itr}->seek(1);
-		die if $self->{itr}->{parent} ne $dir;
+		$self->{itr}->{cursor} += 1;
+		die if $self->{itr}->{cursor} >= scalar @{$self->{itr}->{files}};
 	}
+	#XXX
 
 	$self->pvt__build_pic;
 }#
