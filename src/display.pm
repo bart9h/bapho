@@ -95,11 +95,10 @@ sub pvt__display_thumbnails
 	my $i = $view->{page_first};
 	THUMB: foreach my $y (0 .. $view->{rows}-1) {
 		foreach my $x (0 .. $view->{cols}-1) {
-			$self->pvt__display_pic($i,
+			$self->pvt__display_pic($i->{pic},
 				$w, $h, $x*$w, $y*$h,
-				$i==$view->{cursor});
-			++$i;
-			last THUMB if $i >= scalar @{$view->{ids}};
+				$i eq $view->{picitr});
+			$i = $i->next  or last;
 		}
 	}
 }#

@@ -49,6 +49,9 @@ sub seek
 	$self->pvt__build_pic;
 }#
 
+sub next { PictureItr->new($_[0]->{itr}->path)->seek(+1) }
+sub prev { PictureItr->new($_[0]->{itr}->path)->seek(-1) }
+
 sub path2id
 {my ($path) = @_;
 

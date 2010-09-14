@@ -41,6 +41,8 @@ sub delete_current
 sub adjust_page_and_cursor
 {my ($self) = @_;
 
+	$self->{page_first} = $self->{picitr};
+
 =a TODO
 	my $last = $self->{count} - 1;
 	my $page_size = $self->{rows}*$self->{cols};
