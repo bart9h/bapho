@@ -45,12 +45,12 @@ sub display
 
 
 sub pvt__display_pic
-{my ($self, $pic_idx, $w, $h, $x, $y, $is_selected) = @_;
+{my ($self, $pic, $w, $h, $x, $y, $is_selected) = @_;
 	caller eq __PACKAGE__ or die;
 
 	my $view = $self->{views}->[0];
-	my $surf = $self->{factory}->get($view->pic->{sel}, $w, $h);
-	$view->{cur_surf} = $surf  ;#TODO if $pic_idx == $view->{cursor};
+	my $surf = $self->{factory}->get($pic->{sel}, $w, $h);
+	$view->{cur_surf} = $surf  if $pic eq $view->pic;
 
 	my $dest = SDL::Rect->new(
 		-x => $x + ($w - $surf->{surf}->width)/2,
