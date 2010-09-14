@@ -105,9 +105,8 @@ sub load_state
 
 	args::load_state;
 
-	my $id = $args{cursor_id};
-	if (defined $id and not defined $args{startdir}) {
-		$_->{picitr}->seek_id($id)
+	if (defined $args{cursor_file} and not defined $args{startdir}) {
+		$_->{picitr} = PictureItr->new($args{cursor_file})
 		foreach @{$self->{views}};
 	}
 }#
@@ -115,19 +114,19 @@ sub load_state
 sub close_view
 {my ($self) = @_;
 
-	my $cursor_id = $self->pic->{id};
+	my $cursor_file = $self->pic->{sel};
 
 	shift @{$self->{views}};
 
-	@{$self->{views}} or $self->quit ($cursor_id);
+	@{$self->{views}} or $self->quit ($cursor_file);
 }#
 
 sub quit
-{my ($self, $cursor_id) = @_;
+{my ($self, $cursor_file) = @_;
 
 	#TODO: save all views
 	args::save_state {
-		cursor_id => $cursor_id // $self->pic->{id},
+		cursor_file => $cursor_file // $self->pic->{sel},
 	};
 
 	exit(0);
