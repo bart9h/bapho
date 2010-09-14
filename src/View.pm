@@ -118,5 +118,16 @@ sub seek
 
 }#
 
+sub seek_levels
+{my ($self, $cmd, $keys) = @_;
+
+	$cmd =~ m/(shift-)?([a-z])/;
+	my ($shift, $k) = ($1, $2);
+
+	$self->{picitr}->{itr}->pvt__up  #FIXME: using private method of FileItr
+		foreach 1 .. $keys->{$k};
+	$self->seek($shift ? '-1' : '+1');
+}#
+
 1;
 # vim600:fdm=marker:fmr={my,}#:

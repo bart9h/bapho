@@ -249,7 +249,7 @@ sub do
 			},
 			date_seek => {
 				keys => [ 'd', 'm', 'y', 'shift-d', 'shift-m', 'shift-y' ],
-				code => sub { }, #TODO
+				code => sub { $view->seek_levels($command, { d=>1, m=>2, y=>3 }) },
 			},
 			previous_line => {
 				keys => [ 'up', 'k' ],
