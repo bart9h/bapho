@@ -111,24 +111,33 @@ sub load_state
 	}
 }#
 
-sub close_view
+sub save_state
 {my ($self) = @_;
-
-	my $cursor_file = $self->pic->{sel};
-
-	shift @{$self->{views}};
-
-	@{$self->{views}} or $self->quit ($cursor_file);
-}#
-
-sub quit
-{my ($self, $cursor_file) = @_;
 
 	#TODO: save all views
 	args::save_state {
-		cursor_file => $cursor_file // $self->pic->{sel},
-	};
+		cursor_file => $self->{cursor_file} // $self->pic->{sel},
+	}
+}#
 
+sub close_view
+{my ($self) = @_;
+
+	my $curr_cursor_file = $self->pic->{sel};
+
+	shift @{$self->{views}};
+
+	unless (@{$self->{views}}) {
+		# the last view was closed
+		$self->{cursor_file} = $curr_cursor_file;
+		$self->quit;
+	}
+}#
+
+sub quit
+{my ($self) = @_;
+
+	$self->save_state;
 	exit(0);
 }#
 
