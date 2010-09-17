@@ -129,5 +129,15 @@ sub seek_levels
 	$self->seek($shift ? '-1' : '+1');
 }#
 
+sub seek_file
+{my ($self, $file) = @_;
+
+	$self->{picitr} = PictureItr->new($file);
+
+	until ($self->pvt__filter) {
+		$self->{picitr}->seek(1);
+	}
+}#
+
 1;
 # vim600:fdm=marker:fmr={my,}#:

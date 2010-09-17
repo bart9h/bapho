@@ -119,8 +119,8 @@ sub load_state
 	args::load_state;
 
 	if (defined $args{cursor_file} and not defined $args{startdir}) {
-		$_->{picitr} = PictureItr->new($args{cursor_file})
-		foreach @{$self->{views}};
+		$_->seek_file($args{cursor_file})
+			foreach @{$self->{views}};
 	}
 
 	if (defined $args{info_mode}) {
