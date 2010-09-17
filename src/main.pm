@@ -27,6 +27,19 @@ sub rotate
 	push @$array_ref, shift @$array_ref;
 }#
 
+sub find
+{my ($array_ref, $needle) = @_;
+
+	foreach (@$array_ref) {
+		if ($_ eq $needle) {
+			rotate $array_ref until $array_ref->[0] eq $needle;
+			return 1;
+		}
+	}
+
+	return 0;
+}#
+
 sub get_root_geometry
 {my ($self) = @_;
 
