@@ -122,6 +122,10 @@ sub load_state
 		$_->{picitr} = PictureItr->new($args{cursor_file})
 		foreach @{$self->{views}};
 	}
+
+	if (defined $args{info_mode}) {
+		find ($self->{info_modes}, $args{info_mode});
+	}
 }#
 
 sub save_state
@@ -130,6 +134,7 @@ sub save_state
 	#TODO: save all views
 	args::save_state {
 		cursor_file => $self->{cursor_file} // $self->pic->{sel},
+		info_mode   => $self->{info_modes}->[0],
 	}
 }#
 
