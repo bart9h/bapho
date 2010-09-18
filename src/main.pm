@@ -10,6 +10,7 @@ use Data::Dumper;
 use SDL::App;
 
 use args qw/%args/;
+use Array;
 use display;
 use Factory;
 use Menu;
@@ -20,25 +21,6 @@ use View;
 #}#
 
 sub pic { $_[0]->{views}->[0]->pic }
-
-sub rotate
-{my ($array_ref) = @_;
-
-	push @$array_ref, shift @$array_ref;
-}#
-
-sub find
-{my ($array_ref, $needle) = @_;
-
-	foreach (@$array_ref) {
-		if ($_ eq $needle) {
-			rotate $array_ref until $array_ref->[0] eq $needle;
-			return 1;
-		}
-	}
-
-	return 0;
-}#
 
 sub get_root_geometry
 {my ($self) = @_;
@@ -124,7 +106,7 @@ sub load_state
 	}
 
 	if (defined $args{info_mode}) {
-		find ($self->{info_modes}, $args{info_mode});
+		Array::find ($self->{info_modes}, $args{info_mode});
 	}
 }#
 
@@ -260,7 +242,7 @@ sub do
 			},
 			info_toggle => {
 				keys => [ 'i' ],
-				code => sub { rotate $app->{info_modes} },
+				code => sub { Array::rotate $app->{info_modes} },
 			},
 		}), #}#
 
@@ -319,7 +301,7 @@ sub do
 			},
 			switch_views => {
 				keys => [ 'tab' ],
-				code => sub { rotate $app->{views} },
+				code => sub { Array::rotate $app->{views} },
 			},
 			starred_view => {
 				keys => [ 'control-s' ],
