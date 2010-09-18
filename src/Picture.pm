@@ -29,11 +29,11 @@ sub add
 
 	die 'duplicate file'  if exists $self->{files}->{$path};
 
-	unless ($path =~ m{^.*/[^.]+\.([^/]+)}) {
+	unless ($path =~ m{^.*/[^.]+\.(?<ext>[^/]+)}) {
 		warn "invalid filename \"$path\"\n";
 		return;
 	}
-	given ($1) {
+	given ($+{ext}) {
 		when (/^tags$/) {
 			$self->{tags}->add($path);
 		}
@@ -41,7 +41,11 @@ sub add
 		}
 		default {
 			$self->{files}->{$path} = 1;
-			$self->{sel} = $path  if pvt__extval($path) > pvt__extval($self->{sel});
+			if (Array::find($args{pic_extensions}, $+{ext})) {
+				$self->{sel} = $path
+					if not defined $self->{sel}
+					or -M $path < -M $self->{sel};
+			}
 		}
 	}
 }#
@@ -91,28 +95,6 @@ sub delete
 	while (glob "$dirname/$basename.*") {
 		print `mv -v "$_" "$trash/"`;
 	}
-}#
-
-
-sub pvt__extval
-{my ($path) = @_;
-	caller eq __PACKAGE__ or die;
-
-	defined $path
-	?
-	$path =~ /\.([^.]+)$/
-	?
-	{
-		jpg => 3,
-		tif => 2,
-		png => 2,
-		cr2 => 1,
-	}->{lc $1}
-	// 0
-	:
-	-1
-	:
-	-1
 }#
 
 1;

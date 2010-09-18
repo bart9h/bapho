@@ -27,6 +27,7 @@ our %args = (
 		nop => undef,
 		import => undef,
 		cache_size_mb => undef,
+		pic_extensions => [ qw/jpg tif png cr2/ ],
 		exif_tags => [
 		#{#
 			qw/
