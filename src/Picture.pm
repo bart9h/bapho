@@ -33,20 +33,19 @@ sub add
 		warn "invalid filename \"$path\"\n";
 		return;
 	}
+
+	$self->{files}->{$path} = 1;
+
 	given ($+{ext}) {
 		when (/^tags$/) {
 			$self->{tags}->add($path);
 		}
-		when (/^ufraw$/) {
-		}
-		default {
-			$self->{files}->{$path} = 1;
-			if (Array::find($args{pic_extensions}, $+{ext})) {
-				$self->{sel} = $path
-					if not defined $self->{sel}
-					or -M $path < -M $self->{sel};
-			}
-		}
+	}
+
+	if (Array::find($args{pic_extensions}, $+{ext})) {
+		$self->{sel} = $path
+			if not defined $self->{sel}
+			or -M $path < -M $self->{sel};
 	}
 }#
 
@@ -87,12 +86,12 @@ sub delete
 
 	return if $args{nop};
 
-	$self->{sel} =~ m{^(.*?)/([^/]+)\.[^.]+$}
-		or die "strange filename ($self->{sel})";
-	my ($dirname, $basename) = ($1, $2);
-	my $trash = "$dirname/.bapho-trash";
+	my $afile = (keys %{$self->{files}})[0];
+	$afile =~ m{^(.*?)/[^/]+$}
+		or die "strange filename ($afile)";
+	my $trash = "$1/.bapho-trash";
 	-d $trash or print `mkdir -v "$trash"`;
-	while (glob "$dirname/$basename.*") {
+	foreach (keys %{$self->{files}}) {
 		print `mv -v "$_" "$trash/"`;
 	}
 }#
