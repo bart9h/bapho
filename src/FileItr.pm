@@ -50,7 +50,7 @@ sub new
 sub path
 {my ($self) = @_;
 
-	$self->{parent}.'/'.$self->{files}->[$self->{cursor}];
+	$self->{parent}.'/'.$self->{files}->[$self->{cursor}]
 }#
 
 sub seek
@@ -98,7 +98,14 @@ sub pvt__down
 	while (-d $self->path) {
 		$self->{parent} = $self->path;
 		$self->pvt__readdir;
-		$self->{cursor} = $dir>0 ? 0 : (scalar @{$self->{files}} - 1);
+		if (@{$self->{files}}) {
+			$self->{cursor} = $dir>0 ? 0 : (scalar @{$self->{files}} - 1);
+		}
+		else {
+			$self->pvt__up;
+			$self->pvt__seek($dir);
+			$self->pvt__down;
+		}
 	}
 }#
 
@@ -125,7 +132,6 @@ sub pvt__readdir
 	];
 	closedir $dh;
 
-	die "empty dir \"$self->{parent}\""  unless scalar @{$self->{files}};  #TODO: nao morrer
 	$self;
 }#
 
