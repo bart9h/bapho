@@ -16,12 +16,21 @@ sub new
 {my ($class, $path) = @_;
 
 	bless my $self = {}, $class;
+
 	$self->{itr} = FileItr->new($path);
+
 	if ($self->{id} = path2id($self->{itr}->path)) {
 		$self->pvt__build_pic;
-	} else {
+	}
+	else {
 		$self->seek(1);
 	}
+
+	until ($self->{pic}->{sel}) {
+		$self->seek(1);
+	}
+
+	$self;
 }#
 
 sub seek
@@ -43,10 +52,14 @@ sub seek
 				last;
 			}
 		}
+
+		$self->pvt__build_pic;
+		next unless $self->{pic}->{sel};
+
 		$dir -= $d;
 	}
 
-	$self->pvt__build_pic;
+	$self;
 }#
 
 sub next { PictureItr->new($_[0]->{itr}->path)->seek(+1) }
