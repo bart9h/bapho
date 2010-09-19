@@ -87,8 +87,12 @@ sub pvt__seek
 sub pvt__up
 {my ($self) = @_;
 
-	$self->{parent} =~ m{^(.*?)/([^/]+)$} or die; #TODO
-	$self->{parent} = $1;
+	if ($self->{parent} eq '/') {
+		die 'TODO';
+	}
+
+	$self->{parent} =~ m{^(.*?)/([^/]+)$} or die;
+	$self->{parent} = $1 ne '' ? $1 : '/';
 	$self->pvt__find($2);
 }#
 
