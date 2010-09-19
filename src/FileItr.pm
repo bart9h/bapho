@@ -122,15 +122,18 @@ sub pvt__find
 sub pvt__readdir
 {my ($self) = @_;
 
-	opendir(my $dh, $self->{parent})
-		|| die "opendir $self->{parent}: $!";
-
-	$self->{files} = [
-		sort { (-f $a and -d $b) ? -1 : (-d $a and -f $b) ? 1 : $a cmp $b }
-		grep { not /^\./ } #and (-f $_ or -d $_) }
-		readdir($dh)
-	];
-	closedir $dh;
+	if (opendir(my $dh, $self->{parent})) {
+		$self->{files} = [
+			sort { (-f $a and -d $b) ? -1 : (-d $a and -f $b) ? 1 : $a cmp $b }
+			grep { not /^\./ } #and (-f $_ or -d $_) }
+			readdir($dh)
+		];
+		closedir $dh;
+	}
+	else {
+		warn "opendir $self->{parent}: $!";
+		$self->{files} = [];
+	}
 
 	$self;
 }#
