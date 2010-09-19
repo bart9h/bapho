@@ -75,17 +75,27 @@ sub path2id
 sub pvt__build_pic
 {my ($self) = @_;
 
-	$self->{itr}->seek(-1) while path2id($self->{itr}->path) eq $self->{id};
-	$self->{itr}->seek(+1);
-
 	$self->{pic} = Picture::new($self->{id});
 
 	for(;;) {
-		$self->{pic}->add($self->{itr}->path);
-		$self->{itr}->seek(+1);
-		last if path2id($self->{itr}->path) ne $self->{id};
+		last if $self->{itr}->{cursor} == 0;
+		$self->{itr}->{cursor}--;
+		if (path2id($self->{itr}->path) ne $self->{id}) {
+			$self->{itr}->{cursor}++;
+			last;
+		}
 	}
-	$self->{itr}->seek(-1);
+
+	for(;;) {
+		$self->{pic}->add($self->{itr}->path);
+		last if $self->{itr}->{cursor} == scalar @{$self->{itr}->{files}} - 1;
+		$self->{itr}->{cursor}++;
+		if (path2id($self->{itr}->path) ne $self->{id}) {
+			$self->{itr}->{cursor}--;
+			last;
+		}
+	}
+
 	$self;
 }#
 
