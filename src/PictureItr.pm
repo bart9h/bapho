@@ -78,26 +78,36 @@ sub pvt__build_pic
 
 	$self->{pic} = Picture::new($self->{id});
 
-	for(;;) {
+	for(;;) { # Seek backwards
+
+		# until the start of current dir
 		last if $self->{itr}->{cursor} == 0;
 		$self->{itr}->{cursor}--;
+
+		# or when the id change
 		if (path2id($self->{itr}->path) ne $self->{id}) {
+			# (in this case, step forward to get back at the first file with my id).
 			$self->{itr}->{cursor}++;
 			last;
 		}
 	}
 
-	for(;;) {
+	for(;;) { # Then seek backwards again
+
+		# collecing the files
 		$self->{pic}->add($self->{itr}->path);
+
+		# until the end of the dir
 		last if $self->{itr}->{cursor} == scalar @{$self->{itr}->{files}} - 1;
 		$self->{itr}->{cursor}++;
+
+		# or when the id change
 		if (path2id($self->{itr}->path) ne $self->{id}) {
+			# (in this case, step backward to point itr to a file with my id).
 			$self->{itr}->{cursor}--;
 			last;
 		}
 	}
-
-	$self;
 }#
 
 1;
