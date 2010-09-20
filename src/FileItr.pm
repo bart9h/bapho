@@ -50,7 +50,9 @@ sub new
 sub path
 {my ($self) = @_;
 
-	$self->{parent}.'/'.$self->{files}->[$self->{cursor}]
+	my $path = $self->{parent}.'/'.$self->{files}->[$self->{cursor}];
+	$path =~ s{/+}{/}g;  # remove duplicated /'s (if parent==/)
+	$path;
 }#
 
 sub seek
