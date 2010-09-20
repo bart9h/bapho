@@ -64,6 +64,7 @@ sub seek
 
 sub next { PictureItr->new($_[0]->{itr}->path)->seek(+1) }
 sub prev { PictureItr->new($_[0]->{itr}->path)->seek(-1) }
+sub path { join ',', sort keys %{$_[0]->{pic}->{files}} }
 
 sub path2id
 {my ($path) = @_;
