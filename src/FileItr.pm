@@ -110,7 +110,7 @@ sub pvt__down
 		else {
 			$self->pvt__up;
 			$self->pvt__seek($dir);
-			$self->pvt__down;
+			$self->pvt__down($dir);
 		}
 	}
 }#
