@@ -11,8 +11,6 @@ Missing features:
   * [!!!] How to handle the lack of timestamp metadata?
     * one possibility: ask user, providing a guess based on other files on the same import batch.
 
-* Handle folders (browsing and tagging).
-
 * Import with --tag=foo
 
 * Interface to define new views (edit in/out filters).
@@ -44,16 +42,18 @@ Enhancements:
 
 * OSD transparency.
 
+* Folder handling
+  * iterator (and better pagination)
+  * tagging
+  * display (collage)
+
 
 Optimizations:
 
 * Asynchronous image loading.
 
-* Faster startup time (avoid `find $basedir`).
-  * On-demand directory loading.
-
 * Faster image loading.
-  * Save jpegs of with fullscreen size, and maybe thumbnails too.
+  * Save jpegs with fullscreen size, and maybe thumbnails too.
 
 * Read-ahead image loading.
 
