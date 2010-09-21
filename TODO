@@ -52,6 +52,8 @@ Enhancements:
 
 * Set a picture as wallpaper.
 
+* OSD transparency.
+
 
 Optimizations:
 
@@ -60,8 +62,5 @@ Optimizations:
 * Faster image loading.
   * Save jpegs of with fullscreen size, and maybe thumbnails too.
 
-* Read-ahead image (and directory) loading.
-
-* OSD transparency.
-
+* Read-ahead image loading.
 
