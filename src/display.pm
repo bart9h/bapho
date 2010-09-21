@@ -8,6 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use args qw/%args/;
+use Tags;
 
 #}#
 
@@ -25,7 +26,7 @@ sub display
 	else {
 		$view->{rows} = $view->{cols} = 1;
 		$self->pvt__display_pic(
-			$view->{cursor},
+			$view->pic,
 			$self->{app}->width, $self->{app}->height,
 			0, 0);
 	}
@@ -44,13 +45,12 @@ sub display
 
 
 sub pvt__display_pic
-{my ($self, $pic_idx, $w, $h, $x, $y, $is_selected) = @_;
+{my ($self, $pic, $w, $h, $x, $y, $is_selected) = @_;
 	caller eq __PACKAGE__ or die;
 
 	my $view = $self->{views}->[0];
-	my $id = $view->{ids}->[$pic_idx];
-	my $surf = $view->{collection}->get_surface($id, $w, $h);
-	$view->{cur_surf} = $surf  if $pic_idx == $view->{cursor};
+	my $surf = $self->{factory}->get($pic->{sel}, $w, $h);
+	$view->{cur_surf} = $surf  if $pic eq $view->pic;
 
 	my $dest = SDL::Rect->new(
 		-x => $x + ($w - $surf->{surf}->width)/2,
@@ -92,14 +92,14 @@ sub pvt__display_thumbnails
 	($view->{cols}, $view->{rows}) = (int($W/($d/$n)), int($H/($d/$n)));
 	my ($w, $h) = (int($W/$view->{cols}), int($H/$view->{rows}));  # thumbnail area
 
-	my $i = $view->{page_first};
+	my $i = $view->{picitr};
+	$i = $i->prev foreach (1 .. $view->{page_cursor});
 	THUMB: foreach my $y (0 .. $view->{rows}-1) {
 		foreach my $x (0 .. $view->{cols}-1) {
-			$self->pvt__display_pic($i,
+			$self->pvt__display_pic($i->{pic},
 				$w, $h, $x*$w, $y*$h,
-				$i==$view->{cursor});
-			++$i;
-			last THUMB if $i >= scalar @{$view->{ids}};
+				$i->{pic}->{id} eq $view->{picitr}->{pic}->{id});
+			$i = $i->next  or last THUMB;
 		}
 	}
 }#
@@ -118,11 +118,10 @@ sub pvt__display_info
 	$self->{text}->home;
 	my $view = $self->{views}->[0];
 
-	#FIXME
-	my $ext = $view->pic->{sel};
-	$ext =~ s{^.*/[^.]+\.(.*)$}{$1};
+	$view->pic->{sel} =~ m{^.*/([^./]+)\.(.*)$};
+	my ($name, $ext) = ($1, $2);
 
-	my $str = join '/', $view->{cursor}+1, scalar @{$view->{ids}};
+	my $str = ''; #join '/', $view->{cursor}+1, scalar @{$view->{ids}};
 	my $s = $view->{cur_surf};
 	if ($s and $s->{width} and $s->{height}) {
 		my $zoom = $s->{surf}->width/$s->{width};
@@ -132,10 +131,10 @@ sub pvt__display_info
 
 	my $v = scalar @{$self->{views}};
 	$self->pvt__print(
-		font=>0, text=>$view->pic->{id},
+		font=>0, text=>$name,
 		font=>1, text=>".$ext  $str",
-		$view->pic->{tags}->{_star}   ? (font=>0, text=>'  (*)') : (),
-		$view->pic->{tags}->{_hidden} ? (font=>0, text=>'  (!)') : (), #TODO:loopify
+		$view->pic->{tags}->get('_star')   ? (font=>0, text=>'  (*)') : (),
+		$view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 		$v>1 ? (font=>0, text=>"  [$v views]") : (),
 	);
 
@@ -143,7 +142,7 @@ sub pvt__display_info
 		when (/tags/) {
 			$self->pvt__print(font=>1, text=>'tags:');
 			$self->pvt__print(text=>$_)
-				foreach map { ' '.$_ } $view->pic->get_tags;
+				foreach map { ' '.$_ } $view->pic->{tags}->get;
 		}
 		when (/exif/) {
 			$self->pvt__print(font=>1, text=>'exif:');
@@ -172,10 +171,10 @@ sub pvt__display_tag_editor
 	);
 
 	my $i = 0;
-	foreach (sort keys %{$view->{collection}->{tags}}) {
-		my @s = split //, $i==$self->{menu}->{cursor}  ?  '[]' : '  ';  # cursor
-		my $t = exists $view->pic->{tags}->{$_}  ?  '*' : ' ';  # tag
-		$self->pvt__print(text => $s[0].$t.$_.$t.$s[1]);
+	foreach (@{$self->{menu}->{items}}) {
+		my @C = split //, $i==$self->{menu}->{cursor}  ?  '[]' : '  ';  # cursor
+		my $T = $view->pic->{tags}->get($_)  ?  '*' : ' ';  # tag
+		$self->pvt__print(text => $C[0].$T.$_.$T.$C[1]);
 		++$i;
 	}
 }#

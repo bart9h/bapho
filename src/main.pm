@@ -10,20 +10,17 @@ use Data::Dumper;
 use SDL::App;
 
 use args qw/%args/;
-use collection;
+use Array;
 use display;
-use menu;
-use picture;
-use text;
-use view;
+use Factory;
+use Menu;
+use Picture;
+use Text;
+use View;
 
 #}#
 
-sub rotate
-{my ($array_ref) = @_;
-
-	push @$array_ref, shift @$array_ref;
-}#
+sub pic { $_[0]->{views}->[0]->pic }
 
 sub get_root_geometry
 {my ($self) = @_;
@@ -103,57 +100,69 @@ sub load_state
 
 	args::load_state;
 
-	my $id = $args{cursor_id};
-	if (defined $id) {
-		$_->seek_id($id)
+	if (defined $args{cursor_file} and not defined $args{startdir}) {
+		$_->seek_file($args{cursor_file})
 			foreach @{$self->{views}};
+	}
+
+	if (defined $args{info_mode}) {
+		Array::find ($self->{info_modes}, $args{info_mode});
+	}
+}#
+
+sub save_state
+{my ($self) = @_;
+
+	#TODO: save all views
+	args::save_state {
+		cursor_file => $self->{cursor_file} // $self->pic->{sel},
+		info_mode   => $self->{info_modes}->[0],
 	}
 }#
 
 sub close_view
 {my ($self) = @_;
 
-	my $cursor_id = $self->{views}->[0]->pic->{id};
+	my $curr_cursor_file = $self->pic->{sel};
 
 	shift @{$self->{views}};
 
-	@{$self->{views}} or $self->quit ($cursor_id);
+	unless (@{$self->{views}}) {
+		# the last view was closed
+		$self->{cursor_file} = $curr_cursor_file;
+		$self->quit;
+	}
 }#
 
 sub quit
-{my ($self, $cursor_id) = @_;
+{my ($self) = @_;
 
-	#TODO: save all views
-	args::save_state {
-		cursor_id => $cursor_id // $self->{views}->[0]->pic->{id},
-	};
-
+	$self->save_state;
 	exit(0);
 }#
 
 sub enter_tag_mode
 {my ($self) = @_;
 
-	$self->{menu}->enter('tag_editor', [ sort keys %{$self->{collection}->{tags}} ]);
+	$self->{menu}->enter('tag_editor', [ sort(Tags::all()) ]);
 }#
 
 sub enter_star_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, view::new($self->{collection}, ['_star'], ['_hidden']);
+	unshift @{$self->{views}}, View::new($self->pic, ['_star'], ['_hidden']);
 }#
 
 sub enter_hidden_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, view::new($self->{collection}, ['_hidden'], []);
+	unshift @{$self->{views}}, View::new($self->pic, ['_hidden'], []);
 }#
 
 sub do_menu
 {my ($self, $command) = @_;
 
 	return 0 unless $self->{menu}->{action};
-	my $view = $self->{views}->[0];
 
 	$self->{dirty} = $self->{menu}->do($command);
 	my $activated = $self->{menu}->{activated};
@@ -161,9 +170,9 @@ sub do_menu
 	given ($self->{menu}->{action}) {
 		when (/^tag_editor$/) {
 			if (defined $activated) {
-				$view->pic->toggle_tag($activated);
+				$self->pic->{tags}->toggle($activated);
 				$self->{last_tag} = $activated
-					if $view->pic->{tags}->{$activated};
+					if $self->pic->{tags}->get($activated);
 			}
 			elsif (not $self->{dirty}) {
 				$self->{dirty} = 1;
@@ -172,10 +181,11 @@ sub do_menu
 						$self->{menu}->leave;
 					}
 					when (/^e$/ and not $args{fullscreen}) {
-						my $filename = $view->pic->get_tag_filename;
+						my $filename = $self->pic->{id}.'.tags';
+						-e $filename or FileItr->dirty();
 						system "\$EDITOR $filename";
-						$view->pic->add($filename);
-						$view->{collection}->update_tags;
+						$self->pic->add($filename);
+						#$view->{collection}->update_tags;
 						$self->enter_tag_mode;
 						$self->display;
 					}
@@ -232,7 +242,7 @@ sub do
 			},
 			info_toggle => {
 				keys => [ 'i' ],
-				code => sub { rotate $app->{info_modes} },
+				code => sub { Array::rotate $app->{info_modes} },
 			},
 		}), #}#
 
@@ -248,7 +258,7 @@ sub do
 			},
 			date_seek => {
 				keys => [ 'd', 'm', 'y', 'shift-d', 'shift-m', 'shift-y' ],
-				code => sub { $view->seek_date($command) },
+				code => sub { $view->seek_levels($command, { d=>1, m=>2, y=>3 }) },
 			},
 			previous_line => {
 				keys => [ 'up', 'k' ],
@@ -291,7 +301,7 @@ sub do
 			},
 			switch_views => {
 				keys => [ 'tab' ],
-				code => sub { rotate $app->{views}; $app->{views}->[0]->update },
+				code => sub { Array::rotate $app->{views} },
 			},
 			starred_view => {
 				keys => [ 'control-s' ],
@@ -319,7 +329,7 @@ sub do
 			},
 			toggle_star => {
 				keys => [ 's' ],
-				code => sub { $view->pic->toggle_tag('_star') },
+				code => sub { $view->pic->{tags}->toggle('_star') },
 			},
 			toggle_hidden => {
 				keys => [ 'shift-1' ],
@@ -331,7 +341,7 @@ sub do
 			},
 			repeat_last_tag => {
 				keys => [ '.' ],
-				code => sub { $view->pic->set_tag($app->{last_tag}) },
+				code => sub { $view->pic->{tags}->toggle($app->{last_tag}) },
 			},
 			delete_picture => {
 				keys => [ 'delete' ],
@@ -436,18 +446,16 @@ sub main
 	my ($w, $h) = get_window_geometry;
 	bless my $self = {
 
-		# data
-		collection => collection::new,
-
 		views      => [],
-		menu       => menu::new,
+		factory    => Factory::new,
+		menu       => Menu::new,
 		key_hold   => '',
 		last_tag   => '',
 		dirty      => 1,
 
 		# rendering state
 		info_modes => [ qw/none title tags exif/ ],
-		text => text::new(
+		text => Text::new(
 			'Bitstream Vera Sans Mono:20',
 			':18',
 		),
@@ -462,16 +470,17 @@ sub main
 
 	};
 
-	push @{$self->{views}}, view::new(
-		$self->{collection},
+	push @{$self->{views}}, View::new(
+		PictureItr->new($args{startdir} // $args{basedir}),
 		[ (split /,/, $args{include}) ],
 		[ (split /,/, $args{exclude}), '_hidden' ]
 	);
 
-	if (scalar @{$self->{views}[0]{ids}} == 0) {
-		say 'no pictures matching the filter';
-		return;
-	}
+	#TODO
+	#if (scalar @{$self->{views}[0]{ids}} == 0) {
+	#	say 'no pictures matching the filter';
+	#	return;
+	#}
 
 	$self->load_state;
 

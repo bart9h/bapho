@@ -3,6 +3,14 @@ Poor man's issue tracker
 ------------------------
 
 
+Bugs:
+
+
+* Iterators crash at begin/end.
+
+* Stay inside basedir.
+
+
 Missing features:
 
 * Handle .mpg files.
@@ -20,6 +28,8 @@ Missing features:
 
 * When importing, load files first, to check for duplicates
   (ex: in case of a renamed directory).
+
+* zoom in (up to 1/1 pixels)
 
 * Image rotation.
 

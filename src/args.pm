@@ -16,7 +16,7 @@ our %args = (
 		basedir => $ENV{HOME}.'/fotos',
 		editor => $ENV{EDITOR} // 'gedit',
 		temp_dir => '/tmp',
-		dir_fmt => '%04d/%02d-%02d',
+		dir_fmt => '%04d/%02d/%02d',
 		jpeg_quality => 80,
 		mv => 1,
 		include => '',
@@ -27,6 +27,7 @@ our %args = (
 		nop => undef,
 		import => undef,
 		cache_size_mb => undef,
+		pic_extensions => [ qw/jpg tif png cr2/ ],
 		exif_tags => [
 		#{#
 			qw/
