@@ -105,12 +105,8 @@ sub seek
 
 			my $d = $dir>0?1:-1;
 			while ($dir) {
-
-				my $old = $self->{picitr}->{pic};
-				$self->{picitr}->seek($d);
-				last if $old eq $self->{picitr}->{pic};
+				$self->{picitr}->seek($d) or last;
 				next unless $self->pvt__filter;
-
 				$dir -= $d;
 			}
 		}

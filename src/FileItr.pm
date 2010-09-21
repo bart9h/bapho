@@ -58,11 +58,21 @@ sub path
 sub seek
 {my ($self, $dir) = @_;
 
+	# backup self
+	my $bk_dir  = $self->{parent};
+	my $bk_file = $self->{files}->[$self->{cursor}];
+
 	while($dir) {
 		my $d = $dir>0?1:-1;
-		$self->pvt__seek($d);
+		unless (eval { $self->pvt__seek($d) }) {
+			# restore self
+			$self->{parent} = $bk_dir;
+			$self->pvt__find($bk_file);
+			return undef;
+		}
 		$dir -= $d;
 	}
+
 	$self;
 }#
 
@@ -84,14 +94,12 @@ sub pvt__seek
 		$self->pvt__seek($dir);
 		$self->pvt__down($dir);
 	}
+
+	1;
 }#
 
 sub pvt__up
 {my ($self) = @_;
-
-	if ($self->{parent} eq '/') {
-		die 'TODO';
-	}
 
 	$self->{parent} =~ m{^(.*?)/([^/]+)$} or die;
 	$self->{parent} = $1 ne '' ? $1 : '/';
@@ -122,7 +130,6 @@ sub pvt__find
 	for ($self->{cursor} = 0;  $self->{cursor} < scalar @{$self->{files}};  ++$self->{cursor}) {
 		last if $self->{files}->[$self->{cursor}] eq $name;
 	}
-	$self;
 }#
 
 sub pvt__readdir
@@ -140,8 +147,6 @@ sub pvt__readdir
 		warn "opendir $self->{parent}: $!";
 		$self->{files} = [];
 	}
-
-	$self;
 }#
 
 1;

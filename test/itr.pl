@@ -46,7 +46,7 @@ sub test
 				next;
 			}
 		}
-		$i->seek($dir);
+		$i->seek($dir) or say "seek failed";
 		print Dumper $i if $dbg;
 	}
 }

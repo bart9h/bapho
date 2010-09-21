@@ -16,30 +16,21 @@ sub new
 {my ($class, $path) = @_;
 
 	bless my $self = {}, $class;
-
-	$self->{itr} = FileItr->new($path);
-
-	if ($self->{id} = path2id($self->{itr}->path)) {
-		$self->pvt__build_pic;
-	}
-	else {
-		$self->seek(1);
-	}
-
-	until ($self->{pic}->{sel}) {
-		$self->seek(1);
-	}
-
-	$self;
+	$self->pvt__init($path);
 }#
 
 sub seek
 {my ($self, $dir) = @_;
 
+	my $bk_path = $self->{pic}->{sel};
+
 	while($dir) {
 		my $d = $dir>0?1:-1;
 		while(1) {
-			$self->{itr}->pvt__seek($d);
+			unless ($self->{itr}->seek($d)) {
+				$self->pvt__init($bk_path);
+				return undef;
+			}
 			local $_ = $self->{itr}->path;
 			next if m{/\.bapho-state$};
 			next if m{/\.([^/]*-)?trash/}i;
@@ -71,6 +62,25 @@ sub path2id
 
 	$path =~ m{^(.*)\.[^.]+$};
 	$1 // '';
+}#
+
+sub pvt__init
+{my ($self, $path) = @_;
+
+	$self->{itr} = FileItr->new($path);
+
+	if ($self->{id} = path2id($self->{itr}->path)) {
+		$self->pvt__build_pic;
+	}
+	else {
+		$self->seek(1);
+	}
+
+	until ($self->{pic}->{sel}) {
+		$self->seek(1);
+	}
+
+	$self;
 }#
 
 sub pvt__build_pic
