@@ -16,13 +16,13 @@ sub new
 	$picitr or die;
 
 	bless my $self = {
-		picitr     => $picitr,
-		ins        => $ins,
-		outs       => $outs,
-		page_first => $picitr,
-		rows       => 1,
-		cols       => 1,
-		zoom       => 1,
+		picitr      => $picitr,
+		ins         => $ins,
+		outs        => $outs,
+		rows        => 1,
+		cols        => 1,
+		zoom        => 1,
+		page_cursor => 0,
 	};
 
 	return $self;
@@ -41,40 +41,15 @@ sub delete_current
 sub adjust_page_and_cursor
 {my ($self) = @_;
 
-	$self->{page_first} = $self->{picitr};
+	my $p = $self->{rows}*$self->{cols};
 
-=a TODO
-	my $last = $self->{count} - 1;
-	my $page_size = $self->{rows}*$self->{cols};
-
-	if ($self->{cursor} < 0) {
-		$self->{cursor} = $last;
-		$self->{page_first} = $last>=$page_size ? $last-($page_size-1) : 0;
-	}
-	elsif ($self->{cursor} > $last) {
-		$self->{cursor} = $self->{page_first} = 0;
-	}
-	elsif ($page_size > 1) {
-		if ($self->{count} > $page_size) {
-			$self->{page_first} += $page_size
-				while $self->{cursor}-$self->{page_first} >= $page_size;
-
-			$self->{page_first} -= $page_size
-				while $self->{cursor} < $self->{page_first};
-
-			$self->{page_first} = 0
-				if $self->{page_first} < 0;
-
-			my $last_page = $self->{count} - $page_size;
-			$self->{page_first} = $last_page
-				if $self->{page_first} > $last_page;
-		}
-	}
-	else {
-		$self->{page_first} = $self->{cursor};
+	while ($self->{page_cursor} < 0) {
+		$self->{page_cursor} += $p;
 	}
 
-=cut
+	while ($self->{page_cursor} >= $p) {
+		$self->{page_cursor} -= $p;
+	}
 }#
 
 sub pvt__filter
@@ -108,6 +83,7 @@ sub seek
 				$self->{picitr}->seek($d) or last;
 				next unless $self->pvt__filter;
 				$dir -= $d;
+				$self->{page_cursor} += $d;
 			}
 		}
 	}
@@ -123,6 +99,12 @@ sub seek_levels
 	$self->{picitr}->{itr}->pvt__up  #FIXME: using private method of FileItr
 		foreach 1 .. $keys->{$k};
 	$self->seek($shift ? '-1' : '+1');
+
+	# put itr at the start of the dir
+	$self->{picitr}->{itr}->{cursor} = 0;
+	# re-build picitr
+	$self->{picitr} = PictureItr->new($self->{picitr}->{itr}->path);
+	$self->{page_cursor} = 0;
 }#
 
 sub seek_file
