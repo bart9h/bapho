@@ -426,10 +426,9 @@ sub main
 
 	args::read_args(@args);
 
-	# fix symlinked basedir
-	if (-l $args{basedir}) {
-		$args{basedir} = readlink $args{basedir};
-	}
+	sub fixlink { -l $_[0] ? readlink $_[0] : $_[0] }
+
+	$args{basedir} = fixlink $args{basedir};
 
 	if ($args{import}) {
 		use import;
@@ -441,7 +440,7 @@ sub main
 			my $dir = $args{files}->[0];
 			my $pwd = `pwd`;  chomp $pwd;
 			$dir =~ m{^/}  or $dir = $pwd."/$dir";
-			$args{startdir} = $dir;
+			$args{startdir} = fixlink $dir;
 		}
 	}
 
