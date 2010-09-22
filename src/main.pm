@@ -438,8 +438,10 @@ sub main
 		if (exists $args{files}) {
 			die 'only one startdir supported'  if scalar @{$args{files}} != 1;
 			my $dir = $args{files}->[0];
-			my $pwd = `pwd`;  chomp $pwd;
-			$dir =~ m{^/}  or $dir = $pwd."/$dir";
+			unless ($dir =~ m{^/}) {
+				my $pwd = `pwd`; chomp $pwd;
+				$dir = $pwd."/$dir";
+			}
 			$args{startdir} = fixlink $dir;
 		}
 	}
