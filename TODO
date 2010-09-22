@@ -6,8 +6,6 @@ Poor man's issue tracker
 Bugs:
 
 
-* Iterators crash at begin/end.
-
 * Stay inside basedir.
 
 

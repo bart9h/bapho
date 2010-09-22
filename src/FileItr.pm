@@ -58,16 +58,19 @@ sub path
 sub seek
 {my ($self, $dir) = @_;
 
-	# backup self
-	my $bk_dir  = $self->{parent};
-	my $bk_file = $self->{files}->[$self->{cursor}];
-
+	my $d = $dir>0?1:-1;
 	while($dir) {
-		my $d = $dir>0?1:-1;
+
+		# backup self
+		my $bk_dir  = $self->{parent};
+		my $bk_file = $self->{files}->[$self->{cursor}];
+
 		unless (eval { $self->pvt__seek($d) }) {
+
 			# restore self
 			$self->{parent} = $bk_dir;
 			$self->pvt__find($bk_file);
+
 			return undef;
 		}
 		$dir -= $d;
