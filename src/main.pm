@@ -150,7 +150,9 @@ sub enter_tag_mode
 sub enter_star_view
 {my ($self) = @_;
 
-	unshift @{$self->{views}}, View::new($self->pic, ['_star'], ['_hidden']);
+	unshift @{$self->{views}}, View::new(
+		$self->{views}->[0]->{picitr},
+		['_star'], ['_hidden']);
 }#
 
 sub enter_hidden_view
