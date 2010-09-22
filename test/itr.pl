@@ -11,7 +11,7 @@ sub test
 {
 	my $class = shift or die 'which module?';
 	eval "require $class";
-	my $i = $class->new($_[0] // $ENV{PWD});
+	my $i = $class->new($_[0] // $ENV{PWD}, $_[1]);
 	my $dir = 1;
 	my $dbg = 0;
 	while(1) {

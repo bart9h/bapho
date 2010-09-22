@@ -25,13 +25,14 @@ my $dirty = 0;
 sub dirty { $dirty = 1 }
 
 sub new
-{my ($class, $path) = @_;
+{my ($class, $path, $jaildir) = @_;
 
 	$path =~ s{/$}{};
 
 	bless my $self = {
 		cursor => 0,
 		parent => $path,
+		jaildir => $jaildir // '/',
 		files  => [],
 	}, $class;
 
@@ -104,9 +105,11 @@ sub pvt__seek
 sub pvt__up
 {my ($self) = @_;
 
-	$self->{parent} =~ m{^(.*?)/([^/]+)$} or die;
-	$self->{parent} = $1 ne '' ? $1 : '/';
-	$self->pvt__find($2);
+	my $base = $self->{jaildir};
+	$base =~ s{/$}{};
+	$self->{parent} =~ m|^(?<parent>$base(.*)?)/(?<name>[^/]+)$| or die;
+	$self->{parent} = $+{parent} ne '' ? $+{parent} : '/';
+	$self->pvt__find($+{name});
 }#
 
 sub pvt__down
