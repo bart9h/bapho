@@ -13,9 +13,12 @@ use Picture;
 #}#
 
 sub new
-{my ($class, $path) = @_;
+{my ($class, $path, $jaildir) = @_;
 
-	bless my $self = {}, $class;
+	bless my $self = {
+		jaildir => $jaildir,
+	}, $class;
+
 	$self->pvt__init($path);
 }#
 
@@ -53,9 +56,10 @@ sub seek
 	$self;
 }#
 
-sub next { PictureItr->new($_[0]->{itr}->path)->seek(+1) }
-sub prev { PictureItr->new($_[0]->{itr}->path)->seek(-1) }
+sub next { $_[0]->dup->seek(+1) }
+sub prev { $_[0]->dup->seek(-1) }
 sub path { join ',', sort keys %{$_[0]->{pic}->{files}} }
+sub dup  { PictureItr->new($_[0]->{itr}->path, $_[0]->{jaildir}) }
 
 sub path2id
 {my ($path) = @_;
@@ -67,7 +71,7 @@ sub path2id
 sub pvt__init
 {my ($self, $path) = @_;
 
-	$self->{itr} = FileItr->new($path);
+	$self->{itr} = FileItr->new($path, $self->{jaildir});
 
 	if ($self->{id} = path2id($self->{itr}->path)) {
 		$self->pvt__build_pic;
