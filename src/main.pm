@@ -101,7 +101,7 @@ sub load_state
 	args::load_state;
 
 	if (defined $args{cursor_file} and not defined $args{startdir}) {
-		$_->seek_file($args{cursor_file})
+		$_->seek_file($args{cursor_file}, $self->{jaildir})
 			foreach @{$self->{views}};
 	}
 
@@ -471,10 +471,16 @@ sub main
 			($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 		),
 
+		jaildir =>
+			defined $args{startdir} ?
+				$args{startdir} =~ m|^$args{basedir}/| ?
+					$args{basedir}
+					: $args{startdir}
+				: $args{basedir},
 	};
 
 	push @{$self->{views}}, View::new(
-		PictureItr->new($args{startdir} // $args{basedir}),
+		PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
 		[ (split /,/, $args{include}) ],
 		[ (split /,/, $args{exclude}), '_hidden' ]
 	);

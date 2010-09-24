@@ -103,14 +103,14 @@ sub seek_levels
 	# put itr at the start of the dir
 	$self->{picitr}->{itr}->{cursor} = 0;
 	# re-build picitr
-	$self->{picitr} = PictureItr->new($self->{picitr}->{itr}->path);
+	$self->{picitr} = $self->{picitr}->dup;
 	$self->{page_cursor} = 0;
 }#
 
 sub seek_file
-{my ($self, $file) = @_;
+{my ($self, $file, $jaildir) = @_;
 
-	$self->{picitr} = PictureItr->new($file);
+	$self->{picitr} = PictureItr->new($file, $jaildir);
 
 	until ($self->pvt__filter) {
 		$self->{picitr}->seek(1);
