@@ -136,6 +136,7 @@ sub pvt__find
 	for ($self->{cursor} = 0;  $self->{cursor} < scalar @{$self->{files}};  ++$self->{cursor}) {
 		last if $self->{files}->[$self->{cursor}] eq $name;
 	}
+	1;
 }#
 
 sub pvt__readdir
