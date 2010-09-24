@@ -3,35 +3,30 @@ Poor man's issue tracker
 ------------------------
 
 
-Bugs:
-
-
-* Stay inside basedir.
-
-
 Missing features:
 
-* Handle .mpg files.
+* Handle video files.
   * Press a key to play with external player.
   * Display a frame or thumbnail as image.
-  * [!!!] How to handle the lack of timestamp metadata?
+  * [!!!] How to handle the lack of timestamp metadata when importing?
     * one possibility: ask user, providing a guess based on other files on the same import batch.
-
-* Import with --tag=foo
 
 * Interface to define new views (edit in/out filters).
 
 * Cycle through multiple files of a picture.
-  * Option to set selected one? As a tag?
+  * Option to set selected one.
 
 * When importing, load files first, to check for duplicates
   (ex: in case of a renamed directory).
 
-* zoom in (up to 1/1 pixels)
+* Zoom in (up to 1/1 pixels).
+  * Pan.
 
 * Image rotation.
 
 * Text line editing (to enter new tags, renaming files/dirs).
+
+* CPANize code.
 
 
 Enhancements:
@@ -55,6 +50,10 @@ Enhancements:
   * tagging
   * display (collage)
 
+* Import with --tag=foo,bar
+
+* Option to import then run the gui showing only the just-imported pics.
+
 
 Optimizations:
 
@@ -62,6 +61,7 @@ Optimizations:
 
 * Faster image loading.
   * Save jpegs with fullscreen size, and maybe thumbnails too.
+  * OR, implement loading directly from EXIF.
 
 * Read-ahead image loading.
 
