@@ -137,7 +137,7 @@ sub close_view
 sub quit
 {my ($self) = @_;
 
-	$self->save_state;
+	$self->save_state  if $self->{jaildir} eq $args{basedir};
 	exit(0);
 }#
 
