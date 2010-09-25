@@ -210,9 +210,14 @@ sub pvt__create_surf
 {my ($self, $path, $width, $height) = @_;
 	caller eq __PACKAGE__ or die;
 
-	sub handicap
+	sub origin_handicap
 	{#{my ugly hack: 1 hour least-recently-used handicap}
+=explanation
 
+Surfaces used as source for a zoom should be more likely to be discarded.
+Current solution is to substract this value to the last_time_used.
+
+=cut
 		60*60
 	}#
 
@@ -239,7 +244,6 @@ sub pvt__create_surf
 		unless (defined $origin) {
 
 			$origin = pvt__load_file($path,$width,$height);
-			$origin->{last_time_used} = time - handicap;
 
 			if ($origin->{surf}) {
 				$self->add_picture($path, $origin);
@@ -263,7 +267,7 @@ sub pvt__create_surf
 		my $item = { %$origin };
 		$item->{surf} = pvt__zoom($origin->{surf}, $zoom);
 		$self->add_picture($path, $item);
-		$origin->{last_time_used} = time - handicap;
+		$origin->{last_time_used} = time - origin_handicap;
 		return $item;
 	}
 

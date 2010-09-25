@@ -205,9 +205,7 @@ sub do_menu
 sub action_has_tag
 {my ($action, $tag) = @_;
 
-	foreach (@{$action->{tags}}) {
-		return 1 if $tag eq $_;
-	}
+	Array::find($action->{tags}, $tag);
 }#
 
 sub add_tag_to_actions
@@ -311,11 +309,11 @@ sub do
 			},
 			hidden_view => {
 				keys => [ 'control-shift-h' ],
-				code => sub { $self->enter_hidden_view },
+				code => sub { $app->enter_hidden_view },
 			},
 			close_view => {
 				keys => [ 'control-w', 'escape', 'q' ],
-				code => sub { $self->close_view },
+				code => sub { $app->close_view },
 			},
 		}), #}#
 
@@ -377,6 +375,7 @@ sub handle_event
 	state $shift   = 0;
 	state $control = 0;
 
+	use SDL::Constants;
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
 			my $key = $event->key_name;
@@ -421,10 +420,8 @@ sub handle_event
 	}
 }#
 
-sub main
-{my @args = @_;
-
-	args::read_args(@args);
+sub new
+{#{my constructor}
 
 	sub fixlink { -l $_[0] ? readlink $_[0] : $_[0] }
 
@@ -492,12 +489,19 @@ sub main
 	#}
 
 	$self->load_state;
+	$self;
+}#
+
+sub main
+{my @args = @_;
+
+	args::read_args(@args);
+
+	my $self = new;
 
 	SDL::ShowCursor(0);
 
-	# prepare to enter main loop
 	use SDL::Event;
-	use SDL::Constants;
 	my $event = new SDL::Event;
 	SDL::Event->set_key_repeat(200, 30);
 

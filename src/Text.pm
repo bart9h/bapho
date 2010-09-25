@@ -98,7 +98,7 @@ sub print
 							$self->{print_error} = 1;
 						}
 					}
-					$w //= 16 * length $arg;
+					$w //= 12 * length $arg;
 
 					if ($mode eq 'layout') {
 						$taller_font = $font
