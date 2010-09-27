@@ -139,6 +139,7 @@ sub import_files
 		},
 		@files
 	);
+	1;
 }#
 
 sub import_gphoto2
