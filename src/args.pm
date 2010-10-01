@@ -8,7 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use base 'Exporter';
-our @EXPORT = qw(%args);
+our @EXPORT = qw(%args dbg);
 
 #}#
 
@@ -145,6 +145,19 @@ sub load_state
 
 	close F;
 }#
+
+sub dbg
+{my ($tags) = @_;
+
+	return 0 unless defined $args{verbose};
+	return 1 unless $tags;
+	foreach my $a (split /,/, $args{verbose}) {
+	foreach my $b (split /,/, $tags) {
+		return 1 if $a eq $b
+	}}
+	0;
+}#
+
 
 1;
 # vim600:fdm=marker:fmr={#,}#:

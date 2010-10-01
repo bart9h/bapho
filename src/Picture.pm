@@ -7,7 +7,7 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
-use args qw/%args/;
+use args qw/%args dbg/;
 use Array;
 use Tags;
 
@@ -76,7 +76,7 @@ sub develop
 		}
 	}
 	if (defined $cmd) {
-		say $cmd if $args{verbose};
+		say $cmd if dbg;
 		system "$cmd $file &";
 	}
 }#

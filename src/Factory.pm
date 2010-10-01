@@ -10,7 +10,7 @@ use Data::Dumper;
 use SDL::Surface;
 use Image::ExifTool;
 
-use args qw/%args/;
+use args qw/%args dbg/;
 
 #}#
 
@@ -73,6 +73,12 @@ sub get
 sub garbage_collector
 {my ($self) = @_;
 
+	printf "%.02f (%.0f%%) used / %.02f max MB\n",
+			$self->{bytes_used}/(1024*1024),
+			$self->{bytes_used}*100.0/$self->{max_bytes},
+			$self->{max_bytes}/(1024*1024)
+		if dbg 'cache,memory,gc';
+
 	return if $self->{bytes_used} < $self->{max_bytes};
 
 	foreach (
@@ -92,9 +98,11 @@ sub garbage_collector
 	)
 	{
 		last if $self->{bytes_used} < $self->{max_bytes};
-		say 'freeing '.$_->{filename}.' '.$_->{res}
-			if $args{verbose};
-		$self->{bytes_used} -= pvt__surf_bytes($self->{items}->{$_->{filename}}->{$_->{res}}->{surf});
+
+		my $surf_bytes = pvt__surf_bytes($self->{items}->{$_->{filename}}->{$_->{res}}->{surf});
+		printf "freeing %.2f MB from $_->{filename} @ $_->{res}\n", $surf_bytes/(1024*1024)
+			if dbg 'cache,memory,gc';
+		$self->{bytes_used} -= $surf_bytes;
 		delete $self->{items}->{$_->{filename}}->{$_->{res}};
 		$self->{loaded_files} -= 1;
 	}
@@ -119,6 +127,8 @@ sub pvt__load_exif_preview
 	my $tag = ($width<=160 && $height<=120) ? 'ThumbnailImage' : 'PreviewImage';
 	#FIXME: better method to do this (thumbnail size may vary)
 
+	say "using $tag" if dbg 'file';
+
 	if (defined $info->{$tag}) {
 
 		my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
@@ -142,7 +152,7 @@ sub pvt__load_file
 	# width,height is only a hint to load the thumbnail instead,
 	# when available (.cr2).  Returned surface is not scaled.
 
-	say "loading $path"  if $args{verbose};
+	say "loading $path"  if dbg;
 
 	my $item = {};
 

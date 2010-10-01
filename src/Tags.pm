@@ -7,7 +7,7 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
-use args qw/%args/;
+use args qw/%args dbg/;
 
 #}#
 
@@ -83,7 +83,7 @@ sub pvt__save_tags
 		if (scalar keys %$tags > 0) {
 			-e $filename or FileItr->dirty();
 			open F, '>', $filename  or die "$filename: $!";
-			say "saving $filename"  if $args{verbose};
+			say "saving $filename"  if dbg 'tags,file';
 			print F "$_\n"  foreach sort keys %$tags;
 			close F;
 		}
@@ -98,7 +98,7 @@ sub pvt__read_tags
 	wantarray or die;
 
 	if (open F, $filename) {
-		say "reading $filename"  if $args{verbose};
+		say "reading $filename"  if dbg 'tags,file';
 		my @rc = ();
 		foreach (<F>) {
 			s/^\s*(.*?)\s*$/$1/;
