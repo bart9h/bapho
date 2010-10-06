@@ -42,7 +42,7 @@ sub new
 		$self->pvt__down(1);
 	}
 	else {
-		$self->pvt__up;
+		0 until $self->pvt__up;
 	}
 
 	$self;
@@ -133,10 +133,20 @@ sub pvt__find
 {my ($self, $name) = @_;
 
 	$self->pvt__readdir;
-	for ($self->{cursor} = 0;  $self->{cursor} < scalar @{$self->{files}};  ++$self->{cursor}) {
-		last if $self->{files}->[$self->{cursor}] eq $name;
+
+	for ($self->{cursor} = 0;; ++$self->{cursor}) {
+
+		if ($self->{cursor} >= scalar @{$self->{files}}) {
+			warn "couldn't find $name in $self->{parent}";
+			$self->{cursor} = 0;
+			return 0;
+		}
+
+		if ($self->{files}->[$self->{cursor}] eq $name) {
+			return 1;
+		}
 	}
-	1;
+	die;
 }#
 
 sub pvt__readdir
