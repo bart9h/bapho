@@ -55,11 +55,177 @@ sub new
 sub get
 {my ($self, $path, $width, $height) = @_;
 
+	sub res_key
+	{my ($width, $height) = @_;
+		caller eq __PACKAGE__ or die;
+
+		sprintf "%05dx%05d", $width, $height;
+	}#
+
+	sub create_surf
+	{my ($self, $path, $width, $height) = @_;
+		caller eq __PACKAGE__ or die;
+
+		sub load_exif_preview
+		{my ($path, $width, $height) = @_;
+
+			state $exiftool //= Image::ExifTool->new;
+			$exiftool->Options(Binary => 1);
+			my $exif = $exiftool->ImageInfo($path);
+
+			my $tag = ($width<=160 && $height<=120) ? 'ThumbnailImage' : 'PreviewImage';
+			#FIXME: better method to do this (thumbnail size may vary)
+
+			say "using $tag" if dbg 'file';
+
+			if (defined $exif->{$tag}) {
+
+				my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
+
+				open F, '>', $tmp or die $!;
+				print F ${$exif->{$tag}};
+				close F;
+
+				my $surf = SDL::Surface->new(-name => $tmp);
+
+				unlink $tmp;
+
+				return ($surf, $exif);
+			}
+		}#
+
+		sub load_file
+		{my ($path, $width, $height) = @_;
+		# The $width and $height arguments are only a hint
+		# to maybe load a thumbnail instead, if available (raw preview).
+		# Returned surface is NOT scaled to $width x $height.
+
+			caller eq __PACKAGE__ or die;
+
+			say "loading $path"  if dbg;
+
+			my $item = {};
+			my $exif;
+
+			if ($path =~ m/\.cr2$/i) {
+				($item->{surf}, $exif) = load_exif_preview($path, $width, $height);
+			}
+			else {
+				$item->{surf} = eval { SDL::Surface->new(-name => $path) };
+
+				state $exiftool //= Image::ExifTool->new;
+				$exif = $exiftool->ImageInfo($path);
+			}
+
+			if ($exif) {
+				$item->{exif} = { map { $_ => $exif->{$_} } @{$args{exif_tags}} };
+				$item->{width}  //= $exif->{ExifImageWidth};
+				$item->{height} //= $exif->{ExifImageHeight};
+			}
+
+			if ($item->{surf}) {
+				$item->{width}  //= $item->{surf}->width;
+				$item->{height} //= $item->{surf}->height;
+			}
+
+			$item;
+		}#
+
+		sub origin_handicap
+		{#{my ugly hack: 1 hour least-recently-used handicap}
+		#
+		# Surfaces used as source for a zoom should be more likely to be discarded.
+		# Current solution is to substract this value to the last_time_used.
+
+			60*60
+		}#
+
+		sub add_picture
+		{my ($self, $path, $picture) = @_;
+
+			my $res = res_key($picture->{surf}->width, $picture->{surf}->height);
+			$self->{items}->{$path}->{$res} = $picture;
+			$self->{bytes_used} += $picture->{surf}->pitch * $picture->{surf}->height;
+			$self->{loaded_files} += 1;
+		}#
+
+		sub get_dummy_surface
+		{#{my}
+
+			state $surf;
+
+			unless ($surf) {
+				say ':(';
+				$surf = SDL::Surface->new(-width => 256, -height => 256);
+				$surf->fill(
+					SDL::Rect->new(-width => 128, -height => 128, -x => 64, -y => 64),
+					SDL::Color->new(-r => 200, -g => 0, -b => 0),
+				);
+			}
+
+			return $surf;
+		}#
+
+		sub zoom
+		{my ($surface, $zoom) = @_;
+			caller eq __PACKAGE__ or die;
+
+			die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
+				unless (ref($surface) and $surface->isa('SDL::Surface'));
+
+			my $tmp = SDL::Surface->new;
+			$$tmp = SDL::GFXZoom($$surface, $zoom, $zoom, 1);
+			return $tmp;
+		}#
+
+		my $origin;
+		{#{my}
+			my $res = res_key($width,$height);
+
+			# First res larger than asked, or the largest one.
+			foreach (sort keys %{$self->{items}->{$path}}) {
+				$origin = $self->{items}->{$path}->{$_};
+				last if $_ gt $res;
+			}
+
+			# If none were loaded, create new.
+			unless (defined $origin) {
+
+				$origin = load_file($path,$width,$height);
+
+				if ($origin->{surf}) {
+					$self->add_picture($path, $origin);
+				}
+				else {
+					$origin->{surf} = get_dummy_surface;
+				}
+			}
+		}#
+
+		my $zoom = eval {
+			my $zoom_x =  $width  / $origin->{surf}->width;
+			my $zoom_y =  $height / $origin->{surf}->height;
+			(sort $zoom_x, $zoom_y)[0];
+		};
+
+		if ($zoom >= 1) {
+			return $origin;
+		}
+		else {
+			my $item = { %$origin };
+			$item->{surf} = zoom($origin->{surf}, $zoom);
+			$self->add_picture($path, $item);
+			$origin->{last_time_used} = time - origin_handicap;
+			return $item;
+		}
+
+	}#
+
 	$self->{items}->{$path} //= {};
 
-	my $res = pvt__res_key($width,$height);
+	my $res = res_key($width,$height);
 
-	$self->{items}->{$path}->{$res} //= $self->pvt__create_surf($path, $width, $height);
+	$self->{items}->{$path}->{$res} //= $self->create_surf($path, $width, $height);
 
 	$self->{items}->{$path}->{$res}->{last_time_used} = time;
 
@@ -99,191 +265,14 @@ sub garbage_collector
 	{
 		last if $self->{bytes_used} < $self->{max_bytes};
 
-		my $surf_bytes = pvt__surf_bytes($self->{items}->{$_->{filename}}->{$_->{res}}->{surf});
+		my $surf = $self->{items}->{$_->{filename}}->{$_->{res}}->{surf};
+		my $surf_bytes = $surf->pitch * $surf->height;
 		printf "freeing %.2f MB from $_->{filename} @ $_->{res}\n", $surf_bytes/(1024*1024)
 			if dbg 'cache,memory,gc';
 		$self->{bytes_used} -= $surf_bytes;
 		delete $self->{items}->{$_->{filename}}->{$_->{res}};
 		$self->{loaded_files} -= 1;
 	}
-}#
-
-
-sub pvt__res_key
-{my ($width, $height) = @_;
-	caller eq __PACKAGE__ or die;
-
-	sprintf "%05dx%05d", $width, $height;
-}#
-
-sub pvt__load_exif_preview
-{my ($path, $width, $height) = @_;
-	caller eq __PACKAGE__ or die;
-
-	state $exiftool //= Image::ExifTool->new;
-	$exiftool->Options(Binary => 1);
-	my $exif = $exiftool->ImageInfo($path);
-
-	my $tag = ($width<=160 && $height<=120) ? 'ThumbnailImage' : 'PreviewImage';
-	#FIXME: better method to do this (thumbnail size may vary)
-
-	say "using $tag" if dbg 'file';
-
-	if (defined $exif->{$tag}) {
-
-		my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
-
-		open F, '>', $tmp or die $!;
-		print F ${$exif->{$tag}};
-		close F;
-
-		my $surf = SDL::Surface->new(-name => $tmp);
-
-		unlink $tmp;
-
-		return ($surf, $exif);
-	}
-}#
-
-sub pvt__load_file
-{my ($path, $width, $height) = @_;
-# The $width and $height arguments are only a hint
-# to maybe load a thumbnail instead, if available (raw preview).
-# Returned surface is NOT scaled to $width x $height.
-
-	caller eq __PACKAGE__ or die;
-
-	say "loading $path"  if dbg;
-
-	my $item = {};
-	my $exif;
-
-	if ($path =~ m/\.cr2$/i) {
-		($item->{surf}, $exif) = pvt__load_exif_preview($path, $width, $height);
-	}
-	else {
-		$item->{surf} = eval { SDL::Surface->new(-name => $path) };
-
-		state $exiftool //= Image::ExifTool->new;
-		$exif = $exiftool->ImageInfo($path);
-	}
-
-	if ($exif) {
-		$item->{exif} = { map { $_ => $exif->{$_} } @{$args{exif_tags}} };
-		$item->{width}  //= $exif->{ExifImageWidth};
-		$item->{height} //= $exif->{ExifImageHeight};
-	}
-
-	if ($item->{surf}) {
-		$item->{width}  //= $item->{surf}->width;
-		$item->{height} //= $item->{surf}->height;
-	}
-
-	$item;
-}#
-
-sub pvt__get_dummy_surface
-{#{my}
-	caller eq __PACKAGE__ or die;
-
-	state $surf;
-
-	unless ($surf) {
-		say ':(';
-		$surf = SDL::Surface->new(-width => 256, -height => 256);
-		$surf->fill(
-			SDL::Rect->new(-width => 128, -height => 128, -x => 64, -y => 64),
-			SDL::Color->new(-r => 200, -g => 0, -b => 0),
-		);
-	}
-
-	return $surf;
-}#
-
-sub pvt__zoom
-{my ($surface, $zoom) = @_;
-	caller eq __PACKAGE__ or die;
-
-	die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
-		unless (ref($surface) and $surface->isa('SDL::Surface'));
-
-	my $tmp = SDL::Surface->new;
-	$$tmp = SDL::GFXZoom($$surface, $zoom, $zoom, 1);
-	return $tmp;
-}#
-
-sub pvt__surf_bytes  # estimate number of bytes used by the surface
-{my ($surf) = @_;
-	caller eq __PACKAGE__ or die;
-
-	$surf->pitch * $surf->height;
-}#
-
-sub pvt__create_surf
-{my ($self, $path, $width, $height) = @_;
-	caller eq __PACKAGE__ or die;
-
-	sub origin_handicap
-	{#{my ugly hack: 1 hour least-recently-used handicap}
-=explanation
-
-Surfaces used as source for a zoom should be more likely to be discarded.
-Current solution is to substract this value to the last_time_used.
-
-=cut
-		60*60
-	}#
-
-	sub add_picture
-	{my ($self, $path, $picture) = @_;
-
-		my $res = pvt__res_key($picture->{surf}->width, $picture->{surf}->height);
-		$self->{items}->{$path}->{$res} = $picture;
-		$self->{bytes_used} += pvt__surf_bytes($picture->{surf});
-		$self->{loaded_files} += 1;
-	}#
-
-	my $origin;
-	{#{my}
-		my $res = pvt__res_key($width,$height);
-
-		# First res larger than asked, or the largest one.
-		foreach (sort keys %{$self->{items}->{$path}}) {
-			$origin = $self->{items}->{$path}->{$_};
-			last if $_ gt $res;
-		}
-
-		# If none were loaded, create new.
-		unless (defined $origin) {
-
-			$origin = pvt__load_file($path,$width,$height);
-
-			if ($origin->{surf}) {
-				$self->add_picture($path, $origin);
-			}
-			else {
-				$origin->{surf} = pvt__get_dummy_surface;
-			}
-		}
-	}#
-
-	my $zoom = eval {
-		my $zoom_x =  $width  / $origin->{surf}->width;
-		my $zoom_y =  $height / $origin->{surf}->height;
-		(sort $zoom_x, $zoom_y)[0];
-	};
-
-	if ($zoom >= 1) {
-		return $origin;
-	}
-	else {
-		my $item = { %$origin };
-		$item->{surf} = pvt__zoom($origin->{surf}, $zoom);
-		$self->add_picture($path, $item);
-		$origin->{last_time_used} = time - origin_handicap;
-		return $item;
-	}
-
 }#
 
 1;
