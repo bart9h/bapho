@@ -155,25 +155,27 @@ sub pvt__load_file
 	say "loading $path"  if dbg;
 
 	my $item = {};
+	my $exif;
 
 	if ($path =~ m/\.cr2$/i) {
-		my ($surf, $exif) = pvt__load_exif_preview($path, $width, $height);
-		$item = {
-			surf   => $surf,
-			width  => $exif->{ExifImageWidth},
-			height => $exif->{ExifImageHeight},
-			exif   => { map { $_ => $exif->{$_} } @{$args{exif_tags}} },
-		};
+		($item->{surf}, $exif) = pvt__load_exif_preview($path, $width, $height);
 	}
 	else {
 		$item->{surf} = eval { SDL::Surface->new(-name => $path) };
-		if ($item->{surf}) {
-			$item->{width}  = $item->{surf}->width;
-			$item->{height} = $item->{surf}->height;
-		}
 
-		my $exif = Image::ExifTool->new;
-		$item->{exif} = $exif->ImageInfo($path);
+		state $exiftool //= Image::ExifTool->new;
+		$exif = $exiftool->ImageInfo($path);
+	}
+
+	if ($exif) {
+		$item->{exif} = { map { $_ => $exif->{$_} } @{$args{exif_tags}} };
+		$item->{width}  //= $exif->{ExifImageWidth};
+		$item->{height} //= $exif->{ExifImageHeight};
+	}
+
+	if ($item->{surf}) {
+		$item->{width}  //= $item->{surf}->width;
+		$item->{height} //= $item->{surf}->height;
 	}
 
 	$item;
