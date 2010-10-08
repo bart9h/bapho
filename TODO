@@ -2,14 +2,16 @@
 Poor man's issue tracker
 ------------------------
 
+Bugs:
 
-Missing features:
-
-* Handle video files.
+* Video support is not implemented.
   * Press a key to play with external player.
   * Display a frame or thumbnail as image.
   * [!!!] How to handle the lack of timestamp metadata when importing?
     * one possibility: ask user, providing a guess based on other files on the same import batch.
+
+
+Missing features:
 
 * Interface to define new views (edit in/out filters).
 
