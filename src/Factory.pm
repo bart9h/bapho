@@ -120,37 +120,38 @@ sub pvt__load_exif_preview
 {my ($path, $width, $height) = @_;
 	caller eq __PACKAGE__ or die;
 
-	my $exif = Image::ExifTool->new;
-	$exif->Options(Binary => 1);
-	my $info = $exif->ImageInfo($path);
+	state $exiftool //= Image::ExifTool->new;
+	$exiftool->Options(Binary => 1);
+	my $exif = $exiftool->ImageInfo($path);
 
 	my $tag = ($width<=160 && $height<=120) ? 'ThumbnailImage' : 'PreviewImage';
 	#FIXME: better method to do this (thumbnail size may vary)
 
 	say "using $tag" if dbg 'file';
 
-	if (defined $info->{$tag}) {
+	if (defined $exif->{$tag}) {
 
 		my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
 
 		open F, '>', $tmp or die $!;
-		print F ${$info->{$tag}};
+		print F ${$exif->{$tag}};
 		close F;
 
 		my $surf = SDL::Surface->new(-name => $tmp);
 
 		unlink $tmp;
 
-		return ($surf, $info);
+		return ($surf, $exif);
 	}
 }#
 
 sub pvt__load_file
 {my ($path, $width, $height) = @_;
-	caller eq __PACKAGE__ or die;
+# The $width and $height arguments are only a hint
+# to maybe load a thumbnail instead, if available (raw preview).
+# Returned surface is NOT scaled to $width x $height.
 
-	# width,height is only a hint to load the thumbnail instead,
-	# when available (.cr2).  Returned surface is not scaled.
+	caller eq __PACKAGE__ or die;
 
 	say "loading $path"  if dbg;
 
