@@ -118,8 +118,7 @@ sub pvt__display_info
 	$self->{text}->home;
 	my $view = $self->{views}->[0];
 
-	$view->pic->{sel} =~ m{^.*/([^./]+)\.(.*)$};
-	my ($name, $ext) = ($1, $2);
+	$view->pic->{sel} =~ m{^.*/(?<name>[^./]+)\.(?<ext>.*)$};
 
 	my $str = ''; #join '/', $view->{cursor}+1, scalar @{$view->{ids}};
 	my $s = $view->{cur_surf};
@@ -131,8 +130,8 @@ sub pvt__display_info
 
 	my $v = scalar @{$self->{views}};
 	$self->pvt__print(
-		font=>0, text=>$name,
-		font=>1, text=>".$ext  $str",
+		font=>0, text=>$+{name},
+		font=>1, text=>".$+{ext}  $str",
 		$view->pic->{tags}->get('_star')   ? (font=>0, text=>'  (*)') : (),
 		$view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 		$v>1 ? (font=>0, text=>"  [$v views]") : (),
