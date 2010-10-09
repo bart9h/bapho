@@ -37,12 +37,12 @@ sub add
 	$self->{files}->{$path} = 1;
 
 	given ($+{ext}) {
-		when (/^tags$/) {
+		when (/^tags$/i) {
 			$self->{tags}->add($path);
 		}
 	}
 
-	if (Array::find($args{pic_extensions}, $+{ext})) {
+	if (Array::find($args{pic_extensions}, lc $+{ext})) {
 		$self->{sel} = $path
 			if not defined $self->{sel}
 			or -M $path < -M $self->{sel};
