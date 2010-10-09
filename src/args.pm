@@ -51,6 +51,19 @@ our %args = (
 		],
 );
 
+sub dbg
+{#
+	my ($tags) = @_;
+
+	return 0 unless defined $args{verbose};
+	return 1 unless $tags;
+	foreach my $a (split /,/, $args{verbose}) {
+	foreach my $b (split /,/, $tags) {
+		return 1 if $a eq $b
+	}}
+	0;
+}#
+
 sub state_filename
 {#
 	$args{basedir}.'/.bapho-state';
@@ -133,6 +146,8 @@ sub save_state
 
 sub load_state
 {#
+	say "loading state file ".state_filename if dbg 'file';
+
 	unless (open F, state_filename) {
 		printf "<%s: $!\n", state_filename;
 		return;
@@ -145,18 +160,6 @@ sub load_state
 	}
 
 	close F;
-}#
-
-sub dbg
-{my ($tags) = @_;
-
-	return 0 unless defined $args{verbose};
-	return 1 unless $tags;
-	foreach my $a (split /,/, $args{verbose}) {
-	foreach my $b (split /,/, $tags) {
-		return 1 if $a eq $b
-	}}
-	0;
 }#
 
 

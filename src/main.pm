@@ -9,7 +9,7 @@ use Data::Dumper;
 
 use SDL::App;
 
-use args qw/%args/;
+use args qw/%args dbg/;
 use Array;
 use display;
 use Factory;
@@ -414,7 +414,7 @@ sub handle_event
 			);
 		}
 		when ($_ == SDL_VIDEORESIZE()) {
-			say 'resizing to '.join('x',$event->resize_w,$event->resize_h) if $args{verbose};
+			say 'resizing to '.join('x',$event->resize_w,$event->resize_h) if dbg;
 			$self->{app}->resize($event->resize_w, $event->resize_h);
 			$self->{dirty} = 1;
 		}

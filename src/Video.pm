@@ -16,7 +16,7 @@ sub load_sample_frame
 	my $framefile = "$tmpdir/00000001.jpg";
 
 	my $cmd = "mplayer -frames 1 -ss 00:00:01 -vo jpeg:maxfiles=1:outdir=\"$tmpdir\" -ao null \"$videofile\"";
-	say $cmd if $args{verbose};
+	say $cmd if dbg 'cmd,video,file';
 	$cmd .= ' >/dev/null 2>/dev/null';
 	system $cmd;
 

@@ -7,7 +7,7 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
-use args qw/%args/;
+use args qw/%args dbg/;
 
 #}#
 
@@ -36,7 +36,7 @@ sub exif2path
 	}
 
 	unless (defined $date_key) {
-		warn "bad exif in \"$source_file\"".($args{verbose} ? ($exif->{Error} // Dumper $exif) : '')."\n";
+		warn "bad exif in \"$source_file\"".(dbg() ? ($exif->{Error} // Dumper $exif) : '')."\n";
 		return undef;
 	}
 
@@ -46,7 +46,7 @@ sub exif2path
 	foreach ($year, $mon, $mday) {
 		if (not defined $_  or  $_ <= 0) {
 			warn "invalid exif date in \"$source_file\"\n";
-			warn Dumper $exif  if $args{verbose};
+			warn Dumper $exif  if dbg;
 			return undef;
 		}
 	}
