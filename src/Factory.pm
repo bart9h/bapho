@@ -108,13 +108,10 @@ sub get
 			my $item = {};
 			my $exif;
 
-			$path =~ m{\.([^.]+)$} or die;
-			my $ext = lc $1;
-
-			if ($ext eq 'cr2') {
+			if ($path =~ m{\.cr2$}) {
 				($item->{surf}, $exif) = load_exif_preview($path, $width, $height);
 			}
-			elsif (Array::find ($args{vid_extensions}, $ext)) {
+			elsif (Picture::is_vid($path)) {
 				$item->{surf} = Video::load_sample_frame($path);
 			}
 			else {
