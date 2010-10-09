@@ -28,6 +28,7 @@ our %args = (
 		import => undef,
 		cache_size_mb => undef,
 		pic_extensions => [ qw/jpg tif png cr2/ ],
+		vid_extensions => [ qw/mpg avi mkv mp4 flv/ ],
 		exif_tags => [
 		#{#
 			qw/

@@ -42,7 +42,11 @@ sub add
 		}
 	}
 
-	if (Array::find($args{pic_extensions}, lc $+{ext})) {
+	if (Array::find([
+				@{$args{pic_extensions}},
+				@{$args{vid_extensions}}
+			], lc $+{ext}))
+	{
 		$self->{sel} = $path
 			if not defined $self->{sel}
 			or -M $path < -M $self->{sel};
