@@ -74,6 +74,14 @@ sub develop
 	}
 }#
 
+sub play
+{my ($self) = @_;
+
+	if ($self->is_vid) {
+		Video::play($self->{sel});
+	}
+}#
+
 sub pvt__is_pic_or_vid
 {my ($type, $self_or_path) = @_;
 

@@ -30,5 +30,13 @@ sub load_sample_frame
 	$surf;
 }#
 
+sub play
+{my ($videofile) = @_;
+
+	my $cmd = "mplayer \"$videofile\" &";
+	say $cmd if dbg;
+	system $cmd;
+}#
+
 1;
 # vim600:fdm=marker:fmr={my,}#:

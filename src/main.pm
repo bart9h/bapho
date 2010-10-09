@@ -347,6 +347,10 @@ sub do
 				keys => [ 'delete' ],
 				code => sub { $view->delete_current },
 			},
+			play => {
+				keys => [ 'enter', 'return' ],
+				code => sub { $view->pic->play },
+			},
 		}), #}#
 
 		add_tag_to_actions('menu',
