@@ -57,6 +57,7 @@ sub dbg
 
 	return 0 unless defined $args{verbose};
 	return 1 unless $tags;
+	return 1 if $args{verbose} eq 'all';
 	foreach my $a (split /,/, $args{verbose}) {
 	foreach my $b (split /,/, $tags) {
 		return 1 if $a eq $b
