@@ -27,6 +27,8 @@ sub dirty { $dirty = 1 }
 sub new
 {my ($class, $path, $jaildir) = @_;
 
+	$path or die;
+
 	$path =~ s{/$}{};
 
 	bless my $self = {
