@@ -106,7 +106,7 @@ sub pvt__build_pic
 		}
 	}
 
-	for(;;) { # Then seek backwards again
+	for(;;) { # Then seek forward again
 
 		# collecing the files
 		$self->{pic}->add($self->{itr}->path);
