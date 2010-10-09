@@ -29,20 +29,15 @@ sub add
 
 	die 'duplicate file'  if exists $self->{files}->{$path};
 
-	unless ($path =~ m{^.*/[^.]+\.(?<ext>[^/]+)}) {
-		warn "invalid filename \"$path\"\n";
-		return;
-	}
-
 	$self->{files}->{$path} = 1;
 
-	given ($+{ext}) {
-		when (/^tags$/i) {
+	given ($path) {
+		when (/\.tags$/i) {
 			$self->{tags}->add($path);
 		}
 	}
 
-	if (Array::find($args{pic_extensions}, lc $+{ext})) {
+	if (is_pic($path) or is_vid($path)) {
 		$self->{sel} = $path
 			if not defined $self->{sel}
 			or -M $path < -M $self->{sel};
@@ -67,19 +62,40 @@ sub develop
 	my $file = $self->guess_source;
 
 	my $cmd;
-	given ($file) {
-		when (/\.(cr2|ufraw)$/i) {
-			$cmd = "ufraw";
-		}
-		default {
-			$cmd = "gimp";
-		}
+	if ($file =~ m{\.(ufraw|cr2)$}i) {
+		$cmd = "ufraw";
+	}
+	elsif (is_pic($file)) {
+		$cmd = "gimp";
 	}
 	if (defined $cmd) {
 		say $cmd if dbg;
 		system "$cmd $file &";
 	}
 }#
+
+sub play
+{my ($self) = @_;
+
+	if ($self->is_vid) {
+		Video::play($self->{sel});
+	}
+}#
+
+sub pvt__is_pic_or_vid
+{my ($type, $self_or_path) = @_;
+
+	my $x = $self_or_path;
+	my $path = ref $x ? $x->{sel} : $x;
+
+	$path =~ m{\.([^.]+)$} or die;
+	my $ext = lc $1;
+
+	Array::find($args{$type.'_extensions'}, $ext);
+}#
+
+sub is_pic { pvt__is_pic_or_vid('pic', @_) }
+sub is_vid { pvt__is_pic_or_vid('vid', @_) }
 
 sub delete
 {my ($self) = @_;

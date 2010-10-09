@@ -7,6 +7,7 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
+use Video;
 use SDL::Surface;
 use Image::ExifTool;
 
@@ -107,8 +108,11 @@ sub get
 			my $item = {};
 			my $exif;
 
-			if ($path =~ m/\.cr2$/i) {
+			if ($path =~ m{\.cr2$}) {
 				($item->{surf}, $exif) = load_exif_preview($path, $width, $height);
+			}
+			elsif (Picture::is_vid($path)) {
+				$item->{surf} = Video::load_sample_frame($path);
 			}
 			else {
 				$item->{surf} = eval { SDL::Surface->new(-name => $path) };

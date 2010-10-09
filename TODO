@@ -5,12 +5,6 @@ Poor man's issue tracker
 
 Missing features:
 
-* Handle video files.
-  * Press a key to play with external player.
-  * Display a frame or thumbnail as image.
-  * [!!!] How to handle the lack of timestamp metadata when importing?
-    * one possibility: ask user, providing a guess based on other files on the same import batch.
-
 * Interface to define new views (edit in/out filters).
 
 * Cycle through multiple files of a picture.
@@ -54,6 +48,8 @@ Enhancements:
 
 * Option to import then run the gui showing only the just-imported pics.
 
+* [!!!] How to handle the lack of timestamp metadata when importing?
+	* one possibility: ask user, providing a guess based on other files on the same import batch.
 
 Optimizations:
 
