@@ -70,14 +70,15 @@ sub develop
 
 	my $file = $self->guess_source;
 
+	$file =~ m{\.([^.]+)$} or die;
+	my $ext = lc $1;
+
 	my $cmd;
-	given ($file) {
-		when (/\.(cr2|ufraw)$/i) {
-			$cmd = "ufraw";
-		}
-		default {
-			$cmd = "gimp";
-		}
+	if ($ext eq 'ufraw' or $ext eq 'cr2') {
+		$cmd = "ufraw";
+	}
+	elsif (Array::find($args{pic_extensions}, $ext)) {
+		$cmd = "gimp";
 	}
 	if (defined $cmd) {
 		say $cmd if dbg;
