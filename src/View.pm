@@ -25,6 +25,8 @@ sub new
 		page_cursor => 0,
 	};
 
+	$self->seek('+1') unless $self->pvt__filter;
+
 	return $self;
 }#
 
