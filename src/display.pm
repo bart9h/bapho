@@ -92,14 +92,13 @@ sub pvt__display_thumbnails
 	($view->{cols}, $view->{rows}) = (int($W/($d/$n)), int($H/($d/$n)));
 	my ($w, $h) = (int($W/$view->{cols}), int($H/$view->{rows}));  # thumbnail area
 
-	my $i = $view->{picitr};
-	$i = $i->prev foreach (1 .. $view->{page_cursor});
+	my @pics = $view->page_pics;
 	THUMB: foreach my $y (0 .. $view->{rows}-1) {
 		foreach my $x (0 .. $view->{cols}-1) {
-			$self->pvt__display_pic($i->{pic},
+			my $pic = shift @pics or last THUMB;
+			$self->pvt__display_pic($pic,
 				$w, $h, $x*$w, $y*$h,
-				$i->{pic}->{id} eq $view->{picitr}->{pic}->{id});
-			$i = $i->next  or last THUMB;
+				$pic->{id} eq $view->{picitr}->{pic}->{id});
 		}
 	}
 }#

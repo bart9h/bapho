@@ -32,6 +32,19 @@ sub new
 
 sub pic { $_[0]->{picitr}->{pic} }
 
+sub page_pics
+{my ($self) = @_;
+
+	my @pics = ();
+	my $i = $self->{picitr};
+	$i = $i->prev foreach (1 .. $self->{page_cursor});
+	foreach (1 .. $self->{rows} * $self->{cols}) {
+		push @pics, $i->{pic};
+		$i = $i->next  or last;
+	}
+	return @pics;
+}#
+
 sub delete_current
 {my ($self) = @_;
 
