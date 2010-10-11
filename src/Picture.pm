@@ -82,21 +82,6 @@ sub play
 	}
 }#
 
-sub pvt__is_pic_or_vid
-{my ($type, $self_or_path) = @_;
-
-	my $x = $self_or_path;
-	my $path = ref $x ? $x->{sel} : $x;
-
-	$path =~ m{\.([^.]+)$} or die;
-	my $ext = lc $1;
-
-	Array::find($args{$type.'_extensions'}, $ext);
-}#
-
-sub is_pic { pvt__is_pic_or_vid('pic', @_) }
-sub is_vid { pvt__is_pic_or_vid('vid', @_) }
-
 sub delete
 {my ($self) = @_;
 
@@ -110,6 +95,22 @@ sub delete
 	foreach (keys %{$self->{files}}) {
 		print `mv -v "$_" "$trash/"`;
 	}
+}#
+
+sub is_pic { pvt__is_pic_or_vid('pic', @_) }
+sub is_vid { pvt__is_pic_or_vid('vid', @_) }
+
+sub pvt__is_pic_or_vid
+{my ($type, $self_or_path) = @_;
+caller eq __PACKAGE__ or die;
+
+	my $x = $self_or_path;
+	my $path = ref $x ? $x->{sel} : $x;
+
+	$path =~ m{\.([^.]+)$} or die;
+	my $ext = lc $1;
+
+	Array::find($args{$type.'_extensions'}, $ext);
 }#
 
 1;

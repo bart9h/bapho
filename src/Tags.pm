@@ -61,6 +61,7 @@ sub toggle
 
 sub pvt__set_tag
 {my ($self, $tag) = @_;
+caller eq __PACKAGE__ or die;
 
 	$self->{tags}->{$tag} = 1;
 	unless (defined $all_tags{$tag}) {
@@ -71,12 +72,14 @@ sub pvt__set_tag
 
 sub pvt__save_pic_tags
 {my ($self) = @_;
+caller eq __PACKAGE__ or die;
 
 	pvt__save_tags($self->{id}.'.tags', $self->{tags});
 }#
 
 sub pvt__save_tags
 {my ($filename, $tags) = @_;
+caller eq __PACKAGE__ or die;
 
 	unless ($args{nop}) {
 
@@ -95,6 +98,7 @@ sub pvt__save_tags
 
 sub pvt__read_tags
 {my ($filename) = @_;
+caller eq __PACKAGE__ or die;
 	wantarray or die;
 
 	if (open F, $filename) {

@@ -85,6 +85,7 @@ sub seek
 
 sub pvt__seek
 {my ($self, $dir) = @_;
+caller eq __PACKAGE__ or die;
 
 	if ($dirty) {
 		$self->pvt__find($self->{files}->[$self->{cursor}]);
@@ -106,6 +107,7 @@ sub pvt__seek
 
 sub pvt__up
 {my ($self) = @_;
+caller eq __PACKAGE__ or die;
 
 	my $base = $self->{jaildir};
 	$base =~ s{/$}{};
@@ -116,6 +118,7 @@ sub pvt__up
 
 sub pvt__down
 {my ($self, $dir) = @_;
+caller eq __PACKAGE__ or die;
 
 	while (-d $self->path) {
 		$self->{parent} = $self->path;
@@ -133,6 +136,7 @@ sub pvt__down
 
 sub pvt__find
 {my ($self, $name) = @_;
+caller eq __PACKAGE__ or die;
 
 	$self->pvt__readdir;
 
@@ -153,6 +157,7 @@ sub pvt__find
 
 sub pvt__readdir
 {my ($self) = @_;
+caller eq __PACKAGE__ or die;
 
 	if (opendir(my $dh, $self->{parent})) {
 		$self->{files} = [

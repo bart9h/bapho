@@ -44,8 +44,6 @@ sub new
 		chomp $file;
 		-f $file  or die "$file not found";
 
-
-		my $f;
 		push @{$self->{fonts}}, {
 			fill => SDL::TTFont->new(
 				-name => $file,

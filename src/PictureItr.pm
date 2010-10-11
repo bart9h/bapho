@@ -70,6 +70,7 @@ sub path2id
 
 sub pvt__init
 {my ($self, $path) = @_;
+caller eq __PACKAGE__ or die;
 
 	$self->{itr} = FileItr->new($path, $self->{jaildir});
 
@@ -89,6 +90,7 @@ sub pvt__init
 
 sub pvt__build_pic
 {my ($self) = @_;
+caller eq __PACKAGE__ or die;
 
 	$self->{pic} = Picture::new($self->{id});
 

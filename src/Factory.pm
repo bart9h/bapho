@@ -58,14 +58,12 @@ sub get
 
 	sub res_key
 	{my ($width, $height) = @_;
-		caller eq __PACKAGE__ or die;
 
 		sprintf "%05dx%05d", $width, $height;
 	}#
 
 	sub create_surf
 	{my ($self, $path, $width, $height) = @_;
-		caller eq __PACKAGE__ or die;
 
 		sub load_exif_preview
 		{my ($path, $width, $height) = @_;
@@ -100,8 +98,6 @@ sub get
 		# The $width and $height arguments are only a hint
 		# to maybe load a thumbnail instead, if available (raw preview).
 		# Returned surface is NOT scaled to $width x $height.
-
-			caller eq __PACKAGE__ or die;
 
 			say "loading $path"  if dbg;
 
@@ -172,7 +168,6 @@ sub get
 
 		sub zoom
 		{my ($surface, $zoom) = @_;
-			caller eq __PACKAGE__ or die;
 
 			die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
 				unless (ref($surface) and $surface->isa('SDL::Surface'));

@@ -67,18 +67,6 @@ sub adjust_page_and_cursor
 	}
 }#
 
-sub pvt__filter
-{my ($self) = @_;
-
-	foreach (@{$self->{ins}}) {
-		return 0 unless $self->pic->{tags}->get($_);
-	}
-	foreach (@{$self->{outs}}) {
-		return 0 if     $self->pic->{tags}->get($_);
-	}
-	1;
-}#
-
 sub seek
 {my ($self, $dir) = @_;
 
@@ -130,6 +118,19 @@ sub seek_file
 	until ($self->pvt__filter) {
 		$self->{picitr}->seek(1);
 	}
+}#
+
+sub pvt__filter
+{my ($self) = @_;
+caller eq __PACKAGE__ or die;
+
+	foreach (@{$self->{ins}}) {
+		return 0 unless $self->pic->{tags}->get($_);
+	}
+	foreach (@{$self->{outs}}) {
+		return 0 if     $self->pic->{tags}->get($_);
+	}
+	1;
 }#
 
 1;
