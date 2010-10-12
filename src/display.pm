@@ -71,7 +71,20 @@ sub display
 			);
 		}#
 
+		sub render_mark
+		{#{my}
+
+			my $b = 8;
+			my $r = SDL::Rect->new(-x => $x+$w-1-6*$b, -y => $y+$b, -width => 5*$b, -height => 5*$b);
+			$self->{app}->fill($r, $SDL::Color::white);
+			$r->x($x+$w-1-5*$b); $r->y($y+3*$b); $r->w(3*$b); $r->h($b);
+			$self->{app}->fill($r, $SDL::Color::black);
+			$r->x($x+$w-1-4*$b); $r->y($y+2*$b); $r->w($b); $r->h(3*$b);
+			$self->{app}->fill($r, $SDL::Color::black);
+		}#
+
 		render_cursor  if $is_selected;
+		render_mark    if $view->is_marked($pic->{id});
 	}#
 
 	sub render_thumbnails

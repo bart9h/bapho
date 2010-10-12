@@ -319,6 +319,10 @@ sub do
 
 		add_tag_to_actions('pic',
 		{#{my}
+			mark_toggle => {
+				keys => [ 'x' ],
+				code => sub { $view->toggle_mark },
+			},
 			edit_file => {
 				keys => [ 'control-d' ],
 				code => sub { $view->pic->develop },

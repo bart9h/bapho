@@ -23,6 +23,7 @@ sub new
 		cols        => 1,
 		zoom        => 1,
 		page_cursor => 0,
+		marks       => {},
 	};
 
 	$self->seek('+1') unless $self->pvt__filter;
@@ -52,6 +53,20 @@ sub page_pics
 		$i = $i->next  or last;
 	}
 	return @pics;
+}#
+
+sub is_marked { exists $_[0]->{marks}->{ $_[1] // $_[0]->pic->{id} } }
+
+sub toggle_mark
+{my ($self) = @_;
+
+	my $id = $self->pic->{id};
+	if (exists $self->{marks}->{$id}) {
+		delete $self->{marks}->{$id};
+	}
+	else {
+		$self->{marks}->{$id} = 1;
+	}
 }#
 
 sub delete_current
