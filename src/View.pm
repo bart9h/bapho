@@ -55,18 +55,14 @@ sub page_pics
 	return @pics;
 }#
 
-sub is_marked { exists $_[0]->{marks}->{ $_[1] // $_[0]->pic->{id} } }
+sub is_marked { $_[0]->{marks}->{ $_[1] // $_[0]->pic->{id} } }
 
 sub toggle_mark
 {my ($self) = @_;
 
 	my $id = $self->pic->{id};
-	if (exists $self->{marks}->{$id}) {
-		delete $self->{marks}->{$id};
-	}
-	else {
-		$self->{marks}->{$id} = 1;
-	}
+	 $self->{marks}->{$id} =
+	!$self->{marks}->{$id}
 }#
 
 sub toggle_mark_page
@@ -82,14 +78,7 @@ sub toggle_mark_page
 	}
 
 	foreach (@pics) {
-		my $id = $_->{id};
-		if ($mark) {
-			$self->{marks}->{$id} = 1;
-		}
-		else {
-			delete    $self->{marks}->{$id}
-			if exists $self->{marks}->{$id};
-		}
+		$self->{marks}->{$_->{id}} = $mark;
 	}
 }#
 
