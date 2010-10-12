@@ -323,6 +323,10 @@ sub do
 				keys => [ 'x' ],
 				code => sub { $view->toggle_mark },
 			},
+			mark_toggle_all_visible => {
+				keys => [ 'shift-x' ],
+				code => sub { $view->toggle_mark_page },
+			},
 			edit_file => {
 				keys => [ 'control-d' ],
 				code => sub { $view->pic->develop },

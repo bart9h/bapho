@@ -69,6 +69,30 @@ sub toggle_mark
 	}
 }#
 
+sub toggle_mark_page
+{my ($self) = @_;
+
+	my @pics = $self->page_pics;
+
+	my $mark = 0;
+	foreach (@pics) {
+		next if $self->is_marked($_->{id});
+		$mark = 1;
+		last;
+	}
+
+	foreach (@pics) {
+		my $id = $_->{id};
+		if ($mark) {
+			$self->{marks}->{$id} = 1;
+		}
+		else {
+			delete    $self->{marks}->{$id}
+			if exists $self->{marks}->{$id};
+		}
+	}
+}#
+
 sub delete_current
 {my ($self) = @_;
 
