@@ -62,7 +62,11 @@ sub load_sample_frame
 sub play
 {my ($videofile) = @_;
 
-	my $cmd = "mplayer \"$videofile\" &";
+	my $cmd = join ' ',
+		'mplayer',
+		$args{fullscreen} ? ('-fs') : (),
+		"\"$videofile\"",
+		'&';
 	say $cmd if dbg;
 	system $cmd;
 }#
