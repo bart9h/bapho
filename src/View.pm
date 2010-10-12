@@ -37,7 +37,16 @@ sub page_pics
 
 	my @pics = ();
 	my $i = $self->{picitr};
-	$i = $i->prev foreach (1 .. $self->{page_cursor});
+	foreach (1 .. $self->{page_cursor}) {
+		my $p = $i->prev;
+		if ($p) {
+			$i = $p;
+		}
+		else {
+			$self->{page_cursor} = 0;
+			last;
+		}
+	}
 	foreach (1 .. $self->{rows} * $self->{cols}) {
 		push @pics, $i->{pic};
 		$i = $i->next  or last;
