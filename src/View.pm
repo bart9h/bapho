@@ -32,6 +32,8 @@ sub new
 }#
 
 sub pic { $_[0]->{picitr}->{pic} }
+sub is_marked { exists $_[0]->{marks}->{ $_[1]->{id} // $_[0]->pic->{id} } }
+sub toggle_mark { $_[0]->set_mark(!$_[0]->is_marked); }
 
 sub page_pics
 {my ($self) = @_;
@@ -55,14 +57,17 @@ sub page_pics
 	return @pics;
 }#
 
-sub is_marked { $_[0]->{marks}->{ $_[1] // $_[0]->pic->{id} } }
+sub set_mark
+{my ($self, $mark, @pics) = @_;
 
-sub toggle_mark
-{my ($self) = @_;
-
-	my $id = $self->pic->{id};
-	 $self->{marks}->{$id} =
-	!$self->{marks}->{$id}
+	foreach ((scalar @pics) ? (@pics) : ($self->pic)) {
+		if (exists $self->{marks}->{$_->{id}}) {
+			delete $self->{marks}->{$_->{id}} unless $mark;
+		}
+		else {
+			$self->{marks}->{$_->{id}} = $_ if $mark;
+		}
+	}
 }#
 
 sub toggle_mark_page
@@ -72,14 +77,12 @@ sub toggle_mark_page
 
 	my $mark = 0;
 	foreach (@pics) {
-		next if $self->is_marked($_->{id});
+		next if $self->is_marked($_);
 		$mark = 1;
 		last;
 	}
 
-	foreach (@pics) {
-		$self->{marks}->{$_->{id}} = $mark;
-	}
+	$self->set_mark($mark, @pics);
 }#
 
 sub delete_current

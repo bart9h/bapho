@@ -89,7 +89,7 @@ sub display
 		}#
 
 		render_cursor  if $is_selected;
-		render_mark    if $view->is_marked($pic->{id});
+		render_mark    if $view->is_marked($pic);
 	}#
 
 	sub render_thumbnails
