@@ -27,15 +27,14 @@ sub new
 sub add
 {my ($self, $path) = @_;
 
-	die 'duplicate file'  if exists $self->{files}->{$path};
+	if ($path =~ /\.tags$/i) {
+		$self->{tags}->add($path);
+	}
+	else {
+		die "duplicate file $path" if exists $self->{files}->{$path};
+	}
 
 	$self->{files}->{$path} = 1;
-
-	given ($path) {
-		when (/\.tags$/i) {
-			$self->{tags}->add($path);
-		}
-	}
 
 	if (is_pic($path) or is_vid($path)) {
 		$self->{sel} = $path
