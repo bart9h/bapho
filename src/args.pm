@@ -8,7 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use base 'Exporter';
-our @EXPORT = qw(%args dbg);
+our @EXPORT = qw(%args dbg min max);
 
 #}#
 
@@ -163,6 +163,8 @@ sub load_state
 	close F;
 }#
 
+sub min { $_[0] < $_[1] ? $_[0] : $_[1] }
+sub max { $_[0] > $_[1] ? $_[0] : $_[1] }
 
 1;
 # vim600:fdm=marker:fmr={#,}#:
