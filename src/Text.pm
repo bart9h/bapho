@@ -74,7 +74,9 @@ sub print
 {my ($self, $surf, @args) = @_;
 
 	my $taller_font;
-	my $width = 2*$self->{border};
+	my $box_width;
+
+	$box_width += 2*$self->{border};
 	foreach my $mode ('layout', 'draw') {
 		for (my $i = 0;  $i < $#args;  $i += 2) {
 			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
@@ -102,7 +104,7 @@ sub print
 						$taller_font = $font
 							if not defined $taller_font
 							or $taller_font->height > $font->height;
-						$width += $w;
+						$box_width += $w;
 					}
 					else {
 						my $x0 = $self->{x};
@@ -124,11 +126,11 @@ sub print
 
 		if ($mode eq 'layout') {
 			my $height = .5*$self->{border} + $taller_font->height;
-			my $shade = SDL::Surface->new(-width => $width, -height => $height);
+			my $shade = SDL::Surface->new(-width => $box_width, -height => $height);
 			$shade->fill(0, $SDL::Color::black);
 			$shade->set_alpha(SDL::SDL_SRCALPHA, 0x40);
 			$shade->blit(0, $surf,
-				SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $width, -height => $height),
+				SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $box_width, -height => $height),
 			);
 		}
 	}
