@@ -187,7 +187,6 @@ sub do_menu
 						-e $filename or FileItr->dirty();
 						system "\$EDITOR $filename";
 						$self->pic->add($filename);
-						#$view->{collection}->update_tags;
 						$self->enter_tag_mode;
 						$self->display;
 					}

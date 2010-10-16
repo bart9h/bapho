@@ -107,7 +107,7 @@ caller eq __PACKAGE__ or die;
 
 sub pvt__up
 {my ($self) = @_;
-caller eq __PACKAGE__ or die;
+#caller eq __PACKAGE__ or die;  # View.pm uses this sub
 
 	my $base = $self->{jaildir};
 	$base =~ s{/$}{};
