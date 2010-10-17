@@ -47,8 +47,9 @@ sub do
 		when (/^(k|up)$/)            { $self->{cursor}-- }
 		when (/^(j|down)$/)          { $self->{cursor}++ }
 		when (/^(g-g|home)$/)        { $self->{cursor} = 0 }
-		when (/^(shift-g|end)$/)     { $self->{cursor} = $N - 1 }
+		when (/^(end)$/)             { $self->{cursor} = $N - 1 }
 		when (/^(q|escape|close)$/)  { $self->leave }
+		when (/^shift-([a-z0-9])$/)  { $self->pvt__jump($1) }
 		when (/^(l|space|enter|return)$/) {
 			$self->{activated} = $self->{items}->[$self->{cursor}];
 		}
@@ -61,6 +62,22 @@ sub do
 	$self->{cursor} = $N-1  if $self->{cursor} >= $N;
 
 	return 1;
+}#
+
+sub pvt__jump
+{my ($self, $char) = @_;
+	caller eq __PACKAGE__ or die;
+
+	my $i = $self->{cursor};
+	for(;;) {
+		++$i;
+		$i = 0 if $i >= scalar @{$self->{items}};
+		return if $i == $self->{cursor};
+		if ($self->{items}->[$i] =~ /^$char/) {
+			$self->{cursor} = $i;
+			return;
+		}
+	}
 }#
 
 1;
