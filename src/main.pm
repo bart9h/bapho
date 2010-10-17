@@ -332,7 +332,11 @@ sub do
 			},
 			print_files => {
 				keys => [ 'p' ],
-				code => sub { say join "\n", keys %{$view->pic->{files}} },
+				code => sub { say join("\n", keys %{$view->pic->{files}}) }
+			},
+			print_files_marked => {
+				keys => [ ';-p' ],
+				code => sub { say join("\n", keys %{$_->{files}}) foreach($view->marked_pics) }
 			},
 			toggle_star => {
 				keys => [ 's' ],
@@ -399,7 +403,7 @@ sub handle_event
 				$key = "$self->{key_hold}-$key";
 				$self->{key_hold} = '';
 			}
-			if ($key =~ /^[g]$/) {
+			if ($key =~ /^[g;]$/) {
 				$self->{key_hold} = $key;
 			}
 			else {

@@ -32,8 +32,9 @@ sub new
 }#
 
 sub pic { $_[0]->{picitr}->{pic} }
+sub marked_pics { map { $_[0]->{marks}->{$_} } keys %{$_[0]->{marks}} }
 sub is_marked { exists $_[0]->{marks}->{ $_[1]->{id} // $_[0]->pic->{id} } }
-sub toggle_mark { $_[0]->set_mark(!$_[0]->is_marked); }
+sub toggle_mark { $_[0]->set_mark(!$_[0]->is_marked) }
 
 sub page_pics
 {my ($self) = @_;
