@@ -120,9 +120,9 @@ sub print
 
 						$font->print($surf, $x0, $y0, $arg);
 						$self->{x} += $w;
+					}
 				}
-			}
-			default { die }
+				default { die }
 			}
 		}
 

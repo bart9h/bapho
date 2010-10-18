@@ -34,8 +34,11 @@ sub display
 		if ($self->{menu}->{action} eq 'tag_editor') {
 			$self->render_tag_editor;
 		}
-		elsif ($self->{info_modes}->[0] ne 'none') {
-			$self->render_info;
+		else {
+			my $mode = $self->{info_modes}->[0];
+			$self->render_title unless $mode eq 'none';
+			$mode eq 'tags' ? $self->render_tags :
+			$mode eq 'exif' ? $self->render_exif :1;
 		}
 	}#
 
@@ -109,7 +112,7 @@ sub display
 		}
 	}#
 
-	sub render_info
+	sub render_title
 	{my ($self) = @_;
 
 		$self->{text}->home;
@@ -133,26 +136,27 @@ sub display
 			$view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 			$v>1 ? (font=>0, text=>"  [$v views]") : (),
 		);
+	}#
 
-		given ($self->{info_modes}->[0]) {
-			when (/tags/) {
-				$self->print(font=>1, text=>'tags:');
-				$self->{text}->set_column;
-				$self->print(text=>$_)
-					foreach map { ' '.$_ } $view->pic->{tags}->get;
-			}
-			when (/exif/) {
-				$self->print(font=>1, text=>'exif:');
-				$self->{text}->set_column;
-				if (my $exif = $view->{cur_surf}->{exif}) {
-					$self->print(text => $_)
-						foreach map {
-							"  $_: $exif->{$_}"
-						} grep {
-							defined $exif->{$_} and not $exif->{$_} =~ /^Unknown \(0\)$/
-						} @{$args{exif_tags}};
-				}
-			}
+	sub render_tags
+	{my ($self) = @_;
+
+		$self->print(font=>1, text=>'tags:');
+		$self->{text}->set_column;
+		$self->print(text=>$_)
+			foreach map { ' '.$_ } $self->{views}->[0]->pic->{tags}->get;
+	}#
+
+	sub render_exif
+	{my ($self) = @_;
+
+		$self->print(font=>1, text=>'exif:');
+		if (my $exif = $self->{views}->[0]->{cur_surf}->{exif}) {
+			$self->{text}->set_column;
+			$self->print(text => $_)
+				foreach map { "  $_: $exif->{$_}" }
+				grep { defined $exif->{$_} and not $exif->{$_} =~ /^Unknown \(0\)$/ }
+				@{$args{exif_tags}};
 		}
 	}#
 
@@ -172,8 +176,8 @@ sub display
 
 		my $i = 0;
 		foreach (@{$self->{menu}->{items}}) {
-			my @C = split //, $i==$self->{menu}->{cursor}  ?  '[]' : '  ';  # cursor
-			my $T = $view->pic->{tags}->get($_)  ?  '*' : ' ';  # tag
+			my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
+			my $T = $view->pic->{tags}->get($_)? '*':' ';#tag
 			$self->print(text => $C[0].$T.$_.$T.$C[1]);
 			++$i;
 		}
