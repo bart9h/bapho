@@ -137,11 +137,13 @@ sub display
 		given ($self->{info_modes}->[0]) {
 			when (/tags/) {
 				$self->print(font=>1, text=>'tags:');
+				$self->{text}->set_column;
 				$self->print(text=>$_)
 					foreach map { ' '.$_ } $view->pic->{tags}->get;
 			}
 			when (/exif/) {
 				$self->print(font=>1, text=>'exif:');
+				$self->{text}->set_column;
 				if (my $exif = $view->{cur_surf}->{exif}) {
 					$self->print(text => $_)
 						foreach map {
@@ -166,6 +168,7 @@ sub display
 			font => 0,
 			text => 'EDIT TAGS for '.$+{name}.':',
 		);
+		$self->{text}->set_column;
 
 		my $i = 0;
 		foreach (@{$self->{menu}->{items}}) {

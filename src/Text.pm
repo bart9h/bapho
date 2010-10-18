@@ -7,15 +7,10 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
+use args qw/%args max/;
 use SDL::TTFont;
 
 #}#
-
-sub home
-{my ($self) = @_;
-
-	$self->{x} = $self->{y} = $self->{border};
-}#
 
 sub new
 {#{my}
@@ -68,6 +63,13 @@ sub new
 	}
 
 	$self;
+}#
+
+sub home
+{my ($self) = @_;
+
+	map { $self->{$_} = $self->{border} } qw/x y x0 y0 max_x/;
+	$self->set_column;
 }#
 
 sub print
@@ -130,14 +132,26 @@ sub print
 			$shade->fill(0, $SDL::Color::black);
 			$shade->set_alpha(SDL::SDL_SRCALPHA, 0x40);
 			$shade->blit(0, $surf,
-				SDL::Rect->new(-x => 0, -y => $self->{y}, -width => $box_width, -height => $height),
+				SDL::Rect->new(-x => $self->{x}-$self->{border}, -y => $self->{y}, -width => $box_width, -height => $height),
 			);
 		}
 	}
 
+	$self->{max_x} = max($self->{max_x}, $self->{x});
 	$self->{y} += $taller_font->height;
-	$self->{x} = $self->{border};
+	if ($self->{y}+$taller_font->height > $surf->height) {
+		$self->{y} = $self->{y0};
+		$self->{x0} = $self->{max_x} + $self->{border};
+		$self->{max_x} = 0;
+	}
+	$self->{x} = $self->{x0};
+}#
 
+sub set_column
+{my ($self, $surf, @args) = @_;
+
+	$self->{max_x} = 0;
+	$self->{y0} = $self->{y};
 }#
 
 #{my system sanity check
