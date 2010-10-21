@@ -26,3 +26,5 @@ Optional external tools:
 
 - any text editor (defined by the EDITOR environment variable) to enter new tags
 
+- MPlayer, to handle video
+  http://mplayerhq.hu/
