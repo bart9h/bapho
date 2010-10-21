@@ -23,7 +23,7 @@ sub new
 		cols        => 1,
 		zoom        => 1,
 		page_cursor => 0,
-		marks       => {},
+		selection   => {},
 	};
 
 	$self->seek('+1') unless $self->pvt__filter;
@@ -32,9 +32,9 @@ sub new
 }#
 
 sub pic { $_[0]->{picitr}->{pic} }
-sub marked_pics { map { $_[0]->{marks}->{$_} } keys %{$_[0]->{marks}} }
-sub is_marked { exists $_[0]->{marks}->{ $_[1]->{id} // $_[0]->pic->{id} } }
-sub toggle_mark { $_[0]->set_mark(!$_[0]->is_marked) }
+sub selected_pics { map { $_[0]->{selection}->{$_} } keys %{$_[0]->{selection}} }
+sub is_selected { exists $_[0]->{selection}->{ $_[1]->{id} // $_[0]->pic->{id} } }
+sub toggle_selection { $_[0]->set_selected(!$_[0]->is_selected) }
 
 sub page_pics
 {my ($self) = @_;
@@ -58,32 +58,32 @@ sub page_pics
 	return @pics;
 }#
 
-sub set_mark
-{my ($self, $mark, @pics) = @_;
+sub set_selected
+{my ($self, $selected, @pics) = @_;
 
 	foreach ((scalar @pics) ? (@pics) : ($self->pic)) {
-		if (exists $self->{marks}->{$_->{id}}) {
-			delete $self->{marks}->{$_->{id}} unless $mark;
+		if (exists $self->{selection}->{$_->{id}}) {
+			delete $self->{selection}->{$_->{id}} unless $selected;
 		}
 		else {
-			$self->{marks}->{$_->{id}} = $_ if $mark;
+			$self->{selection}->{$_->{id}} = $_ if $selected;
 		}
 	}
 }#
 
-sub toggle_mark_page
+sub toggle_selection_page
 {my ($self) = @_;
 
 	my @pics = $self->page_pics;
 
-	my $mark = 0;
+	my $selected = 0;
 	foreach (@pics) {
-		next if $self->is_marked($_);
-		$mark = 1;
+		next if $self->is_selected($_);
+		$selected = 1;
 		last;
 	}
 
-	$self->set_mark($mark, @pics);
+	$self->set_selected($selected, @pics);
 }#
 
 sub delete_current

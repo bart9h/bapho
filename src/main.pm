@@ -318,13 +318,13 @@ sub do
 
 		add_tag_to_actions('pic',
 		{#{my}
-			mark_toggle => {
+			selection_toggle => {
 				keys => [ 'x' ],
-				code => sub { $view->toggle_mark },
+				code => sub { $view->toggle_selection },
 			},
-			mark_toggle_all_visible => {
+			selection_toggle_all_visible => {
 				keys => [ 'shift-x' ],
-				code => sub { $view->toggle_mark_page },
+				code => sub { $view->toggle_selection_page },
 			},
 			edit_file => {
 				keys => [ 'control-d' ],
@@ -334,9 +334,9 @@ sub do
 				keys => [ 'p' ],
 				code => sub { say join("\n", keys %{$view->pic->{files}}) }
 			},
-			print_files_marked => {
+			print_files_selected => {
 				keys => [ ';-p' ],
-				code => sub { say join("\n", keys %{$_->{files}}) foreach($view->marked_pics) }
+				code => sub { say join("\n", keys %{$_->{files}}) foreach($view->selected_pics) }
 			},
 			toggle_star => {
 				keys => [ 's' ],

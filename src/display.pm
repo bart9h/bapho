@@ -43,7 +43,7 @@ sub display
 	}#
 
 	sub render_pic
-	{our ($self, $pic, $w, $h, $x, $y, $is_selected) = @_; #{my}
+	{our ($self, $pic, $w, $h, $x, $y, $is_cursor) = @_; #{my}
 
 		my $view = $self->{views}->[0];
 		my $surf = $self->{factory}->get($pic->{sel}, $w, $h);
@@ -74,7 +74,7 @@ sub display
 			);
 		}#
 
-		sub render_mark
+		sub render_selection
 		{#{my}
 
 			my $b = 3;
@@ -88,8 +88,8 @@ sub display
 			$self->{app}->fill($r, $SDL::Color::black);
 		}#
 
-		render_cursor  if $is_selected;
-		render_mark    if $view->is_marked($pic);
+		render_cursor     if $is_cursor;
+		render_selection  if $view->is_selected($pic);
 	}#
 
 	sub render_thumbnails
