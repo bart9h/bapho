@@ -32,6 +32,7 @@ our %args = (
 		exif_tags => [
 		#{#
 			qw/
+				DateTimeOriginal
 				Model
 				LensID
 				ISO
