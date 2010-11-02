@@ -104,10 +104,6 @@ sub load_state
 		$_->seek_file($args{cursor_file}, $self->{jaildir})
 			foreach @{$self->{views}};
 	}
-
-	if (defined $args{info_mode}) {
-		Array::find ($self->{info_modes}, $args{info_mode});
-	}
 }#
 
 sub save_state
@@ -116,7 +112,8 @@ sub save_state
 	#TODO: save all views
 	args::save_state {
 		cursor_file => $self->{cursor_file} // $self->pic->{sel},
-		info_mode   => $self->{info_modes}->[0],
+		info_toggle => $args{info_toggle},
+		exif_toggle => $args{exif_toggle},
 	}
 }#
 
@@ -241,7 +238,16 @@ sub do
 			},
 			info_toggle => {
 				keys => [ 'i' ],
-				code => sub { Array::rotate $app->{info_modes} },
+				code => sub {
+					$args{info_toggle} = !$args{info_toggle};
+					$args{exif_toggle} = 0;
+				},
+			},
+			exif_toggle => {
+				keys => [ 'e' ],
+				code => sub {
+					$args{exif_toggle} = !$args{exif_toggle};
+				},
 			},
 		}), #}#
 
@@ -469,7 +475,8 @@ sub new
 		dirty      => 1,
 
 		# rendering state
-		info_modes => [ qw/none title tags exif/ ],
+		info_toggle => 1,
+		exif_toggle => 0,
 		text => Text::new(
 			'Bitstream Vera Sans Mono:20',
 			':18',

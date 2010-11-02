@@ -34,11 +34,13 @@ sub display
 		if ($self->{menu}->{action} eq 'tag_editor') {
 			$self->render_tag_editor;
 		}
-		else {
-			my $mode = $self->{info_modes}->[0];
-			$self->render_title unless $mode eq 'none';
-			$mode eq 'tags' ? $self->render_tags :
-			$mode eq 'exif' ? $self->render_exif :1;
+		elsif ($args{exif_toggle}) {
+			$self->render_title;
+			$self->render_exif;
+		}
+		elsif ($args{info_toggle}) {
+			$self->render_title;
+			$self->render_tags;
 		}
 	}#
 
