@@ -11,14 +11,11 @@ sub rotate
 sub find
 {my ($array_ref, $needle) = @_;
 
-	foreach (@$array_ref) {
-		if ($_ eq $needle) {
-			rotate $array_ref until $array_ref->[0] eq $needle;
-			return 1;
-		}
+	foreach (0 .. $#$array_ref) {
+		return $_ if $array_ref->[$_] eq $needle;
 	}
 
-	return 0;
+	undef;
 }#
 
 

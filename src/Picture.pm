@@ -109,7 +109,7 @@ caller eq __PACKAGE__ or die;
 	$path =~ m{\.([^.]+)$} or die;
 	my $ext = lc $1;
 
-	Array::find($args{$type.'_extensions'}, $ext);
+	defined Array::find($args{$type.'_extensions'}, $ext);
 }#
 
 1;

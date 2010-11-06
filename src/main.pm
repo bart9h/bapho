@@ -201,7 +201,7 @@ sub do_menu
 sub action_has_tag
 {my ($action, $tag) = @_;
 
-	Array::find($action->{tags}, $tag);
+	defined Array::find($action->{tags}, $tag);
 }#
 
 sub add_tag_to_actions
