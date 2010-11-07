@@ -20,6 +20,7 @@ sub new
 	}, $class;
 
 	$self->pvt__init($path);
+	return $self;
 }#
 
 sub seek
@@ -65,7 +66,7 @@ sub path2id
 {my ($path) = @_;
 
 	$path =~ m{^(.*)\.[^.]+$};
-	$1 // '';
+	$1 // $path;
 }#
 
 sub pvt__init
@@ -74,18 +75,8 @@ caller eq __PACKAGE__ or die;
 
 	$self->{itr} = FileItr->new($path, $self->{jaildir});
 
-	if ($self->{id} = path2id($self->{itr}->path)) {
-		$self->pvt__build_pic;
-	}
-	else {
-		$self->seek(1);
-	}
-
-	until ($self->{pic}->{sel}) {
-		$self->seek(1);
-	}
-
-	$self;
+	$self->{id} = path2id($self->{itr}->path);
+	$self->pvt__build_pic;
 }#
 
 sub pvt__build_pic
@@ -94,16 +85,23 @@ caller eq __PACKAGE__ or die;
 
 	$self->{pic} = Picture::new($self->{id});
 
+	if (-d $self->{itr}->path) {
+		$self->{pic}->{sel} = $self->{itr}->path;
+		#TODO ...?
+		return;
+	}
+
 	for(;;) { # Seek backwards
 
 		# until the start of current dir
-		last if $self->{itr}->{cursor} == 0;
-		$self->{itr}->{cursor}--;
+		$self->{itr}->prev or last;
 
 		# or when the id change
+		defined $self->{itr}->path or die;
 		if (path2id($self->{itr}->path) ne $self->{id}) {
 			# (in this case, step forward to get back at the first file with my id).
-			$self->{itr}->{cursor}++;
+			my $next = $self->{itr}->next;
+			$self->{itr} = $next if defined $next;
 			last;
 		}
 	}
@@ -114,13 +112,13 @@ caller eq __PACKAGE__ or die;
 		$self->{pic}->add($self->{itr}->path);
 
 		# until the end of the dir
-		last if $self->{itr}->{cursor} == scalar @{$self->{itr}->{files}} - 1;
-		$self->{itr}->{cursor}++;
+		$self->{itr}->next or last;
 
 		# or when the id change
+		defined $self->{itr}->path or die;
 		if (path2id($self->{itr}->path) ne $self->{id}) {
 			# (in this case, step backward to point itr to a file with my id).
-			$self->{itr}->{cursor}--;
+			$self->{itr}->prev;
 			last;
 		}
 	}
