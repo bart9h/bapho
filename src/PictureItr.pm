@@ -70,6 +70,7 @@ sub down {my ($self) = @_;
 		return $self if $self->{pic}->{sel};
 		unless ($self->{itr}->next) {
 			$self->{itr}->{path} = $bk_path;
+			$self->pvt__build_pic;
 			return undef;
 		}
 	}
