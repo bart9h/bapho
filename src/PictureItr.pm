@@ -54,6 +54,47 @@ sub seek
 	$self;
 }#
 
+sub up {my ($self) = @_;
+
+	$self->{itr}->up or return undef;
+	$self->pvt__build_pic;
+	return $self;
+}#
+
+sub down {my ($self) = @_;
+
+	my $bk_path = $self->{itr}->path;
+	$self->{itr}->down or return undef;
+	while(1) {
+		$self->pvt__build_pic;
+		return $self if $self->{pic}->{sel};
+		unless ($self->{itr}->next) {
+			$self->{itr}->{path} = $bk_path;
+			return undef;
+		}
+	}
+}#
+
+sub first {my ($self) = @_;
+
+	$self->{itr}->first or return undef;
+	while(1) {
+		$self->pvt__build_pic;
+		return $self if $self->{pic}->{sel};
+		$self->{itr}->next or return undef;
+	}
+}#
+
+sub last {my ($self) = @_;
+
+	$self->{itr}->last or return undef;
+	while(1) {
+		$self->pvt__build_pic;
+		return $self if $self->{pic}->{sel};
+		$self->{itr}->prev or return undef;
+	}
+}#
+
 sub next { $_[0]->dup->seek(+1) }
 sub prev { $_[0]->dup->seek(-1) }
 sub path { join ',', sort keys %{$_[0]->{pic}->{files}} }

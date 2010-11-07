@@ -364,8 +364,16 @@ sub do
 				keys => [ 'delete' ],
 				code => sub { $view->delete_current },
 			},
-			play => {
+			enter_folder => {
 				keys => [ 'enter', 'return' ],
+				code => sub { $view->seek('down') },
+			},
+			leave_folder => {
+				keys => [ 'escape' ],
+				code => sub { $view->seek('up') },
+			},
+			play => {
+				keys => [ 'shift-p' ],
 				code => sub { $view->pic->play },
 			},
 		}), #}#
