@@ -353,11 +353,11 @@ sub do
 			},
 			print_files => {
 				keys => [ 'p' ],
-				code => sub { say join("\n", keys %{$view->pic->{files}}) }
+				code => sub { $view->pic->print }
 			},
 			print_files_selected => {
 				keys => [ ';-p' ],
-				code => sub { say join("\n", keys %{$_->{files}}) foreach($view->selected_pics) }
+				code => sub { $_->print foreach($view->selected_pics) }
 			},
 			toggle_star => {
 				keys => [ 's' ],
