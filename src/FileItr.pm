@@ -37,7 +37,6 @@ sub down
 
 sub seek
 {my ($self, $direction) = @_;
-	$direction==1 or $direction==-1 or die;
 
 	$self->{path} =~ m{^(?<parent>.*/)(?<name>[^/]+)/?$} or return undef;
 	my @names = read_directory($+{parent});
