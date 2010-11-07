@@ -101,7 +101,7 @@ sub load_state
 	args::load_state;
 
 	if (defined $args{cursor_file} and not defined $args{startdir}) {
-		$_->seek_file($args{cursor_file}, $self->{jaildir})
+		$_->seek_file($args{cursor_file})
 			foreach @{$self->{views}};
 	}
 }#
@@ -134,7 +134,7 @@ sub close_view
 sub quit
 {my ($self) = @_;
 
-	$self->save_state  if $self->{jaildir} eq $args{basedir};
+	$self->save_state  if $args{jaildir} eq $args{basedir};
 	exit(0);
 }#
 
@@ -452,17 +452,23 @@ sub new
 		use import;
 		exit(import::import_any($args{files}) ? 0 : 1);
 	}
-	else {
-		if (exists $args{files}) {
-			die 'only one startdir supported'  if scalar @{$args{files}} != 1;
-			my $dir = $args{files}->[0];
-			unless ($dir =~ m{^/}) {
-				my $pwd = `pwd`; chomp $pwd;
-				$dir = $pwd."/$dir";
-			}
-			$args{startdir} = fixlink $dir;
+
+	if (exists $args{files}) {
+		die 'only one startdir supported'  if scalar @{$args{files}} != 1;
+		my $dir = $args{files}->[0];
+		unless ($dir =~ m{^/}) {
+			my $pwd = `pwd`; chomp $pwd;
+			$dir = $pwd."/$dir";
 		}
+		$args{startdir} = fixlink $dir;
 	}
+
+	$args{jaildir} //=
+		defined $args{startdir} ?
+			$args{startdir} =~ m|^$args{basedir}/| ?
+				$args{basedir}
+				: $args{startdir}
+			: $args{basedir};
 
 	my ($w, $h) = get_window_geometry;
 	bless my $self = {
@@ -489,17 +495,10 @@ sub new
 			-height => $h,
 			($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 		),
-
-		jaildir =>
-			defined $args{startdir} ?
-				$args{startdir} =~ m|^$args{basedir}/| ?
-					$args{basedir}
-					: $args{startdir}
-				: $args{basedir},
 	};
 
 	push @{$self->{views}}, View::new(
-		PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
+		PictureItr->new($args{startdir} // $args{basedir}),
 		[ (split /,/, $args{include}) ],
 		[ (split /,/, $args{exclude}), '_hidden' ]
 	);

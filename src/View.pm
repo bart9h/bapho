@@ -152,9 +152,9 @@ sub seek_levels
 }#
 
 sub seek_file
-{my ($self, $file, $jaildir) = @_;
+{my ($self, $file) = @_;
 
-	$self->{picitr} = PictureItr->new($file, $jaildir);
+	$self->{picitr} = PictureItr->new($file);
 
 	until ($self->pvt__filter) {
 		$self->{picitr}->seek(1);
