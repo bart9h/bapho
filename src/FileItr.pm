@@ -11,8 +11,11 @@ sub new
 	}, $class
 }#
 
-sub next { $_[0]->seek(+1) }
-sub prev { $_[0]->seek(-1) }
+sub next  { $_[0]->seek(+1) }
+sub prev  { $_[0]->seek(-1) }
+sub first { $_[0]->seek('first') }
+sub last  { $_[0]->seek('last') }
+sub path  { $_[0]->{path} }
 sub join_path { my $rc = join '/', @_; $rc =~ s{//+}{/}g; $rc }
 
 sub up
@@ -50,7 +53,10 @@ sub seek
 	}
 	defined $idx or die;
 
-	$idx += $direction;
+	$idx =
+		$direction eq 'first' ? 0 :
+		$direction eq 'last'  ? $#names :
+		$idx + $direction;
 	$idx >= 0 and $idx <= $#names or return undef;
 
 	$self->{path} = join_path($+{parent}, $names[$idx]);
@@ -110,7 +116,7 @@ sub test
 			when (/^(p|k)$/) {
 				$dir = -1;
 			}
-			when (/^([+-]?\d+)$/) {
+			when (/^([+-]?\d+|first|last)$/) {
 				$dir = $1;
 			}
 			default {
