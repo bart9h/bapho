@@ -18,9 +18,9 @@ sub join_path { my $rc = join '/', @_; $rc =~ s{//+}{/}g; $rc }
 sub up
 {my ($self) = @_;
 
-	$self->{path} =~ m{^(?<parent>.*/)[^/]+/?$}
-		? FileItr->new($+{parent})
-		: $self
+	$self->{path} =~ m{^(?<parent>.*/)[^/]+/?$} or return undef;
+	$self->{path} = $+{parent};
+	return $self;
 }#
 
 sub down
@@ -28,16 +28,17 @@ sub down
 
 	my $first = (read_directory($self->{path}))[0];
 
-	defined $first
-		? FileItr->new(join_path($self->{path}, $first))
-		: $self;
+	defined $first or return undef;
+
+	$self->{path} = join_path($self->{path}, $first);
+	return $self;
 }#
 
 sub seek
 {my ($self, $direction) = @_;
 	$direction==1 or $direction==-1 or die;
 
-	$self->{path} =~ m{^(?<parent>.*/)(?<name>[^/]+)/?$} or return $self;
+	$self->{path} =~ m{^(?<parent>.*/)(?<name>[^/]+)/?$} or return undef;
 	my @names = read_directory($+{parent});
 
 	my $idx;
@@ -50,12 +51,10 @@ sub seek
 	defined $idx or die;
 
 	$idx += $direction;
-	if ($idx >= 0 and $idx <= $#names) {
-		return FileItr->new(join_path($+{parent}, $names[$idx]));
-	}
-	else {
-		return FileItr->new($+{parent})->seek($direction);
-	}
+	$idx >= 0 and $idx <= $#names or return undef;
+
+	$self->{path} = join_path($+{parent}, $names[$idx]);
+	return $self;
 }#
 
 sub read_directory
@@ -81,10 +80,10 @@ sub read_directory
 sub test
 {#{my test}
 	use v5.10;
-	my $i = FileItr->new($_[0] // $ENV{PWD});
+	my $itr = FileItr->new($_[0] // $ENV{PWD});
 	my $dir = 1;
 	while(1) {
-		print ">>> $i->{path} >>> ";
+		print ">>> $itr->{path} >>> ";
 		local $_ = <STDIN>;
 		chomp;
 		given ($_) {
@@ -95,11 +94,11 @@ sub test
 			when (/^$/) {
 			}
 			when (/^up$/) {
-				$i = $i->up;
+				$itr->up or say 'not';
 				next;
 			}
 			when (/^down$/) {
-				$i = $i->down;
+				$itr->down or say 'not';
 				next;
 			}
 			when (/^q$/) {
@@ -119,7 +118,7 @@ sub test
 				next;
 			}
 		}
-		$i = $i->seek($dir) or say "seek failed";
+		$itr->seek($dir) or say "seek failed";
 	}
 }#
 
