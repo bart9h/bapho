@@ -20,6 +20,7 @@ sub up
 
 	$self->{path} =~ m{^(?<parent>.*/)[^/]+/?$} or return undef;
 	$self->{path} = $+{parent};
+	$self->{path} =~ s{(.)/$}{$1};
 	return $self;
 }#
 
