@@ -38,6 +38,30 @@ sub down
 	return $self;
 }#
 
+sub next_file
+{my ($self) = @_;
+
+	while (1) {
+
+		if (-d $self->{path}) {
+			while ($self->down) {
+				-d $self->{path} or return $self;
+			}
+		}
+
+		while (1) {
+			if ($self->next) {
+				-d $self->{path} or return $self;
+				last;
+			}
+			else {
+				$self->up or return undef;
+			}
+		}
+	}
+
+}#
+
 sub seek
 {my ($self, $direction) = @_;
 
@@ -98,6 +122,10 @@ sub test
 				next;
 			}
 			when (/^$/) {
+			}
+			when (/^f(ile)?$/) {
+				$itr->next_file or say 'not';
+				next;
 			}
 			when (/^up$/) {
 				$itr->up or say 'not';
