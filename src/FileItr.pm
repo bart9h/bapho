@@ -11,11 +11,13 @@ sub new
 	}, $class
 }#
 
-sub next  { $_[0]->seek(+1) }
-sub prev  { $_[0]->seek(-1) }
-sub first { $_[0]->seek('first') }
-sub last  { $_[0]->seek('last') }
-sub path  { $_[0]->{path} }
+sub next      { $_[0]->seek(+1) }
+sub prev      { $_[0]->seek(-1) }
+sub first     { $_[0]->seek('first') }
+sub last      { $_[0]->seek('last') }
+sub next_file { $_[0]->seek_file(+1) }
+sub prev_file { $_[0]->seek_file(-1) }
+sub path      { $_[0]->{path} }
 sub join_path { my $rc = join '/', @_; $rc =~ s{//+}{/}g; $rc }
 
 sub up
@@ -28,29 +30,33 @@ sub up
 }#
 
 sub down
-{my ($self) = @_;
+{my ($self, $direction) = @_;
 
-	my $first = (read_directory($self->{path}))[0];
+	my @names = read_directory($self->{path});
+	scalar @names or return undef;
 
-	defined $first or return undef;
-
-	$self->{path} = join_path($self->{path}, $first);
+	my $i = (defined $direction and $direction < 0) ? $#names : 0;
+	$self->{path} = join_path($self->{path}, $names[$i]);
 	return $self;
 }#
 
-sub next_file
-{my ($self) = @_;
+sub seek_file
+{my ($self, $direction) = @_;
 
+	my $first_backwards_step = ($direction < 0);
 	while (1) {
 
-		if (-d $self->{path}) {
-			while ($self->down) {
-				-d $self->{path} or return $self;
+		unless ($first_backwards_step) {
+			if (-d $self->{path}) {
+				while ($self->down($direction)) {
+					-d $self->{path} or return $self;
+				}
 			}
 		}
+		$first_backwards_step = 0;
 
 		while (1) {
-			if ($self->next) {
+			if ($self->seek($direction)) {
 				-d $self->{path} or return $self;
 				last;
 			}
@@ -125,6 +131,10 @@ sub test
 			}
 			when (/^f(ile)?$/) {
 				$itr->next_file or say 'not';
+				next;
+			}
+			when (/^F(ile)?$/) {
+				$itr->prev_file or say 'not';
 				next;
 			}
 			when (/^up$/) {
