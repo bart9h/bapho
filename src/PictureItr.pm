@@ -54,14 +54,16 @@ sub seek
 	$self;
 }#
 
-sub up {my ($self) = @_;
+sub up
+{my ($self) = @_;
 
 	$self->{itr}->up or return undef;
 	$self->pvt__build_pic;
 	return $self;
 }#
 
-sub down {my ($self) = @_;
+sub down
+{my ($self) = @_;
 
 	my $bk_path = $self->{itr}->path;
 	$self->{itr}->down or return undef;
@@ -76,7 +78,8 @@ sub down {my ($self) = @_;
 	}
 }#
 
-sub first {my ($self) = @_;
+sub first
+{my ($self) = @_;
 
 	$self->{itr}->first or return undef;
 	while(1) {
@@ -86,7 +89,8 @@ sub first {my ($self) = @_;
 	}
 }#
 
-sub last {my ($self) = @_;
+sub last
+{my ($self) = @_;
 
 	$self->{itr}->last or return undef;
 	while(1) {
