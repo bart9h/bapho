@@ -350,7 +350,7 @@ sub do
 			},
 			toggle_hidden => {
 				keys => [ 'shift-1' ],
-				code => sub { $view->pic->toggle_tag('_hidden') },
+				code => sub { $view->pic->{tags}->toggle('_hidden') },
 			},
 			tag_edit => {
 				keys => [ 't' ],
