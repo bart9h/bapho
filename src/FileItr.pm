@@ -32,10 +32,10 @@ sub new
 	$path =~ s{/$}{};
 
 	bless my $self = {
-		cursor => 0,
-		parent => $path,
+		parent  => $path,
+		files   => [],
+		cursor  => 0,
 		jaildir => $jaildir // '/',
-		files  => [],
 	}, $class;
 
 	if (-d $path) {
