@@ -88,11 +88,9 @@ caller eq __PACKAGE__ or die;
 
 	$self->{itr} = FileItr->new($path, $self->{jaildir});
 
+	$self->{pic}->{sel} = undef;
 	if ($self->{id} = path2id($self->{itr}->path)) {
 		$self->pvt__build_pic;
-	}
-	else {
-		$self->seek(1);
 	}
 
 	until ($self->{pic}->{sel}) {
