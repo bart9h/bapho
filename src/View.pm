@@ -113,10 +113,12 @@ sub seek
 
 	given ($dir) {
 		when (/^first$/) {
-			warn 'TODO';
+			$self->{picitr}->first;
+			$self->pvt__filter or $self->seek('+1');
 		}
 		when (/^last$/)  {
-			warn 'TODO';
+			$self->{picitr}->last;
+			$self->pvt__filter or $self->seek('-1');
 		}
 		when (/^[+-]/)   {
 			$dir =~ s/line/$self->{cols}/e;

@@ -82,6 +82,8 @@ sub seek
 	$self;
 }#
 
+sub first { $_[0]->{cursor} = 0;                  $_[0] }
+sub last  { $_[0]->{cursor} = $#{$_[0]->{files}}; $_[0] }
 
 sub pvt__seek
 {my ($self, $dir) = @_;

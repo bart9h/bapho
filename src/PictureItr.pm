@@ -61,6 +61,20 @@ sub prev { $_[0]->dup->seek(-1) }
 sub path { join ',', sort keys %{$_[0]->{pic}->{files}} }
 sub dup  { PictureItr->new($_[0]->{itr}->path, $_[0]->{jaildir}) }
 
+sub first
+{my ($self) = @_;
+
+	$self->{itr}->first;
+	$self->pvt__init($self->{itr}->path);
+}#
+
+sub last
+{my ($self) = @_;
+
+	$self->{itr}->last;
+	$self->pvt__init($self->{itr}->path, -1);
+}#
+
 sub path2id
 {my ($path) = @_;
 
@@ -69,7 +83,7 @@ sub path2id
 }#
 
 sub pvt__init
-{my ($self, $path) = @_;
+{my ($self, $path, $dir) = @_;
 caller eq __PACKAGE__ or die;
 
 	$self->{itr} = FileItr->new($path, $self->{jaildir});
@@ -82,7 +96,7 @@ caller eq __PACKAGE__ or die;
 	}
 
 	until ($self->{pic}->{sel}) {
-		$self->seek(1);
+		$self->seek($dir // 1);
 	}
 
 	$self;
