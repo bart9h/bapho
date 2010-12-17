@@ -101,7 +101,7 @@ sub load_state
 	args::load_state;
 
 	if (defined $args{cursor_file} and not defined $args{startdir}) {
-		$_->seek_file($args{cursor_file}, $self->{jaildir})
+		$_->seek_to_file($args{cursor_file}, $self->{jaildir})
 			foreach @{$self->{views}};
 	}
 }#

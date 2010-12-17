@@ -153,7 +153,7 @@ sub seek_levels
 	$self->{page_cursor} = 0;
 }#
 
-sub seek_file
+sub seek_to_file
 {my ($self, $file, $jaildir) = @_;
 
 	$self->{picitr} = PictureItr->new($file, $jaildir);
