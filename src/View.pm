@@ -125,11 +125,19 @@ sub seek
 			$dir =~ s/page/$self->{cols}*$self->{rows}/e;
 
 			my $d = $dir>0?1:-1;
+			$self->pvt__filter or warn 'invalid itr';
+			my $valid_itr = $self->{picitr}->dup;  # backup
 			while ($dir) {
-				$self->{picitr}->seek($d) or last;
-				next unless $self->pvt__filter;
-				$dir -= $d;
-				$self->{page_cursor} += $d;
+				if ($self->{picitr}->seek($d)) {
+					$self->pvt__filter or next;
+					$valid_itr = $self->{picitr}->dup;  # update
+					$dir -= $d;
+					$self->{page_cursor} += $d;
+				}
+				else {
+					$self->{picitr} = $valid_itr;  # restore
+					last;
+				}
 			}
 		}
 	}
