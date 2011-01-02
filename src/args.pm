@@ -80,6 +80,7 @@ sub read_args
 	}
 
 	my $process_args = 1;
+	my %default_args = %args;  # so --help won't display modified args
 	foreach (@_) {
 		if ($process_args) {
 
@@ -101,8 +102,8 @@ sub read_args
 				#TODO: better %args, to contain description
 				#      (borrow from other script I wrote..)
 				say 'arguments and their defaults (if any):';
-				foreach (sort keys %args) {
-					my $val = $args{$_};
+				foreach (sort keys %default_args) {
+					my $val = $default_args{$_};
 					next if ref $val;
 					s/_/-/g;
 					say '--'.$_.(defined $val ? "=$val" : '');
