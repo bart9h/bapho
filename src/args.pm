@@ -21,6 +21,7 @@ our %args = (
 		mv => 1,
 		include => '',
 		exclude => '',
+		tags => '',
 		verbose => undef,
 		geometry => undef,
 		fullscreen => undef,

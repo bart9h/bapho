@@ -104,11 +104,24 @@ sub get_target_path
 	}
 }#
 
+sub create_tags_file
+{my ($file) = @_;
+
+	return unless defined $file and $args{tags};
+
+	my $tags = Tags->new(
+		PictureItr::path2id($file)
+	);
+
+	$tags->add($_)
+		foreach split /,/, $args{tags};
+}#
+
 sub import_file
-{my ($source_file) = @_;
+{my ($source_file) = @_; # returns target file path or undef
 
 	my $target_file = get_target_path($source_file)
-		or return;
+		or return undef;
 
 	$target_file =~ m{^(.*)/[^/]+$} or die;
 	my $dir = $1;
@@ -126,6 +139,8 @@ sub import_file
 	elsif (0 == system $cmd) {
 		-e $target_file or die;
 	}
+
+	return $target_file;
 }#
 
 sub import_files
@@ -135,7 +150,9 @@ sub import_files
 	find(
 		{
 			no_chdir => 1,
-			wanted => sub { import_file($_) unless -d },
+			wanted => sub {
+				create_tags_file(import_file($_)) unless -d;
+			},
 		},
 		@files
 	);

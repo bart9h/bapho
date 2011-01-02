@@ -53,8 +53,6 @@ Enhancements:
 
 * OSD transparency.
 
-* Import with --tag=foo,bar
-
 * Option to import then run the gui showing only the just-imported pics.
 
 * [!!!] How to handle the lack of timestamp metadata when importing?
