@@ -42,7 +42,7 @@ sub add
 	}
 	else {
 		$self->pvt__set_tag($something);
-		$self->pvt__save_pic_tags;
+		$self->pvt__save_pic_tags;  #TODO: only if tag was new
 	}
 }#
 
@@ -63,6 +63,7 @@ sub pvt__set_tag
 {my ($self, $tag) = @_;
 caller eq __PACKAGE__ or die;
 
+	say "Setting tag \"$tag\" to \"$self->{id}\"."  if dbg 'tags';
 	$self->{tags}->{$tag} = 1;
 	unless (defined $all_tags{$tag}) {
 		$all_tags{$tag} = 1;
@@ -92,7 +93,7 @@ caller eq __PACKAGE__ or die;
 			}
 			else {
 				open F, '>', $filename  or die "$filename: $!";
-				say "saving $filename"  if dbg 'tags,file';
+				say "Saving \"$filename\"."  if dbg 'tags,file';
 				print F "$_\n"  foreach sort keys %$tags;
 				close F;
 			}
