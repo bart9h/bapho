@@ -85,13 +85,25 @@ caller eq __PACKAGE__ or die;
 
 		if (scalar keys %$tags > 0) {
 			-e $filename or FileItr->dirty();
-			open F, '>', $filename  or die "$filename: $!";
-			say "saving $filename"  if dbg 'tags,file';
-			print F "$_\n"  foreach sort keys %$tags;
-			close F;
+			if ($args{nop}) {
+				say "Saving \"$filename\"...";
+				say "\t$_" foreach sort keys %$tags;
+				say "done.";
+			}
+			else {
+				open F, '>', $filename  or die "$filename: $!";
+				say "saving $filename"  if dbg 'tags,file';
+				print F "$_\n"  foreach sort keys %$tags;
+				close F;
+			}
 		}
 		else {
-			unlink $filename if -e $filename;
+			if ($args{nop}) {
+				say "Removing \"$filename\".";
+			}
+			else {
+				unlink $filename if -e $filename;
+			}
 		}
 	}
 }#
