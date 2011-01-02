@@ -6,6 +6,8 @@ Bugs:
 
 * First/last picture not being filtered.
 
+* PictureItr points to .tags file + .tags is deleted = die when seek.
+
 
 Missing features:
 
