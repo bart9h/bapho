@@ -134,7 +134,7 @@ sub close_view
 sub quit
 {my ($self) = @_;
 
-	$self->save_state  if $self->{jaildir} eq $args{basedir};
+	$self->save_state  if $args{jaildir} eq $args{basedir};
 	exit(0);
 }#
 
@@ -338,11 +338,11 @@ sub do
 			},
 			print_files => {
 				keys => [ 'p' ],
-				code => sub { say join("\n", keys %{$view->pic->{files}}) }
+				code => sub { $view->pic->print }
 			},
 			print_files_selected => {
 				keys => [ ';-p' ],
-				code => sub { say join("\n", keys %{$_->{files}}) foreach($view->selected_pics) }
+				code => sub { $_->print foreach($view->selected_pics) }
 			},
 			toggle_star => {
 				keys => [ 's' ],
@@ -364,8 +364,16 @@ sub do
 				keys => [ 'delete' ],
 				code => sub { $view->delete_current },
 			},
-			play => {
+			enter_folder => {
 				keys => [ 'enter', 'return' ],
+				code => sub { $view->seek('down') },
+			},
+			leave_folder => {
+				keys => [ 'escape' ],
+				code => sub { $view->seek('up') },
+			},
+			play => {
+				keys => [ 'shift-p' ],
 				code => sub { $view->pic->play },
 			},
 		}), #}#
@@ -452,17 +460,23 @@ sub new
 		use import;
 		exit(import::import_any($args{files}) ? 0 : 1);
 	}
-	else {
-		if (exists $args{files}) {
-			die 'only one startdir supported'  if scalar @{$args{files}} != 1;
-			my $dir = $args{files}->[0];
-			unless ($dir =~ m{^/}) {
-				my $pwd = `pwd`; chomp $pwd;
-				$dir = $pwd."/$dir";
-			}
-			$args{startdir} = fixlink $dir;
+
+	if (exists $args{files}) {
+		die 'only one startdir supported'  if scalar @{$args{files}} != 1;
+		my $dir = $args{files}->[0];
+		unless ($dir =~ m{^/}) {
+			my $pwd = `pwd`; chomp $pwd;
+			$dir = $pwd."/$dir";
 		}
+		$args{startdir} = fixlink $dir;
 	}
+
+	$args{jaildir} //=
+		defined $args{startdir} ?
+			$args{startdir} =~ m|^$args{basedir}/| ?
+				$args{basedir}
+				: $args{startdir}
+			: $args{basedir};
 
 	my ($w, $h) = get_window_geometry;
 	bless my $self = {
@@ -489,17 +503,10 @@ sub new
 			-height => $h,
 			($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 		),
-
-		jaildir =>
-			defined $args{startdir} ?
-				$args{startdir} =~ m|^$args{basedir}/| ?
-					$args{basedir}
-					: $args{startdir}
-				: $args{basedir},
 	};
 
 	push @{$self->{views}}, View::new(
-		PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
+		PictureItr->new($args{startdir} // $args{basedir}),
 		[ (split /,/, $args{include}) ],
 		[ (split /,/, $args{exclude}), '_hidden' ]
 	);

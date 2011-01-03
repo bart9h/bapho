@@ -1,177 +1,168 @@
 package FileItr;
-
-#{my documentation
-
-=head1 SYNOPSIS
-
-	my $file = FileItr->new("/some/path");
-	$file->seek(+1);
-	say $file->path;
-
-=cut
-
-#}#
-
-#{my uses
-
 use strict;
 use warnings;
-use 5.010;
-use Data::Dumper;
-
-#}#
-
-my $dirty = 0;
-sub dirty { $dirty = 1 }
+use v5.10;
 
 sub new
-{my ($class, $path, $jaildir) = @_;
+{my ($class, $path) = @_;
 
-	$path or die;
-
-	$path =~ s{/$}{};
-
-	bless my $self = {
-		parent  => $path,
-		files   => [],
-		cursor  => 0,
-		jaildir => $jaildir // '/',
-	}, $class;
-
-	if (-d $path) {
-		$self->pvt__readdir;
-		$self->{cursor} = 0;
-		$self->pvt__down(1);
-	}
-	else {
-		0 until $self->pvt__up;
-	}
-
-	$self;
+	bless {
+		path => $path
+	}, $class
 }#
 
-sub path
+sub next      { $_[0]->seek(+1) }
+sub prev      { $_[0]->seek(-1) }
+sub first     { $_[0]->seek('first') }
+sub last      { $_[0]->seek('last') }
+sub next_file { $_[0]->seek_file(+1) }
+sub prev_file { $_[0]->seek_file(-1) }
+sub path      { $_[0]->{path} }
+sub join_path { my $rc = join '/', @_; $rc =~ s{//+}{/}g; $rc }
+
+sub up
 {my ($self) = @_;
 
-	my $path = $self->{parent}.'/'.$self->{files}->[$self->{cursor}];
-	$path =~ s{/+}{/}g;  # remove duplicated /'s (if parent==/)
-	$path;
+	$self->{path} =~ m{^(?<parent>.*/)[^/]+/?$} or return undef;
+	$self->{path} = $+{parent};
+	$self->{path} =~ s{(.)/$}{$1};
+	return $self;
+}#
+
+sub down
+{my ($self, $direction) = @_;
+
+	my @names = read_directory($self->{path});
+	scalar @names or return undef;
+
+	my $i = (defined $direction and $direction < 0) ? $#names : 0;
+	$self->{path} = join_path($self->{path}, $names[$i]);
+	return $self;
+}#
+
+sub seek_file
+{my ($self, $direction) = @_;
+
+	my $first_backwards_step = ($direction < 0);
+	while (1) {
+
+		unless ($first_backwards_step) {
+			if (-d $self->{path}) {
+				while ($self->down($direction)) {
+					-d $self->{path} or return $self;
+				}
+			}
+		}
+		$first_backwards_step = 0;
+
+		while (1) {
+			if ($self->seek($direction)) {
+				-d $self->{path} or return $self;
+				last;
+			}
+			else {
+				$self->up or return undef;
+			}
+		}
+	}
+
 }#
 
 sub seek
-{my ($self, $dir) = @_;
+{my ($self, $direction) = @_;
 
-	my $d = $dir>0?1:-1;
-	while($dir) {
+	$self->{path} =~ m{^(?<parent>.*/)(?<name>[^/]+)/?$} or return undef;
+	my @names = read_directory($+{parent});
 
-		# backup self
-		my $bk_dir  = $self->{parent};
-		my $bk_file = $self->{files}->[$self->{cursor}];
-
-		unless (eval { $self->pvt__seek($d) }) {
-
-			# restore self
-			$self->{parent} = $bk_dir;
-			$self->pvt__find($bk_file);
-
-			return undef;
+	my $idx;
+	foreach (0 .. $#names) {
+		if ($names[$_] eq $+{name}) {
+			$idx = $_;
+			last;
 		}
-		$dir -= $d;
 	}
+	defined $idx or die;
 
-	$self;
+	$idx =
+		$direction eq 'first' ? 0 :
+		$direction eq 'last'  ? $#names :
+		$idx + $direction;
+	$idx >= 0 and $idx <= $#names or return undef;
+
+	$self->{path} = join_path($+{parent}, $names[$idx]);
+	return $self;
 }#
 
-sub first { $_[0]->{cursor} = 0;                  $_[0] }
-sub last  { $_[0]->{cursor} = $#{$_[0]->{files}}; $_[0] }
+sub read_directory
+{my ($path) = @_;
 
-sub pvt__seek
-{my ($self, $dir) = @_;
-caller eq __PACKAGE__ or die;
-
-	if ($dirty) {
-		$self->pvt__find($self->{files}->[$self->{cursor}]);
-		$dirty = 0;
-	}
-
-	$self->{cursor} += $dir;
-	if ($self->{cursor} >= 0 and $self->{cursor} < scalar @{$self->{files}}) {
-		$self->pvt__down($dir);
-	}
-	else {
-		$self->pvt__up;
-		$self->pvt__seek($dir);
-		$self->pvt__down($dir);
-	}
-
-	1;
-}#
-
-sub pvt__up
-{my ($self) = @_;
-#caller eq __PACKAGE__ or die;  # View.pm uses this sub
-
-	my $base = $self->{jaildir};
-	$base =~ s{/$}{};
-	$self->{parent} =~ m|^(?<parent>$base(.*)?)/(?<name>[^/]+)$| or die;
-	$self->{parent} = $+{parent} ne '' ? $+{parent} : '/';
-	$self->pvt__find($+{name});
-}#
-
-sub pvt__down
-{my ($self, $dir) = @_;
-caller eq __PACKAGE__ or die;
-
-	while (-d $self->path) {
-		$self->{parent} = $self->path;
-		$self->pvt__readdir;
-		if (@{$self->{files}}) {
-			$self->{cursor} = $dir>0 ? 0 : (scalar @{$self->{files}} - 1);
+	if (-d $path) {
+		if (opendir(my $dh, $path)) {
+			my @names = (
+				sort { (-f $a and -d $b) ? -1 : (-d $a and -f $b) ? 1 : $a cmp $b }
+				grep { not /^\./ }
+				readdir($dh)
+			);
+			closedir $dh;
+			return @names;
 		}
 		else {
-			$self->pvt__up;
-			$self->pvt__seek($dir);
-			$self->pvt__down($dir);
+			warn "opendir $path: $!";
 		}
 	}
+	return ();
 }#
 
-sub pvt__find
-{my ($self, $name) = @_;
-caller eq __PACKAGE__ or die;
-
-	$self->pvt__readdir;
-
-	for ($self->{cursor} = 0;; ++$self->{cursor}) {
-
-		if ($self->{cursor} >= scalar @{$self->{files}}) {
-			warn "couldn't find $name in $self->{parent}";
-			$self->{cursor} = 0;
-			return 0;
+sub test
+{#{my test}
+	use v5.10;
+	my $itr = FileItr->new($_[0] // $ENV{PWD});
+	my $dir = 1;
+	while(1) {
+		print ">>> $itr->{path} >>> ";
+		local $_ = <STDIN>;
+		chomp;
+		given ($_) {
+			when (/^(help|\?)$/) {
+				say 'q=quit, <[+/-]number>=direction, n|j=+1, p|k=-1';
+				next;
+			}
+			when (/^$/) {
+			}
+			when (/^f(ile)?$/) {
+				$itr->next_file or say 'not';
+				next;
+			}
+			when (/^F(ile)?$/) {
+				$itr->prev_file or say 'not';
+				next;
+			}
+			when (/^up$/) {
+				$itr->up or say 'not';
+				next;
+			}
+			when (/^down$/) {
+				$itr->down or say 'not';
+				next;
+			}
+			when (/^q$/) {
+				last;
+			}
+			when (/^(n|j)$/) {
+				$dir = +1;
+			}
+			when (/^(p|k)$/) {
+				$dir = -1;
+			}
+			when (/^([+-]?\d+|first|last)$/) {
+				$dir = $1;
+			}
+			default {
+				say '?';
+				next;
+			}
 		}
-
-		if ($self->{files}->[$self->{cursor}] eq $name) {
-			return 1;
-		}
-	}
-	die;
-}#
-
-sub pvt__readdir
-{my ($self) = @_;
-caller eq __PACKAGE__ or die;
-
-	if (opendir(my $dh, $self->{parent})) {
-		$self->{files} = [
-			sort { (-f $a and -d $b) ? -1 : (-d $a and -f $b) ? 1 : $a cmp $b }
-			grep { not /^\./ } #and (-f $_ or -d $_) }
-			readdir($dh)
-		];
-		closedir $dh;
-	}
-	else {
-		warn "opendir $self->{parent}: $!";
-		$self->{files} = [];
+		$itr->seek($dir) or say "seek failed";
 	}
 }#
 

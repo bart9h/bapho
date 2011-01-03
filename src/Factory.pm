@@ -7,9 +7,10 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
-use Video;
-use SDL::Surface;
 use Image::ExifTool;
+use SDL::Surface;
+use Folder;
+use Video;
 
 use args qw/%args dbg/;
 
@@ -94,7 +95,7 @@ sub get
 		}#
 
 		sub load_file
-		{my ($path, $width, $height) = @_;
+		{my ($self, $path, $width, $height) = @_;
 		# The $width and $height arguments are only a hint
 		# to maybe load a thumbnail instead, if available (raw preview).
 		# Returned surface is NOT scaled to $width x $height.
@@ -109,6 +110,9 @@ sub get
 			}
 			elsif (Picture::is_vid($path)) {
 				$item->{surf} = Video::load_sample_frame($path);
+			}
+			elsif (-d $path) {
+				$item->{surf} = Folder::render_surf($path, $width, $height, $self);
 			}
 			else {
 				$item->{surf} = eval { SDL::Surface->new(-name => $path) };
@@ -190,7 +194,7 @@ sub get
 			# If none were loaded, create new.
 			unless (defined $origin) {
 
-				$origin = load_file($path,$width,$height);
+				$origin = $self->load_file($path,$width,$height);
 
 				if ($origin->{surf}) {
 					$self->add_picture($path, $origin);

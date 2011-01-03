@@ -120,6 +120,12 @@ sub seek
 			$self->{picitr}->last;
 			$self->pvt__filter or $self->seek('-1');
 		}
+		when (/^up$/) {
+			$self->{picitr}->up;
+		}
+		when (/^down$/) {
+			$self->{picitr}->down;
+		}
 		when (/^[+-]/)   {
 			$dir =~ s/line/$self->{cols}/e;
 			$dir =~ s/page/$self->{cols}*$self->{rows}/e;
@@ -164,7 +170,7 @@ sub seek_levels
 sub seek_to_file
 {my ($self, $file, $jaildir) = @_;
 
-	$self->{picitr} = PictureItr->new($file, $jaildir);
+	$self->{picitr} = PictureItr->new($file);
 
 	until ($self->pvt__filter) {
 		$self->{picitr}->seek(1);

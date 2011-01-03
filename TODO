@@ -11,6 +11,11 @@ Bugs:
 
 Missing features:
 
+* Folder handling
+  * better pagination
+  * tagging
+  * display (collage)
+
 * Interface to define new views (edit in/out filters).
 
 * Cycle through multiple files of a picture.
@@ -39,11 +44,6 @@ Enhancements:
 * Display image histogram.
 
 * Upload to photo-hosting web services (PicasaWeb, Flickr, Imgur, etc).
-
-* Folder handling
-  * iterator (and better pagination)
-  * tagging
-  * display (collage)
 
 * Tag cloud.
 

@@ -81,6 +81,15 @@ sub play
 	}
 }#
 
+sub print
+{my ($self) = @_;
+
+	say
+		-d $self->{sel} ? $self->{sel}
+		: join("\n", keys %{$self->{files}});
+}#
+
+
 sub delete
 {my ($self) = @_;
 
@@ -106,7 +115,7 @@ caller eq __PACKAGE__ or die;
 	my $x = $self_or_path;
 	my $path = ref $x ? $x->{sel} : $x;
 
-	$path =~ m{\.([^.]+)$} or die;
+	$path =~ m{\.([^.]+)$} or return undef;
 	my $ext = lc $1;
 
 	defined Array::find($args{$type.'_extensions'}, $ext);
