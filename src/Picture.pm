@@ -61,15 +61,20 @@ sub develop
 	my $file = $self->guess_source;
 
 	my $cmd;
-	if ($file =~ m{\.(ufraw|cr2)$}i) {
-		$cmd = "ufraw";
-	}
-	elsif (is_pic($file)) {
-		$cmd = "gimp";
+	given ($file) {
+		when (/\.ufraw$/i) {
+			$cmd = "ufraw \"$file\" || gvim \"$file\"";
+		}
+		when (/\.cr2$/i) {
+			$cmd = "ufraw \"$file\" &";
+		}
+		when (is_pic($file)) {
+			$cmd = "gimp \"$file\" &";
+		}
 	}
 	if (defined $cmd) {
 		say $cmd if dbg;
-		system "$cmd $file &";
+		system $cmd;
 	}
 }#
 
