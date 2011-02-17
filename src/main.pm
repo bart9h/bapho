@@ -334,7 +334,7 @@ sub do
 			},
 			edit_file => {
 				keys => [ 'control-d' ],
-				code => sub { $view->pic->develop },
+				code => sub { $view->pic->develop; FileItr->dirty() },
 			},
 			print_files => {
 				keys => [ 'p' ],
