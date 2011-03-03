@@ -91,7 +91,6 @@ sub delete_current
 
 	$self->{picitr}->{pic}->delete;
 	$self->{picitr}->seek(1) // $self->{picitr}->seek(-1); #TODO: definir melhor o q fazer nos extremos
-	FileItr->dirty();
 }#
 
 sub adjust_page_and_cursor

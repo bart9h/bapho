@@ -85,7 +85,6 @@ caller eq __PACKAGE__ or die;
 	unless ($args{nop}) {
 
 		if (scalar keys %$tags > 0) {
-			-e $filename or FileItr->dirty();
 			if ($args{nop}) {
 				say "Saving \"$filename\"...";
 				say "\t$_" foreach sort keys %$tags;

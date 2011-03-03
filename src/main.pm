@@ -181,7 +181,6 @@ sub do_menu
 					}
 					when (/^e$/ and not $args{fullscreen}) {
 						my $filename = $self->pic->{id}.'.tags';
-						-e $filename or FileItr->dirty();
 						system "\$EDITOR $filename";
 						$self->pic->add($filename);
 						$self->enter_tag_mode;
