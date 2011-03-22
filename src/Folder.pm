@@ -10,11 +10,14 @@ sub render_surf
 
 	my $surf = SDL::Surface->new(-width => $width, -height => $height)->display_format;
 	my $b = 12;
+	state $level = 0;
 
 	folder_frame($surf, $b);
 
+	return $surf if $level > 1;
+	++$level;
+
 	my @files = sample_files($path);
-print Dumper $path, \@files;
 	my ($w, $h) = (scalar @files == 1)
 		? ($width-4*$b, $height-5*$b)
 		: (($width-5*$b)/2, ($height-6*$b)/2);
@@ -32,6 +35,7 @@ print Dumper $path, \@files;
 		$sample_surf->{surf}->blit(0, $surf, SDL::Rect->new(-width=>$w, -height=>$h, -x=>$x, -y=>$y));
 	}}
 
+	--$level;
 	return $surf;
 }#
 
