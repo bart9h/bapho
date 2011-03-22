@@ -260,10 +260,6 @@ sub do
 				keys => [ 'right', 'l' ],
 				code => sub { $view->seek('+1') },
 			},
-			date_seek => {
-				keys => [ 'd', 'm', 'y', 'shift-d', 'shift-m', 'shift-y' ],
-				code => sub { $view->seek_levels($command, { d=>1, m=>2, y=>3 }) },
-			},
 			previous_line => {
 				keys => [ 'up', 'k' ],
 				code => sub { $view->seek('-line') },

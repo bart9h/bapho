@@ -149,23 +149,6 @@ sub seek
 
 }#
 
-sub seek_levels
-{my ($self, $cmd, $keys) = @_;
-
-	$cmd =~ m/(shift-)?([a-z])/;
-	my ($shift, $k) = ($1, $2);
-
-	$self->{picitr}->{itr}->pvt__up  #FIXME: using private method of FileItr
-		foreach 1 .. $keys->{$k};
-	$self->seek($shift ? '-1' : '+1');
-
-	# put itr at the start of the dir
-	$self->{picitr}->{itr}->{cursor} = 0;
-	# re-build picitr
-	$self->{picitr} = $self->{picitr}->dup;
-	$self->{page_cursor} = 0;
-}#
-
 sub seek_to_file
 {my ($self, $file, $jaildir) = @_;
 
