@@ -102,13 +102,26 @@ sub read_args
 				#{#
 				#TODO: better %args, to contain description
 				#      (borrow from other script I wrote..)
-				say 'arguments and their defaults (if any):';
+				say 'Arguments and their defaults (if any):';
 				foreach (sort keys %default_args) {
 					my $val = $default_args{$_};
 					next if ref $val;
 					s/_/-/g;
 					say '--'.$_.(defined $val ? "=$val" : '');
 				}
+
+				my %tags;
+				if (opendir(my $dh, $ENV{BAPHO_LIBDIR})) {
+					map { ++$tags{$_} }
+					map { split /,/ }
+					map { m{\bdbg\s+'([^']+)'}msg }
+					map { do {local(@ARGV,$/)=$_;<>} } # slurp
+					map { "$ENV{BAPHO_LIBDIR}/$_" } grep { /\.pm$/ } readdir $dh;
+					closedir $dh;
+				}
+				say "Tags for the verbose flag:";
+				say join(',', 'all', sort keys %tags);
+
 				exit 0;
 				#}#
 			}
