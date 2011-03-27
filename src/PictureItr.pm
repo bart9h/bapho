@@ -33,7 +33,7 @@ sub seek
 				return undef;
 			}
 			local $_ = $self->{itr}->path;
-			next if m{/\.bapho-state$};
+			next if m{/\.bapho-};
 			next if m{/\.([^/]*-)?trash/}i;
 			next if m{/\.qiv-select/};
 			next if m{/Picasa.ini$};
