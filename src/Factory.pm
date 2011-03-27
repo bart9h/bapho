@@ -95,12 +95,12 @@ sub get
 		}#
 
 		sub load_file
-		{my ($self, $path, $width, $height) = @_;
+		{my ($self, $path, $width, $height) = @_;  # Returns SDL_Surface.
 		# The $width and $height arguments are only a hint
 		# to maybe load a thumbnail instead, if available (raw preview).
 		# Returned surface is NOT scaled to $width x $height.
 
-			say "loading $path"  if dbg;
+			say "loading $path"  if dbg 'file';
 
 			my $item = {};
 			my $exif;
@@ -132,7 +132,7 @@ sub get
 				$item->{height} //= $item->{surf}->height;
 			}
 
-			$item;
+			return $item;
 		}#
 
 		sub origin_handicap
@@ -215,7 +215,7 @@ sub get
 			return $origin;
 		}
 		else {
-			my $item = { %$origin };
+			my $item = { %$origin }; # new item for scaled version
 			$item->{surf} = zoom($origin->{surf}, $zoom);
 			$self->add_picture($path, $item);
 			$origin->{last_time_used} = time - origin_handicap;
