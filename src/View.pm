@@ -90,8 +90,11 @@ sub toggle_selection_page
 sub delete_current
 {my ($self) = @_;
 
-	$self->{picitr}->{pic}->delete;
-	$self->{picitr}->seek(1) // $self->{picitr}->seek(-1); #TODO: definir melhor o q fazer nos extremos
+	my $pic = $self->{picitr}->{pic};
+	$self->{picitr}->seek(1) //
+	$self->{picitr}->seek(-1) //
+	$self->{picitr}->up; #TODO: definir melhor o q fazer nos extremos
+	$pic->delete;
 	FileItr->dirty();
 }#
 
