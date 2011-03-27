@@ -114,7 +114,32 @@ sub get
 				$item->{surf} = Video::load_sample_frame($path);
 			}
 			elsif (-d $path) {
+
+				my $cache_filename = $path;
+				$cache_filename =~ s{/*$}{/.bapho-folder.jpg};
+
+				# try cached version
+				if (-e $cache_filename) {
+					$item = $self->load_file($cache_filename);
+					my $s = $item->{surf};
+					if($s->width >= $width and $s->height >= $height) {
+						say "using $cache_filename" if dbg 'cache';
+						return $item;
+					}
+					else {
+						say "$cache_filename too small" if dbg 'cache';
+					}
+				}
+
+				# render image
+				say "rendering $cache_filename" if dbg 'cache';
 				$item->{surf} = Folder::render_surf($path, $width, $height, $self);
+
+				# save cache  (TODO: save directly to jpg)
+				my $tmp = "/tmp/bapho-folder.bmp";
+				$item->{surf}->save_bmp($tmp);
+				system "convert $tmp $cache_filename";
+				unlink $tmp;
 			}
 			else {
 				#$item->{surf} = eval { SDL::Image::load($path) };
