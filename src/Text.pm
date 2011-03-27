@@ -5,6 +5,7 @@ package Text;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 
 use args qw/%args max/;
@@ -38,14 +39,14 @@ sub new
 		my @a = split /:/;
 
 		$name = $a[0]  unless $a[0] eq '';
-		defined $name or die 'must specify font name';
+		defined $name or croak 'Must specify font name.';
 
 		$size = $a[1]  if $a[1];
-		$size or die 'size must be positive';
+		$size or croak 'Size must be positive.';
 
 		my $file = `fc-match -v '$name' | grep file: | cut -d \\\" -f 2`;
 		chomp $file;
-		-f $file  or die "$file not found";
+		-f $file  or die "$name not found.";
 
 		push @{$self->{fonts}}, {
 			fill => SDL::TTF::Font->new($file, $size),
@@ -82,8 +83,8 @@ sub print
 					$color = $self->{$arg};
 				}
 				when (/text/) {
-					my $font        = $self->{fonts}->[$self->{font}]->{fill}    or die;
-					my $font_border = $self->{fonts}->[$self->{font}]->{border}  or die;
+					my $font        = $self->{fonts}->[$self->{font}]->{fill}    or confess;
+					my $font_border = $self->{fonts}->[$self->{font}]->{border}  or confess;
 
 					my ($w) = @{ SDL::TTF::size_text($font, $arg) };
 
@@ -115,7 +116,7 @@ sub print
 						$self->{x} += $w;
 					}
 				}
-				default { die }
+				default { confess }
 			}
 		}
 

@@ -5,6 +5,7 @@ package Tags;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 
 use args qw/%args dbg/;
@@ -99,7 +100,7 @@ sub toggle_star
 
 sub pvt__set_tag
 {my ($self, $tag) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	say "Setting tag \"$tag\" to \"$self->{id}\"."  if dbg 'tags';
 	$self->{tags}->{$tag} = 1;
@@ -111,14 +112,14 @@ caller eq __PACKAGE__ or die;
 
 sub pvt__save_pic_tags
 {my ($self) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	pvt__save_tags($self->{id}.'.tags', $self->{tags});
 }#
 
 sub pvt__save_tags
 {my ($filename, $tags) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	unless ($args{nop}) {
 
@@ -149,8 +150,8 @@ caller eq __PACKAGE__ or die;
 
 sub pvt__read_tags
 {my ($filename) = @_;
-caller eq __PACKAGE__ or die;
-	wantarray or die;
+caller eq __PACKAGE__ or croak;
+	wantarray or croak;
 
 	if (open F, $filename) {
 		say "reading $filename"  if dbg 'tags,file';

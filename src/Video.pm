@@ -43,7 +43,7 @@ sub load_sample_frame
 {my ($videofile) = @_;
 
 	my $tmpdir = $args{temp_dir}.'/bapho-videopreview';
-	-d $tmpdir or mkdir $tmpdir or die;
+	-d $tmpdir or mkdir $tmpdir or die "$tmpdir: $!";
 	my $framefile = "$tmpdir/00000001.jpg";
 
 	my $cmd = "mplayer -frames 1 -ss 00:00:01 -vo jpeg:maxfiles=1:outdir=\"$tmpdir\" -ao null \"$videofile\"";

@@ -5,6 +5,7 @@ package Menu;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 
 #}#
@@ -66,7 +67,7 @@ sub do
 
 sub pvt__jump
 {my ($self, $char) = @_;
-	caller eq __PACKAGE__ or die;
+	caller eq __PACKAGE__ or croak;
 
 	my $i = $self->{cursor};
 	for(;;) {

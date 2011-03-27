@@ -5,6 +5,7 @@ package Factory;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 
 use SDL::Surface;
@@ -84,7 +85,7 @@ sub get
 
 				my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
 
-				open F, '>', $tmp or die $!;
+				open F, '>', $tmp or die "$tmp: $!";
 				print F ${$exif->{$tag}};
 				close F;
 
@@ -202,7 +203,7 @@ sub get
 		sub zoom
 		{my ($surface, $zoom) = @_;
 
-			die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
+			croak "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
 				unless (ref($surface) and $surface->isa('SDL::Surface'));
 
 			return SDL::GFX::Rotozoom::zoom_surface($surface, $zoom, $zoom, SDL::GFX::Rotozoom::SMOOTHING_ON);

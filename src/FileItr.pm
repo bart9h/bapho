@@ -17,6 +17,7 @@ package FileItr;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 use args qw/dbg/;
 
@@ -28,7 +29,7 @@ sub dirty { $dirty = 1 }
 sub new
 {my ($class, $path, $jaildir) = @_;
 
-	$path or die;
+	$path or croak;
 
 	$path =~ s{/$}{};
 
@@ -88,7 +89,7 @@ sub last  { $_[0]->{cursor} = $#{$_[0]->{files}}; $_[0] }
 
 sub pvt__seek
 {my ($self, $dir) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 say "pvt__seek (parent=$self->{parent}, cursor=$self->{cursor}, dir=$dir)" if dbg 'trace';
 
 	if ($dirty) {
@@ -111,20 +112,20 @@ say "pvt__seek (parent=$self->{parent}, cursor=$self->{cursor}, dir=$dir)" if db
 
 sub pvt__up
 {my ($self) = @_;
-#caller eq __PACKAGE__ or die;  # View.pm uses this sub
+#caller eq __PACKAGE__ or croak;  # View.pm uses this sub
 say "pvt__up (parent=$self->{parent})" if dbg 'trace';
 
 	my $base = $self->{jaildir};
 	$base =~ s{/$}{};
 	$self->{parent} =~ m|^(?<parent>$base(.*)?)/(?<name>[^/]+)$|
-		or die "match failed for \"$self->{parent}\"";
+		or confess "match failed for \"$self->{parent}\"";
 	$self->{parent} = $+{parent} ne '' ? $+{parent} : '/';
 	$self->pvt__find($+{name});
 }#
 
 sub pvt__down
 {my ($self, $dir) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 say "pvt__down (parent=$self->{parent})" if dbg 'trace';
 
 	while (-d $self->path) {
@@ -143,7 +144,7 @@ say "pvt__down (parent=$self->{parent})" if dbg 'trace';
 
 sub pvt__find
 {my ($self, $name) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 say "pvt__find (parent=$self->{parent}, name=$name)" if dbg 'trace';
 
 	$self->pvt__readdir;
@@ -160,12 +161,12 @@ say "pvt__find (parent=$self->{parent}, name=$name)" if dbg 'trace';
 			return 1;
 		}
 	}
-	die;
+	confess;
 }#
 
 sub pvt__readdir
 {my ($self) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	if (opendir(my $dh, $self->{parent})) {
 		$self->{files} = [

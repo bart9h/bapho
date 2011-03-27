@@ -36,7 +36,7 @@ sub exif2path
 	}
 
 	unless (defined $date_key) {
-		warn "bad exif in \"$source_file\"".(dbg() ? ($exif->{Error} // Dumper $exif) : '')."\n";
+		warn "Bad exif in \"$source_file\"".(dbg() ? ($exif->{Error} // Dumper $exif) : '')."\n";
 		return undef;
 	}
 
@@ -45,7 +45,7 @@ sub exif2path
 		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
 	foreach ($year, $mon, $mday) {
 		if (not defined $_  or  $_ <= 0) {
-			warn "invalid exif date in \"$source_file\"\n";
+			warn "Invalid exif date in \"$source_file\".\n";
 			warn Dumper $exif  if dbg;
 			return undef;
 		}
@@ -69,11 +69,11 @@ sub get_target_path
 	#FIXME: $args{quiet}
 
 	$source_file =~ m/$args{basedir}/
-		and die "importing file $source_file from inside basedir $args{basedir}";
+		and die "Importing file $source_file from inside basedir $args{basedir}.\n";
 
 	my ($ext) = $source_file =~ /\.([^.]+)$/;
 	unless (defined $ext) {
-		warn "ignoring \"$source_file\": no extension.\n";
+		warn "Ignoring \"$source_file\": no extension.\n";
 		return undef;
 	}
 	$ext = lc $ext;
@@ -94,7 +94,7 @@ sub get_target_path
 
 	my $target_file;
 	foreach ('a' .. 'z', 0) {
-		$_  or die 'duplicated timestamp overflow';
+		$_  or die 'Duplicated timestamp overflow!';
 		$target_file = "$dir/$basename$_.$ext";
 		if (!-e $target_file) {
 			return $target_file;
@@ -177,7 +177,7 @@ sub import_gphoto2
 
 	if (0 == system $cmd) {
 		import_files $dir;
-		rmdir $dir  or die "files left on $dir/?";
+		rmdir $dir  or die "Files left on $dir/?";
 	}
 	else {
 		die "$cmd failed";

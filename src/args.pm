@@ -74,7 +74,7 @@ sub state_filename
 }#
 
 sub read_args
-{# read cmdline parameters into %args
+{# read environment and cmdline parameters into %args
 
 	foreach (keys %ENV) {
 		/^BAPHO_(\w+)$/ or next;
@@ -164,16 +164,17 @@ sub save_state
 
 sub load_state
 {#
-	say "loading state file ".state_filename if dbg 'file';
+	my $file = state_filename;
+	say "Loading state file $file." if dbg 'file';
 
-	unless (open F, state_filename) {
-		printf "<%s: $!\n", state_filename;
+	unless (open F, $file) {
+		printf "<%s: $!\n", $file;
 		return;
 	}
 
 	while (<F>) {
 		chomp;
-		/^([^=]+)=(.*)$/ or die;
+		/^([^=]+)=(.*)$/ or die "Corrupt state file $file.";
 		$args{$1} = $2;
 	}
 

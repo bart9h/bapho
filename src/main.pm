@@ -525,7 +525,7 @@ sub new
 	}
 	else {
 		if (exists $args{files}) {
-			die 'only one startdir supported'  if scalar @{$args{files}} != 1;
+			die "only one startdir is currently supported\n"  if scalar @{$args{files}} != 1;
 			my $dir = $args{files}->[0];
 			unless ($dir =~ m{^/}) {
 				my $pwd = `pwd`; chomp $pwd;
