@@ -2,6 +2,7 @@ package FileItr;
 use strict;
 use warnings;
 use v5.10;
+use Carp;
 
 sub new
 {my ($class, $path) = @_;
@@ -81,7 +82,10 @@ sub seek
 			last;
 		}
 	}
-	defined $idx or die;
+	unless (defined $idx) {
+		carp "Couldn't find $self->{path}.";
+		return undef;
+	}
 
 	$idx =
 		$direction eq 'first' ? 0 :
@@ -107,7 +111,7 @@ sub read_directory
 			return @names;
 		}
 		else {
-			warn "opendir $path: $!";
+			carp "opendir $path: $!";
 		}
 	}
 	return ();

@@ -5,6 +5,7 @@ package PictureItr;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 
 use FileItr;
@@ -114,7 +115,7 @@ sub path2id
 
 sub pvt__init
 {my ($self, $path, $dir) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	$self->{itr} = FileItr->new($path);
 
@@ -133,7 +134,7 @@ caller eq __PACKAGE__ or die;
 
 sub pvt__build_pic
 {my ($self) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	$self->{pic} = Picture::new($self->{id});
 

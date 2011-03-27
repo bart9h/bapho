@@ -5,6 +5,7 @@ package Picture;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 
 use args qw/%args dbg/;
@@ -31,7 +32,7 @@ sub add
 		$self->{tags}->add($path);
 	}
 	else {
-		die "duplicate file $path" if exists $self->{files}->{$path};
+		croak "Duplicate file $path." if exists $self->{files}->{$path};
 	}
 
 	$self->{files}->{$path} = 1;
@@ -102,7 +103,7 @@ sub delete
 
 	my $afile = (keys %{$self->{files}})[0];
 	$afile =~ m{^(.*?)/[^/]+$}
-		or die "strange filename ($afile)";
+		or croak "Strange filename ($afile).";
 	my $trash = "$1/.bapho-trash";
 	-d $trash or print `mkdir -v "$trash"`;
 	foreach (keys %{$self->{files}}) {
@@ -115,7 +116,7 @@ sub is_vid { pvt__is_pic_or_vid('vid', @_) }
 
 sub pvt__is_pic_or_vid
 {my ($type, $self_or_path) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	my $x = $self_or_path;
 	my $path = ref $x ? $x->{sel} : $x;

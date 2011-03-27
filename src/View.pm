@@ -5,6 +5,7 @@ package View;
 use strict;
 use warnings;
 use 5.010;
+use Carp;
 use Data::Dumper;
 
 use PictureItr;
@@ -13,7 +14,7 @@ use PictureItr;
 
 sub new
 {my ($picitr, $ins, $outs) = @_;
-	$picitr or die;
+	$picitr or croak;
 
 	bless my $self = {
 		picitr      => $picitr,
@@ -164,7 +165,7 @@ sub seek_to_file
 
 sub pvt__filter
 {my ($self) = @_;
-caller eq __PACKAGE__ or die;
+caller eq __PACKAGE__ or croak;
 
 	foreach (@{$self->{ins}}) {
 		return 0 unless $self->pic->{tags}->get($_);
