@@ -331,6 +331,10 @@ sub do
 				keys => [ 'control-d' ],
 				code => sub { $view->pic->develop },
 			},
+			open_folder => {
+				keys => [ 'control-f' ],
+				code => sub { $view->pic->open_folder },
+			},
 			print_files => {
 				keys => [ 'p' ],
 				code => sub { $view->pic->print }

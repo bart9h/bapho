@@ -44,6 +44,13 @@ sub add
 	}
 }#
 
+sub open_folder
+{my ($self) = @_;
+
+	$self->{sel} =~ m{^(.*?/)[^/]+$} or die;
+	system "xdg-open \"$1\"";
+}#
+
 sub develop
 {my ($self) = @_;
 
