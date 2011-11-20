@@ -28,8 +28,8 @@ our %args = (
 		nop => undef,
 		import => undef,
 		cache_size_mb => undef,
-		pic_extensions => [ qw/jpg tif png cr2/ ],
-		vid_extensions => [ qw/mpg avi mkv mp4 flv/ ],
+		pic_extensions => [ qw/jpeg jpg tiff tif png cr2/ ],
+		vid_extensions => [ qw/mpeg mpg avi mkv mp4 mov flv 3gp/ ],
 		exif_tags => [
 		#{#
 			qw/
