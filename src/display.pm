@@ -135,10 +135,11 @@ sub display
 		my $v = scalar @{$self->{views}};
 		my $name = $+{name} // $view->pic->{sel};
 		my $ext = $+{ext} ? ".$+{ext}" : $name eq '/' ? '' : '/';
+		my $n = $view->pic->{tags}->get_nstars;
 		$self->print(
 			font=>0, text=>$name,
 			font=>1, text=>"$ext  $str",
-			$view->pic->{tags}->get('_star')   ? (font=>0, text=>'  (*)') : (),
+			$view->pic->{tags}->get('_star')   ? (font=>0, text=>'  ('.'*'x$n.')') : (),
 			$view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 			$v>1 ? (font=>0, text=>"  [$v views]") : (),
 		);
