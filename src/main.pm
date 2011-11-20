@@ -475,6 +475,16 @@ sub new
 		use import;
 		exit(import::import_any($args{files}) ? 0 : 1);
 	}
+	elsif ($args{print}) {
+		$view->seek('first');
+		while(1) {
+			my $path = $view->pic->{sel};
+			say $path;
+			$view->seek('+1');
+			last if $path eq $view->pic->{sel};
+		}
+		exit(0);
+	}
 	else {
 		if (exists $args{files}) {
 			die 'only one startdir supported'  if scalar @{$args{files}} != 1;

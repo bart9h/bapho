@@ -27,6 +27,7 @@ our %args = (
 		fullscreen => undef,
 		nop => undef,
 		import => undef,
+		print => undef,
 		cache_size_mb => undef,
 		pic_extensions => [ qw/jpeg jpg tiff tif png cr2/ ],
 		vid_extensions => [ qw/mpeg mpg avi mkv mp4 mov flv 3gp/ ],
