@@ -452,6 +452,25 @@ sub new
 
 	$args{basedir} = fixlink $args{basedir};
 
+	my $jaildir = defined $args{startdir}
+		? $args{startdir} =~ m|^$args{basedir}/|
+			? $args{basedir}
+			: $args{startdir}
+		: $args{basedir};
+
+	my $view = View::new(
+		PictureItr->new($args{startdir} // $args{basedir}, $jaildir),
+		[ (split /,/, $args{include}) ],
+		[ (split /,/, $args{exclude}), '_hidden' ]
+	);
+	#TODO
+	#if (scalar $view->{ids} == 0) {
+	#	say 'no pictures matching the filter';
+	#	return;
+	#}
+
+
+
 	if ($args{import}) {
 		use import;
 		exit(import::import_any($args{files}) ? 0 : 1);
@@ -494,25 +513,10 @@ sub new
 			($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
 		),
 
-		jaildir =>
-			defined $args{startdir} ?
-				$args{startdir} =~ m|^$args{basedir}/| ?
-					$args{basedir}
-					: $args{startdir}
-				: $args{basedir},
+		jaildir => $jaildir,
 	};
 
-	push @{$self->{views}}, View::new(
-		PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
-		[ (split /,/, $args{include}) ],
-		[ (split /,/, $args{exclude}), '_hidden' ]
-	);
-
-	#TODO
-	#if (scalar @{$self->{views}[0]{ids}} == 0) {
-	#	say 'no pictures matching the filter';
-	#	return;
-	#}
+	push @{$self->{views}}, $view;
 
 	$self->load_state;
 	$self;
