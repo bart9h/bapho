@@ -350,7 +350,7 @@ sub do
 			},
 			toggle_star => {
 				keys => [ 's' ],
-				code => sub { $view->pic->{tags}->toggle('_star') },
+				code => sub { $view->pic->{tags}->toggle_star },
 			},
 			toggle_hidden => {
 				keys => [ 'shift-1' ],

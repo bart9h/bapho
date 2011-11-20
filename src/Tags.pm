@@ -32,6 +32,16 @@ sub get
 	: $self->{tags}->{$tag}
 }#
 
+sub get_nstars
+{my ($self) = @_;
+
+	my $n = 0;
+	foreach ("", 1 .. 5) {
+		$n = ($_ ? $_ : 1)  if exists $self->{tags}->{'_star'.$_};
+	}
+	return $n;
+}#
+
 sub add
 {my ($self, $something) = @_;
 
@@ -54,6 +64,34 @@ sub toggle
 	}
 	else {
 		$self->pvt__set_tag($tag);
+	}
+
+	$self->pvt__save_pic_tags;
+}#
+
+sub toggle_star
+{my ($self) = @_;
+
+	my $n = $self->get_nstars;
+	say "was($n)";
+	$n = ($n<5) ? $n+1 : 0;
+	say "is($n)";
+
+	foreach ("", 1 .. 5) {
+		my $tag = '_star'.$_;
+		my $i = $_ ? $_ : 1;
+		if ($i > $n) {
+			if (exists $self->{tags}->{$tag}) {
+				say "del($tag)";
+				delete $self->{tags}->{$tag};
+			}
+		}
+		else {
+			if ($tag ne '_star1') { # =='_star'
+				say "set($tag)";
+				$self->{tags}->{$tag} = 1;
+			}
+		}
 	}
 
 	$self->pvt__save_pic_tags;
