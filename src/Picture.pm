@@ -110,6 +110,7 @@ sub delete
 
 sub is_pic { pvt__is_pic_or_vid('pic', @_) }
 sub is_vid { pvt__is_pic_or_vid('vid', @_) }
+sub is_pic_or_vid { is_pic(@_) or is_vid(@_) }
 
 sub pvt__is_pic_or_vid
 {my ($type, $self_or_path) = @_;

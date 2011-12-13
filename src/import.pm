@@ -78,6 +78,11 @@ sub get_target_path
 	}
 	$ext = lc $ext;
 
+	unless (Picture::is_pic_or_vid($source_file)) {
+		warn "ignoring \"$source_file\": unregistered extension.\n";
+		return undef;
+	}
+
 	my ($dir, $basename) = exif2path($source_file);
 	unless (defined $dir) {
 		($dir, $basename) = filedate2path($source_file);
