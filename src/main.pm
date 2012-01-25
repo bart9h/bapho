@@ -531,7 +531,7 @@ sub main
 
 	use SDL::Event;
 	my $event = new SDL::Event;
-	SDL::Event->set_key_repeat(200, 30);
+	SDL::Event->set_key_repeat(200, 100);
 
 	while(1) {
 
