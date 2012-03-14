@@ -124,9 +124,24 @@ sub play
 sub print
 {my ($self) = @_;
 
-	say
-		-d $self->{sel} ? $self->{sel}
-		: join("\n", keys %{$self->{files}});
+	if (-d $self->{sel}) {
+		say $self->{sel};
+	}
+	else {
+		my @files_to_identify = ();
+		foreach (sort keys %{$self->{files}}) {
+			if (/\.(jpg|png|tif|ppm)$/) {
+				push @files_to_identify, '"'.$_.'"';
+			}
+			else {
+				say;
+			}
+		}
+		if (@files_to_identify) {
+			my $cmd = 'identify '.join ' ', @files_to_identify;
+			system $cmd;
+		}
+	}
 }#
 
 
