@@ -45,15 +45,22 @@ sub _sample_files
 	my $itr = PictureItr->new($path);
 	$itr->down or return ();
 
-	my @files = ();
+	#TODO: my %folder_tags; save for use in upper folders
+	my %sel2score = ();
 	for(;;) {
-		push @files, $itr->{pic}->{sel};
+
+		my $key   = $itr->{pic}->{sel};
+		my @tags  = $itr->{pic}->{tags}->get();
+		my $stars = $itr->{pic}->{tags}->get_nstars();
+
+		$sel2score{$key} = 1000*$stars + scalar @tags;
+
 		$itr->seek('+1') or last;
 	}
 
 	my @sorted = sort {
-		$a cmp $b  #TODO
-	} @files;
+		$sel2score{$b} <=> $sel2score{$a}
+	} keys %sel2score;
 
 	grep {$_} @sorted[0..3];
 }#
