@@ -13,7 +13,7 @@ Missing features:
 
 * Folder handling
   * better pagination
-  * tagging
+  * folder tagging
   * display (collage)
 
 * Interface to define new views (edit in/out filters).
