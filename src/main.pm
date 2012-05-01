@@ -455,11 +455,6 @@ sub new
 
 	$args{basedir} = fixlink $args{basedir};
 
-	if ($args{import}) {
-		use import;
-		exit(import::import_any($args{files}) ? 0 : 1);
-	}
-
 	if (exists $args{files}) {
 		die "Only one startdir supported.\n"  if scalar @{$args{files}} != 1;
 		my $dir = $args{files}->[0];
@@ -526,6 +521,11 @@ sub main
 	args::read_args(@args);
 
 	my $self = new;
+
+	if ($args{import}) {
+		use import;
+		exit(import::import_any($args{files}) ? 0 : 1);
+	}
 
 	SDL::ShowCursor(0);
 
