@@ -180,7 +180,7 @@ sub import_gphoto2
 		rmdir $dir  or die "Files left on $dir/?";
 	}
 	else {
-		die "$cmd failed";
+		die "The command <<<\n\t$cmd\n>>> failed.\n\nWe need sudo and gphoto2 working.\n";
 	}
 }#
 
