@@ -8,18 +8,24 @@ use 5.010;
 use Data::Dumper;
 
 use args qw/%args max/;
-use SDL::TTFont;
+use SDL::Video;
+use SDL::TTF;
+use SDL::TTF::Font;
+use SDL::Color;
 
 #}#
 
 sub new
 {#{my}
 
+	(SDL::TTF::init() == 0) or die;
+
 	bless my $self = {
 		border => 8,
 		fonts => [],
 		font => 0,
 		print_error => 0,
+		black => SDL::Color->new(0, 0, 0),
 	};
 
 	$self->home;
@@ -40,25 +46,8 @@ sub new
 		-f $file  or die "$file not found";
 
 		push @{$self->{fonts}}, {
-			fill => SDL::TTFont->new(
-				-name => $file,
-				-size => $size,
-				#-mode => SDL::TEXT_BLENDED, # XXX SDL_Perl 2.1.3: crash;
-				-mode => SDL::TEXT_SHADED,   # XXX (default) only available with transparency,
-											 # which is wrong because it DOES have anti-aliasing
-											 # to the background color and feels wrong on other
-											 # background, but here will feel so so on the shaded
-											 # transparent background we will force later;
-				#-mode => SDL::TEXT_SOLID,   # XXX transparent blit, without anti-aliasing
-				-bg => $SDL::Color::black,
-				-fg => $SDL::Color::white,
-			),
-			border => SDL::TTFont->new(
-				-name => $file,
-				-size => $size,
-				-mode => SDL::TEXT_SOLID,
-				-fg => $SDL::Color::black,
-			),
+			fill => SDL::TTF::Font->new($file, $size),
+			border => SDL::TTF::Font->new($file, $size),
 		};
 	}
 
@@ -129,8 +118,8 @@ sub print
 		if ($mode eq 'layout') {
 			my $height = .5*$self->{border} + $taller_font->height;
 			my $shade = SDL::Surface->new(-width => $box_width, -height => $height);
-			$shade->fill(0, $SDL::Color::black);
-			$shade->set_alpha(SDL::SDL_SRCALPHA, 0x40);
+			$shade->fill(0, $self->{black});
+			$shade->set_alpha(SDL::Video::SDL_SRCALPHA, 0x40);
 			$shade->blit(0, $surf,
 				SDL::Rect->new(-x => $self->{x}-$self->{border}, -y => $self->{y}, -width => $box_width, -height => $height),
 			);

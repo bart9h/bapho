@@ -7,7 +7,7 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 
-use SDL::App;
+use SDLx::App;
 
 use args qw/%args dbg/;
 use Array;
@@ -447,6 +447,27 @@ sub handle_event
 	}
 }#
 
+sub new_sdl_window
+{my ($self) = @_;
+
+	my ($w, $h) = get_window_geometry;
+
+	my %sdl_args = (
+		title => 'bapho',
+		width => $w,
+		height => $h,
+	);
+
+	if ($args{fullscreen}) {
+		$sdl_args{flags} = SDL::Video::SDL_FULLSCREEN;
+	}
+	else {
+		$sdl_args{resizeable} = 1;
+	}
+
+	SDLx::App->new(%sdl_args);
+}#
+
 sub new
 {#{my constructor}
 
@@ -499,8 +520,7 @@ sub new
 		}
 	}
 
-	my ($w, $h) = get_window_geometry;
-	bless my $self = {
+	bless my $eu = {
 
 		views      => [],
 		factory    => Factory::new,
@@ -517,35 +537,29 @@ sub new
 			':18',
 		),
 
-		# SDL window
-		app => SDL::App->new(
-			-title => 'bapho',
-			-width => $w,
-			-height => $h,
-			($args{fullscreen} ? '-fullscreen':'-resizeable') => 1,
-		),
-
 		jaildir => $jaildir,
 	};
 
-	push @{$self->{views}}, $view;
+	$eu->{app} = $eu->new_sdl_window();
 
-	$self->load_state;
-	$self;
+	push @{$eu->{views}}, $view;
+
+	$eu->load_state;
+	$eu;
 }#
 
 sub main
-{my @args = @_;
+{my @arghs = @_;
 
-	args::read_args(@args);
+	args::read_args(@arghs);
 
 	my $self = new;
 
-	SDL::ShowCursor(0);
+	#TODO SDL::ShowCursor(0);
 
 	use SDL::Event;
 	my $event = new SDL::Event;
-	SDL::Event->set_key_repeat(200, 100);
+	#TODO SDL::Event->set_key_repeat(200, 100);
 
 	while(1) {
 

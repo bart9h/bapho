@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use 5.010;
 use Data::Dumper;
+use SDL::Color;
 
 use args qw/%args/;
 use Tags;
@@ -52,10 +53,10 @@ sub display
 		$view->{cur_surf} = $surf  if $pic eq $view->pic;
 
 		my $dest = SDL::Rect->new(
-			-x => $x + ($w - $surf->{surf}->width)/2,
-			-y => $y + ($h - $surf->{surf}->height)/2,
-			-width => $surf->{surf}->width,
-			-height => $surf->{surf}->height,
+			$x + ($w - $surf->{surf}->w)/2,
+			$y + ($h - $surf->{surf}->h)/2,
+			$surf->{surf}->w,
+			$surf->{surf}->h,
 		);
 
 		$surf->{surf}->blit(0, $self->{app}, $dest);
@@ -194,8 +195,8 @@ sub display
 		$self->{text}->print($self->{app}, @args);
 	}#
 
-	state $bg = SDL::Color->new(-r => 0, -g => 0, -b => 0);
-	$self->{app}->fill(0, $bg);
+	state $bg = SDL::Color->new(0, 0, 0);
+	#TODO $self->{app}->fill(0, $bg);
 	$self->render_all;
 	$self->{app}->update;
 	$self->{app}->sync;

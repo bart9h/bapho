@@ -10,6 +10,7 @@ use Data::Dumper;
 use Video;
 use SDL::Surface;
 use Image::ExifTool;
+use SDL::GFX::Rotozoom ();
 
 use args qw/%args dbg/;
 
@@ -156,10 +157,11 @@ sub get
 
 			unless ($surf) {
 				say ':(';
-				$surf = SDL::Surface->new(-width => 256, -height => 256);
-				$surf->fill(
-					SDL::Rect->new(-width => 128, -height => 128, -x => 64, -y => 64),
-					SDL::Color->new(-r => 200, -g => 0, -b => 0),
+				$surf = SDL::Surface->new(0, 256, 256);
+				SDL::Video::fill_rect(
+					$surf,
+					SDL::Rect->new(64, 64, 128, 128),
+					SDL::Color->new(200, 0, 0),
 				);
 			}
 
@@ -172,9 +174,7 @@ sub get
 			die "SDL::Tool::Graphic::zoom requires an SDL::Surface\n"
 				unless (ref($surface) and $surface->isa('SDL::Surface'));
 
-			my $tmp = SDL::Surface->new;
-			$$tmp = SDL::GFXZoom($$surface, $zoom, $zoom, 1);
-			return $tmp;
+			return SDL::GFX::Rotozoom::zoom_surface($surface, $zoom, $zoom, SDL::GFX::Rotozoom::SMOOTHING_ON);
 		}#
 
 		my $origin;
@@ -202,8 +202,8 @@ sub get
 		}#
 
 		my $zoom = eval {
-			my $zoom_x =  $width  / $origin->{surf}->width;
-			my $zoom_y =  $height / $origin->{surf}->height;
+			my $zoom_x =  $width  / $origin->{surf}->w;
+			my $zoom_y =  $height / $origin->{surf}->h;
 			(sort $zoom_x, $zoom_y)[0];
 		};
 
