@@ -405,7 +405,7 @@ sub handle_event
 	use SDL::Constants;
 	given ($event->type) {
 		when ($_ == SDL_KEYDOWN()) {
-			my $key = $event->key_name;
+			my $key = SDL::Events::get_key_name($event->key_sym);
 			$shift   = 1  if $key =~ m{^(left|right)\ shift$};
 			$control = 1  if $key =~ m{^(left|right)\ ctrl$};
 			$key =   'shift-'.$key  if $shift;
@@ -424,8 +424,10 @@ sub handle_event
 			}
 		}
 		when ($_ == SDL_KEYUP()) {
-			$shift   = 0  if $event->key_name =~ m{^(left|right)\ shift$};
-			$control = 0  if $event->key_name =~ m{^(left|right)\ ctrl$};
+			given (SDL::Events::get_key_name($event->key_sym)) {
+				when (m{^(left|right)\ shift$}) { $shift   = 0 }
+				when (m{^(left|right)\ ctrl$})  { $control = 0 }
+			}
 		}
 		when ($_ == SDL_MOUSEBUTTONDOWN()) {
 			$self->do(

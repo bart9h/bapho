@@ -9,8 +9,9 @@ use Data::Dumper;
 
 use Video;
 use SDL::Surface;
-use Image::ExifTool;
+use SDL::Image;
 use SDL::GFX::Rotozoom ();
+use Image::ExifTool;
 
 use args qw/%args dbg/;
 
@@ -86,7 +87,7 @@ sub get
 				print F ${$exif->{$tag}};
 				close F;
 
-				my $surf = SDL::Surface->new(-name => $tmp);
+				my $surf = SDL::Image::load($tmp);
 
 				unlink $tmp;
 
@@ -112,7 +113,8 @@ sub get
 				$item->{surf} = Video::load_sample_frame($path);
 			}
 			else {
-				$item->{surf} = eval { SDL::Surface->new(-name => $path) };
+				#$item->{surf} = eval { SDL::Image::load($path) };
+				$item->{surf} = SDL::Image::load($path);
 
 				state $exiftool //= Image::ExifTool->new;
 				$exif = $exiftool->ImageInfo($path);
@@ -125,8 +127,8 @@ sub get
 			}
 
 			if ($item->{surf}) {
-				$item->{width}  //= $item->{surf}->width;
-				$item->{height} //= $item->{surf}->height;
+				$item->{width}  //= $item->{surf}->w;
+				$item->{height} //= $item->{surf}->h;
 			}
 
 			$item;
@@ -144,9 +146,9 @@ sub get
 		sub add_picture
 		{my ($self, $path, $picture) = @_;
 
-			my $res = res_key($picture->{surf}->width, $picture->{surf}->height);
+			my $res = res_key($picture->{surf}->w, $picture->{surf}->h);
 			$self->{items}->{$path}->{$res} = $picture;
-			$self->{bytes_used} += $picture->{surf}->pitch * $picture->{surf}->height;
+			$self->{bytes_used} += $picture->{surf}->pitch * $picture->{surf}->h;
 			$self->{loaded_files} += 1;
 		}#
 
@@ -265,7 +267,7 @@ sub garbage_collector
 		last if $self->{bytes_used} < $self->{max_bytes};
 
 		my $surf = $self->{items}->{$_->{filename}}->{$_->{res}}->{surf};
-		my $surf_bytes = $surf->pitch * $surf->height;
+		my $surf_bytes = $surf->pitch * $surf->h;
 		printf "freeing %.2f MB from $_->{filename} @ $_->{res}\n", $surf_bytes/(1024*1024)
 			if dbg 'cache,memory,gc';
 		$self->{bytes_used} -= $surf_bytes;
