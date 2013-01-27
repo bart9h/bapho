@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use 5.010;
 use Data::Dumper;
+use SDL;
 use SDL::Color;
 
 use args qw/%args/;
@@ -28,7 +29,7 @@ sub display
 			$view->{rows} = $view->{cols} = 1;
 			$self->render_pic(
 				$view->pic,
-				$self->{app}->width, $self->{app}->height,
+				$self->{app}->w, $self->{app}->h,
 				0, 0);
 		}
 
@@ -53,21 +54,21 @@ sub display
 		$view->{cur_surf} = $surf  if $pic eq $view->pic;
 
 		SDL::Video::blit_surface($surf->{surf}, undef, $self->{app},
-			[
+			SDL::Rect->new(
 				$x + ($w - $surf->{surf}->w)/2,
 				$y + ($h - $surf->{surf}->h)/2,
 				$surf->{surf}->w,
 				$surf->{surf}->h,
-			]
+			)
 		);
 
 		sub render_cursor
 		{#{my}
 
 			my $b = 2;
-			$self->{app}->fill(
-				SDL::Rect->new(-x => $_->[0], -y => $_->[1], -width => $_->[2], -height => $_->[3]),
-				$SDL::Color::white,
+			SDL::Video::fill_rect($self->{app},
+				SDL::Rect->new($_->[0], $_->[1], $_->[2], $_->[3]),
+				$self->{white}
 			)
 			foreach (
 				[ $x,       $y,       $w, $b      ],  # top
@@ -81,14 +82,14 @@ sub display
 		{#{my}
 
 			my $b = 3;
-			my $r = SDL::Rect->new(-x => $x+$w-1-6*$b, -y => $y+$b, -width => 5*$b, -height => 5*$b);
-			$self->{app}->fill($r, $SDL::Color::black);
-			$r->x($r->x+1); $r->y($r->y+1); $r->width($r->width-2); $r->height($r->height-2);
-			$self->{app}->fill($r, $SDL::Color::white);
-			$r->x($x+$w-1-5*$b); $r->y($y+3*$b); $r->width(3*$b); $r->height($b);
-			$self->{app}->fill($r, $SDL::Color::black);
-			$r->x($x+$w-1-4*$b); $r->y($y+2*$b); $r->width($b); $r->height(3*$b);
-			$self->{app}->fill($r, $SDL::Color::black);
+			my $r = SDL::Rect->new($x+$w-1-6*$b, $y+$b, 5*$b, 5*$b);
+			SDL::Video::fill_rect($self->{app}, $r, $self->{black});
+			$r->x($r->x+1); $r->y($r->y+1); $r->w($r->width-2); $r->h($r->height-2);
+			SDL::Video::fill_rect($self->{app}, $r, $self->{white});
+			$r->x($x+$w-1-5*$b); $r->y($y+3*$b); $r->w(3*$b); $r->h($b);
+			SDL::Video::fill_rect($self->{app}, $r, $self->{black});
+			$r->x($x+$w-1-4*$b); $r->y($y+2*$b); $r->w($b); $r->h(3*$b);
+			SDL::Video::fill_rect($self->{app}, $r, $self->{black});
 		}#
 
 		render_cursor     if $is_cursor;
@@ -195,8 +196,11 @@ sub display
 		$self->{text}->print($self->{app}, @args);
 	}#
 
-	state $bg = SDL::Color->new(0, 0, 0);
-	SDL::Video::fill_rect($self->{app}, undef, $bg);
+	SDL::Video::fill_rect($self->{app},
+		SDL::Rect->new(0, 0, $self->{app}->w, $self->{app}->h), #FIXME: SDL::NULL should work
+		$self->{black}
+	);
+
 	$self->render_all;
 	$self->{app}->update;
 	$self->{app}->sync;

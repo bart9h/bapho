@@ -114,11 +114,13 @@ sub print
 			}
 		}
 
-		if (0 and $mode eq 'layout') { #FIXME: not working
+		if ($mode eq 'layout') {
 			my $height = .5*$self->{border} + SDL::TTF::font_height($taller_font);
 			my $shade = SDL::Surface->new(0, $box_width, $height);
-			SDL::Video::fill_rect($shade, undef, $self->{black});
-			#FIXME $shade->set_alpha(SDL::Video::SDL_SRCALPHA, 0x40);
+			SDL::Video::fill_rect($shade,
+				SDL::Rect->new(0, 0, $shade->w, $shade->h), #FIXME: SDL::NULL should work
+				SDL::Video::map_RGBA($shade->format, 0, 0, 0, 0x40)
+			);
 			SDL::Video::blit_surface($shade, undef, $surf,
 				SDL::Rect->new($self->{x}-$self->{border}, $self->{y}, $box_width, $height)
 			);

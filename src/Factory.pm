@@ -163,7 +163,7 @@ sub get
 				SDL::Video::fill_rect(
 					$surf,
 					SDL::Rect->new(64, 64, 128, 128),
-					SDL::Color->new(200, 0, 0),
+					SDL::Video::map_RGB($surf->format, 200, 0, 0),
 				);
 			}
 

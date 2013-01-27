@@ -468,7 +468,11 @@ sub new_sdl_window
 		$sdl_args{resizeable} = 1;
 	}
 
-	SDLx::App->new(%sdl_args);
+	my $surf = SDLx::App->new(%sdl_args);
+	$self->{white} = SDL::Video::map_RGB($surf->format, 255, 255, 255);
+	$self->{black} = SDL::Video::map_RGB($surf->format, 0, 0, 0);
+	$self->{null_rect} = SDL::Rect->new(0, 0, 0, 0);
+	$surf;
 }#
 
 sub new

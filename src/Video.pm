@@ -14,24 +14,27 @@ sub render_film_roll_frame #FIXME nao funfa
 	my $b = int($surf->h/(3*15+1));
 	my $w = 1;  # width of the white line on the borders
 
+	my $black = SDL::Video::map_RGB($surf->format, 0, 0, 0);
+	my $white = SDL::Video::map_RGB($surf->format, 255, 255, 255);
+
 	my $r = SDL::Rect->new(0, 0, $w, $surf->h);
-	SDL::Video::fill_rect($surf, $r, $SDL::Color::white);
+	SDL::Video::fill_rect($surf, $r, $white);
 	$r->x($surf->w- 1);
-	SDL::Video::fill_rect($surf, $r, $SDL::Color::white);
+	SDL::Video::fill_rect($surf, $r, $white);
 
 	foreach my $x (0+$w, $surf->w-1 -($w+5*$b)) {
 		$r->x($x);
 		$r->y(0);
 		$r->w(5*$b);
 		$r->h($surf->h);
-		SDL::Video::fill_rect($surf, $r, $SDL::Color::black);
+		SDL::Video::fill_rect($surf, $r, $black);
 
 		$r->x($x+$b);
 		$r->w(3*$b);
 		$r->h(2*$b);
 		for (my $y = $b; $y < $surf->h; $y += 3*$b) {
 			$r->y($y);
-			SDL::Video::fill_rect($surf, $r, $SDL::Color::white);
+			SDL::Video::fill_rect($surf, $r, $white);
 		}
 	}
 }#
