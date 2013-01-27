@@ -568,10 +568,10 @@ sub main
 			$self->{dirty} = 0;
 		}
 
-		$event->wait;
+		SDL::Events::wait_event($event);
 		do {
 			$self->handle_event($event);
-		} while ($event->poll);
+		} while (SDL::Events::poll_event($event));
 	}
 
 }#

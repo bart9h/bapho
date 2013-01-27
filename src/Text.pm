@@ -9,6 +9,7 @@ use Data::Dumper;
 
 use args qw/%args max/;
 use SDL::Video;
+use SDL::Surface;
 use SDL::TTF;
 use SDL::TTF::Font;
 use SDL::Color;
@@ -82,7 +83,8 @@ sub print
 					my $w;
 					if (!$self->{print_error}) {
 						eval {
-							$w = $font->width($arg);
+							#FIXME $w = $font->width($arg);
+							$w = 18*length($arg);
 						};
 						if ($@) {
 							print $@;
@@ -93,21 +95,33 @@ sub print
 
 					if ($mode eq 'layout') {
 						$taller_font = $font
-							if not defined $taller_font
-							or $taller_font->height > $font->height;
+							;#FIXME if not defined $taller_font
+							#or $taller_font->height > $font->height;
 						$box_width += $w;
 					}
 					else {
 						my $x0 = $self->{x};
-						my $y0 = $self->{y} + $taller_font->ascent - $font->ascent;
+						my $y0 = $self->{y} + 20; #FIXME $taller_font->ascent - $font->ascent;
+
+						sub do_print
+						{my ($font, $surf, $x, $y, $text) = @_;
+
+							my $ts = SDL::TTF::render_text_solid($font, $text, 0xffffff); #FIXME color
+							SDL::Video::blit_surface(
+								$ts,
+								undef,
+								$surf,
+								[ $x, $y, SDL::Surface::w($ts), SDL::Surface::w($ts) ]
+							);
+						}#
 
 						for(my $x = $x0-1; $x <= $x0+1; $x+=2) {
 							for(my $y = $y0-1; $y <= $y0+1; $y+=2) {
-								$font_border->print($surf, $x, $y, $arg);
+								do_print($font_border, $surf, $x, $y, $arg);
 							}
 						}
 
-						$font->print($surf, $x0, $y0, $arg);
+						do_print($font, $surf, $x0, $y0, $arg);
 						$self->{x} += $w;
 					}
 				}
@@ -116,19 +130,17 @@ sub print
 		}
 
 		if ($mode eq 'layout') {
-			my $height = .5*$self->{border} + $taller_font->height;
-			my $shade = SDL::Surface->new(-width => $box_width, -height => $height);
-			$shade->fill(0, $self->{black});
-			$shade->set_alpha(SDL::Video::SDL_SRCALPHA, 0x40);
-			$shade->blit(0, $surf,
-				SDL::Rect->new(-x => $self->{x}-$self->{border}, -y => $self->{y}, -width => $box_width, -height => $height),
-			);
+			my $height = .5*$self->{border} + 20;#FIXME $taller_font->height;
+			my $shade = SDLx::Surface->new(width => $box_width, height => $height);
+			$shade->draw_rect(undef, $self->{black});
+			#FIXME $shade->set_alpha(SDL::Video::SDL_SRCALPHA, 0x40);
+			$shade->blit($surf, undef, [ $self->{x}-$self->{border}, $self->{y}, $box_width, $height ]);
 		}
 	}
 
 	$self->{max_x} = max($self->{max_x}, $self->{x});
-	$self->{y} += $taller_font->height;
-	if ($self->{y}+$taller_font->height > $surf->height) {
+	$self->{y} += 20;#$taller_font->height;
+	if ($self->{y}+20 > $surf->height) { #aki tb
 		$self->{y} = $self->{y0};
 		$self->{x0} = $self->{max_x} + $self->{border};
 		$self->{max_x} = 0;

@@ -7,6 +7,7 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 use SDL::Color;
+use SDLx::Surface;
 
 use args qw/%args/;
 use Tags;
@@ -52,14 +53,28 @@ sub display
 		my $surf = $self->{factory}->get($pic->{sel}, $w, $h);
 		$view->{cur_surf} = $surf  if $pic eq $view->pic;
 
-		my $dest = SDL::Rect->new(
-			$x + ($w - $surf->{surf}->w)/2,
-			$y + ($h - $surf->{surf}->h)/2,
-			$surf->{surf}->w,
-			$surf->{surf}->h,
+	if (0) {
+		my $xs = SDLx::Surface->new(surface => $surf->{surf}); #TODO fazer o factory guardar SDLx::Surface
+		$xs->blit(
+			$self->{app},
+			undef,
+			[
+				$x + ($w - $surf->{surf}->w)/2,
+				$y + ($h - $surf->{surf}->h)/2,
+				$surf->{surf}->w,
+				$surf->{surf}->h,
+			]
 		);
-
-		$surf->{surf}->blit(0, $self->{app}, $dest);
+	} else {
+		SDL::Video::blit_surface($surf->{surf}, undef, $self->{app},
+			[
+				$x + ($w - $surf->{surf}->w)/2,
+				$y + ($h - $surf->{surf}->h)/2,
+				$surf->{surf}->w,
+				$surf->{surf}->h,
+			]
+		);
+	}
 
 		sub render_cursor
 		{#{my}
@@ -128,7 +143,7 @@ sub display
 		my $str = ''; #join '/', $view->{cursor}+1, scalar @{$view->{ids}};
 		my $s = $view->{cur_surf};
 		if ($s and $s->{width} and $s->{height}) {
-			my $zoom = $s->{surf}->width/$s->{width};
+			my $zoom = $s->{surf}->w/$s->{width};
 			$str .= '  '.$s->{width}.'x'.$s->{height};
 			$str .= '  '.int($zoom*100).'%';
 		}
