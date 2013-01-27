@@ -7,7 +7,6 @@ use warnings;
 use 5.010;
 use Data::Dumper;
 use SDL::Color;
-use SDLx::Surface;
 
 use args qw/%args/;
 use Tags;
@@ -53,19 +52,6 @@ sub display
 		my $surf = $self->{factory}->get($pic->{sel}, $w, $h);
 		$view->{cur_surf} = $surf  if $pic eq $view->pic;
 
-	if (0) {
-		my $xs = SDLx::Surface->new(surface => $surf->{surf}); #TODO fazer o factory guardar SDLx::Surface
-		$xs->blit(
-			$self->{app},
-			undef,
-			[
-				$x + ($w - $surf->{surf}->w)/2,
-				$y + ($h - $surf->{surf}->h)/2,
-				$surf->{surf}->w,
-				$surf->{surf}->h,
-			]
-		);
-	} else {
 		SDL::Video::blit_surface($surf->{surf}, undef, $self->{app},
 			[
 				$x + ($w - $surf->{surf}->w)/2,
@@ -74,7 +60,6 @@ sub display
 				$surf->{surf}->h,
 			]
 		);
-	}
 
 		sub render_cursor
 		{#{my}
@@ -211,7 +196,7 @@ sub display
 	}#
 
 	state $bg = SDL::Color->new(0, 0, 0);
-	#TODO $self->{app}->fill(0, $bg);
+	SDL::Video::fill_rect($self->{app}, undef, $bg);
 	$self->render_all;
 	$self->{app}->update;
 	$self->{app}->sync;

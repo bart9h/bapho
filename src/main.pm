@@ -8,6 +8,7 @@ use 5.010;
 use Data::Dumper;
 
 use SDLx::App;
+use SDL::Mouse;
 
 use args qw/%args dbg/;
 use Array;
@@ -557,7 +558,7 @@ sub main
 
 	my $self = new;
 
-	#TODO SDL::ShowCursor(0);
+	SDL::Mouse::show_cursor(0);
 
 	use SDL::Event;
 	my $event = new SDL::Event;
