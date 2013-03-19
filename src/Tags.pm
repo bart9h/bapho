@@ -73,22 +73,22 @@ sub toggle_star
 {my ($self) = @_;
 
 	my $n = $self->get_nstars;
-	say "was($n)";
+	say "was($n)" if dbg 'tags';
 	$n = ($n<5) ? $n+1 : 0;
-	say "is($n)";
+	say "is($n)" if dbg 'tags';
 
 	foreach ("", 1 .. 5) {
 		my $tag = '_star'.$_;
 		my $i = $_ ? $_ : 1;
 		if ($i > $n) {
 			if (exists $self->{tags}->{$tag}) {
-				say "del($tag)";
+				say "del($tag)" if dbg 'tags';
 				delete $self->{tags}->{$tag};
 			}
 		}
 		else {
 			if ($tag ne '_star1') { # =='_star'
-				say "set($tag)";
+				say "set($tag)" if dbg 'tags';
 				$self->{tags}->{$tag} = 1;
 			}
 		}
