@@ -88,10 +88,10 @@ sub fullscreen_toggle
 	# is to avoid changing screen resolutions.
 	if ($args{fullscreen}) {
 		$self->{app}->resize($w, $h);
-		$self->{app}->fullscreen;
+		SDL::Video::wm_toggle_fullscreen($self->{app});
 	}
 	else {
-		$self->{app}->fullscreen;
+		SDL::Video::wm_toggle_fullscreen($self->{app});
 		$self->{app}->resize($w, $h);
 	}
 }#
