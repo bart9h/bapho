@@ -84,7 +84,7 @@ sub display
 			my $b = 3;
 			my $r = SDL::Rect->new($x+$w-1-6*$b, $y+$b, 5*$b, 5*$b);
 			SDL::Video::fill_rect($self->{app}, $r, $self->{black});
-			$r->x($r->x+1); $r->y($r->y+1); $r->w($r->width-2); $r->h($r->height-2);
+			$r->x($r->x+1); $r->y($r->y+1); $r->w($r->w-2); $r->h($r->h-2);
 			SDL::Video::fill_rect($self->{app}, $r, $self->{white});
 			$r->x($x+$w-1-5*$b); $r->y($y+3*$b); $r->w(3*$b); $r->h($b);
 			SDL::Video::fill_rect($self->{app}, $r, $self->{black});
