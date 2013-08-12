@@ -135,14 +135,17 @@ sub display
 		}
 
 		my $v = scalar @{$self->{views}};
-		my $n = $view->pic->{tags}->get_nstars;
 		$self->print(
 			font=>0, text=>$+{name},
 			font=>1, text=>".$+{ext}  $str",
-			$n ? (font=>0, text=>'  ('.'*'x$n.')') : (),
 			$view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 			$v>1 ? (font=>0, text=>"  [$v views]") : (),
 		);
+
+		my $n = $view->pic->{tags}->get_nstars;
+		if ($n > 0) {
+			$self->print(color=>'yellow', font=>2, text=>'(*)'x$n);
+		}
 	}#
 
 	sub render_tags

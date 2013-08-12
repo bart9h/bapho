@@ -158,6 +158,7 @@ sub seek_levels
 	$self->{picitr}->{itr}->{cursor} = 0;
 	# re-build picitr
 	$self->{picitr} = $self->{picitr}->dup;
+	$self->pvt__filter or $self->seek('+1');
 	$self->{page_cursor} = 0;
 }#
 

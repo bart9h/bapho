@@ -542,6 +542,7 @@ sub new
 		text => Text::new(
 			'Bitstream Vera Sans Mono:20',
 			':18',
+			':32',
 		),
 
 		jaildir => $jaildir,

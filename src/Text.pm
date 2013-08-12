@@ -25,8 +25,9 @@ sub new
 		border => 8,
 		fonts => [],
 		font => 0,
-		white => SDL::Color->new(255, 255, 255),
-		black => SDL::Color->new(0, 0, 0),
+		white  => SDL::Color->new(255, 255, 255),
+		yellow => SDL::Color->new(255, 255, 0),
+		black  => SDL::Color->new(0, 0, 0),
 	};
 
 	$self->home;
@@ -70,11 +71,15 @@ sub print
 
 	$box_width += 2*$self->{border};
 	foreach my $mode ('layout', 'draw') {
+		my $color = $self->{white};
 		for (my $i = 0;  $i < $#args;  $i += 2) {
 			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
 			given ($cmd) {
 				when (/font/) {
 					$self->{font} = $arg;
+				}
+				when (/color/) {
+					$color = $self->{$arg};
 				}
 				when (/text/) {
 					my $font        = $self->{fonts}->[$self->{font}]->{fill}    or die;
@@ -106,7 +111,7 @@ sub print
 							}
 						}
 
-						do_print($font, $surf, $x0, $y0, $self->{white}, $arg);
+						do_print($font, $surf, $x0, $y0, $color, $arg);
 						$self->{x} += $w;
 					}
 				}
