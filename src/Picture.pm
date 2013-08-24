@@ -84,7 +84,7 @@ sub develop
 			$cmd = "ufraw \"$file\" || gvim \"$file\"";
 		}
 		when (/\.cr2$/i) {
-			$cmd = "ufraw \"$file\" &";
+			$cmd = "ufraw \"$file\"";
 		}
 		when (is_pic($file)) {
 			$cmd = "gimp \"$file\" &";
@@ -92,7 +92,23 @@ sub develop
 	}
 	if (defined $cmd) {
 		say $cmd if dbg;
+
+		my $ppm = $file; $ppm =~ s/\.[^.]+$/\.ppm/;
+		my $M0 = -M $ppm;
+
 		system $cmd;
+
+		if ($cmd =~ /^ufraw /) {
+			my $jpg = $file; $jpg =~ s/\.[^.]+$/\.jpg/;
+			my $M1 = -M $ppm;
+			if (not -s $jpg and $M1 and (not $M0 or $M0 != $M1)) {
+				$cmd = "convert -sharpen 5x2 -quality 90 -resize 1920x1080 \"$ppm\" \"$jpg\"";
+				my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
+				$cmd = "($cmd; notify-send \"$base\") &";
+				say $cmd if dbg;
+				system $cmd;
+			}
+		}
 	}
 }#
 
