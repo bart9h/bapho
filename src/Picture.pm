@@ -51,21 +51,32 @@ sub open_folder
 }#
 
 sub develop
-{my ($self) = @_;
+{my ($self, $app) = @_;
 
 	sub guess_source
-	{my ($self) = @_;
+	{my ($self, $app) = @_;
 
-		foreach (qw/ufraw xcf cr2 tif png/) {
-			foreach (glob "$self->{id}*.$_") {
-				-r and return $_;
+		my %app_exts = (
+			ufraw => [ 'ufraw', 'cr2' ],
+			gimp  => [ 'xcf', 'ppm', 'tif', 'png', 'jpg' ],
+		);
+		not $app or $app_exts{$app} or die; #TODO: confess
+
+		foreach my $a ( $app
+				? ( $app )
+				: ( 'ufraw', 'gimp' )
+		) {
+			foreach my $ext (@{$app_exts{$a}}) {
+				foreach (keys %{$self->{files}}) {
+					/\.$ext$/ and -r and return $_;
+				}
 			}
 		}
 
-		return $self->{sel};
+		return undef;
 	}#
 
-	my $file = $self->guess_source;
+	my $file = $self->guess_source($app) or return;
 
 	my $cmd;
 	given ($file) {

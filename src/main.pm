@@ -335,6 +335,14 @@ sub do
 				keys => [ 'shift-x' ],
 				code => sub { $view->toggle_selection_page },
 			},
+			edit_file_ufraw => {
+				keys => [ 'control-u' ],
+				code => sub { $view->pic->develop('ufraw'); FileItr->dirty() },
+			},
+			edit_file_gimp => {
+				keys => [ 'control-g' ],
+				code => sub { $view->pic->develop('gimp'); FileItr->dirty() },
+			},
 			edit_file => {
 				keys => [ 'control-d' ],
 				code => sub { $view->pic->develop; FileItr->dirty() },
