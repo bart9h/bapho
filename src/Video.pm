@@ -52,11 +52,9 @@ sub load_sample_frame
 	system $cmd;
 
 	my $surf;
-	if (-e $framefile) {
-		$surf = SDL::Image::load($framefile);
-		unlink $framefile or die;
-	}
-	rmdir $tmpdir;# or die;
+	$surf = SDL::Image::load($framefile)  if -e $framefile;
+
+	system "rm -rf \"$tmpdir\"";
 
 	render_film_roll_frame($surf) if $surf;
 	$surf;
