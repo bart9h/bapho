@@ -53,7 +53,7 @@ sub load_sample_frame
 		$surf = SDL::Surface->new(-name => $framefile);
 		unlink $framefile or die;
 	}
-	rmdir $tmpdir or die;
+	system "rm -rf \"$tmpdir\"";
 
 	render_film_roll_frame($surf) if $surf;
 	$surf;
