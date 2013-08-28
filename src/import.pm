@@ -54,6 +54,17 @@ sub exif2path
 	return datetime2path($year, $mon, $mday, $hour, $min, $sec);
 }#
 
+sub path2path
+{my ($source_file) = @_;
+
+	my ($basename, $year, $mon, $mday, $hour, $min, $sec) = $source_file =~
+		m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?).(?:3gp|m4v|jpg)$}
+		or return undef;
+
+	my ($dir, undef) = datetime2path($year, $mon, $mday, $hour, $min, $sec);
+	return ($dir, $basename);
+}#
+
 sub filedate2path
 {my ($source_file) = @_;
 
@@ -61,6 +72,16 @@ sub filedate2path
 	my $mtime = $s[9];
 	my ($sec,$min,$hour,$mday,$mon,$year) = gmtime $mtime;
 	return datetime2path($year+1900, $mon+1, $mday, $hour, $min, $sec);
+}#
+
+sub guess_path
+{my ($source_file) = @_;
+
+	my ($dir, $name) = path2path($source_file);
+	if (not defined $dir) {
+		($dir, $name) = exif2path($source_file);
+	}
+	return ($dir, $name);
 }#
 
 sub get_target_path
@@ -83,7 +104,7 @@ sub get_target_path
 		return undef;
 	}
 
-	my ($dir, $basename) = exif2path($source_file);
+	my ($dir, $basename) = guess_path($source_file);
 	unless (defined $dir) {
 		($dir, $basename) = filedate2path($source_file);
 		defined $dir or return undef;
