@@ -137,9 +137,9 @@ sub get
 				$item->{surf} = Folder::render_surf($path, $width, $height, $self);
 
 				# save cache  (TODO: save directly to jpg)
-				my $tmp = "/tmp/bapho-folder.bmp";
+				my $tmp = '/tmp/bapho-folder.bmp';
 				$item->{surf}->save_bmp($tmp);
-				system "convert $tmp $cache_filename";
+				system "convert $tmp \"$cache_filename\"";
 				unlink $tmp;
 			}
 			else {
