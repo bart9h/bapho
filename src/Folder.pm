@@ -13,12 +13,12 @@ sub render_surf
 	my $b = 12;
 	state $level = 0;
 
-	folder_frame($surf, $b);
+	pvt__folder_frame($surf, $b);
 
 	return $surf if $level > 1;
 	++$level;
 
-	my @files = sample_files($path);
+	my @files = pvt__sample_files($path);
 	my ($w, $h) = (scalar @files == 1)
 		? ($width-4*$b, $height-5*$b)
 		: (($width-5*$b)/2, ($height-6*$b)/2);
@@ -40,8 +40,9 @@ sub render_surf
 	return $surf;
 }#
 
-sub sample_files
+sub pvt__sample_files
 {my ($path) = @_;
+caller eq __PACKAGE__ or croak;
 
 	my $itr = PictureItr->new($path);
 	$itr->down or return ();
@@ -59,8 +60,9 @@ sub sample_files
 	grep {$_} @sorted[0..3];
 }#
 
-sub folder_frame
+sub pvt__folder_frame
 {my ($surf, $b) = @_;
+caller eq __PACKAGE__ or croak;
 
 	state $color = new SDL::Color ( -r => 220, -g => 180, -b => 100 );
 	my $tab2 = 4;
