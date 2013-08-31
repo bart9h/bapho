@@ -8,8 +8,14 @@ Bugs:
 
 * PictureItr points to .tags file + .tags is deleted = die when seek.
 
+* Thumbs view does not honor filters.
+
 
 Missing features:
+
+* Show most recently used tags first.
+
+* Handle tags for people and places separately.
 
 * Interface to define new views (edit in/out filters).
 
@@ -32,31 +38,27 @@ Missing features:
 
 Enhancements:
 
+* Export images
+  * Select resolution.
+  * Upload to photo-hosting web services (PicasaWeb, Flickr, Imgur, etc).
+  * Set a picture as wallpaper.
+
+* Folder handling
+  * Folder iterator.
+  * Toggle between file view and folder view.
+  * Folder tagging.
+
 * Slideshow.
+
+* Option to import then run the gui showing only the just-imported pics.
 
 * Mouse support (GUI).
 
 * Display image histogram.
 
-* Upload to photo-hosting web services (PicasaWeb, Flickr, Imgur, etc).
-
-* Folder handling
-  * iterator (and better pagination)
-  * tagging
-  * display (collage)
-
-* Tag cloud.
-
 * Screensaver.
 
-* Set a picture as wallpaper.
-
 * OSD transparency.
-
-* Option to import then run the gui showing only the just-imported pics.
-
-* [!!!] How to handle the lack of timestamp metadata when importing?
-	* one possibility: ask user, providing a guess based on other files on the same import batch.
 
 * When importing, load files first, to check for duplicates
   (ex: in case of a renamed directory).
