@@ -13,8 +13,6 @@ Bugs:
 
 Missing features:
 
-* Show most recently used tags first.
-
 * Handle tags for people and places separately.
 
 * Interface to define new views (edit in/out filters).

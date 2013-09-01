@@ -14,7 +14,23 @@ use args qw/%args dbg/;
 
 my $all_path = $args{basedir}.'/.bapho-tags';
 my %all_tags = map { $_ => 1 } pvt__read_tags($all_path);
-sub all { grep { /^[^_]/ } keys %all_tags; }
+
+sub all
+{#{my}
+
+	my @all = grep { /^[^_]/ } keys %all_tags;
+
+	my @mru = (
+		sort { $all_tags{$b} <=> $all_tags{$a} }
+		grep { $all_tags{$_} > 1 }
+		@all
+	);
+	@mru = $mru[0 .. 4]  if scalar @mru > 5;
+
+	my @rest = sort grep { not defined Array::find(\@mru, $_) } @all;
+
+	return @mru, @rest;
+}#
 
 sub new
 {my ($class, $id) = @_;
@@ -65,6 +81,7 @@ sub toggle
 	}
 	else {
 		$self->pvt__set_tag($tag);
+		$all_tags{$tag} = time;
 	}
 
 	$self->pvt__save_pic_tags;
