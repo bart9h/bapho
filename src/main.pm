@@ -526,12 +526,6 @@ sub new
 		[ (split /,/, $args{include}) ],
 		[ (split /,/, $args{exclude}), '_hidden', 'bianca' ]
 	);
-	#TODO
-	#if (scalar $view->{ids} == 0) {
-	#	say 'no pictures matching the filter';
-	#	return;
-	#}
-
 
 
 	if ($args{import}) {

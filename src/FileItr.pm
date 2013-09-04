@@ -40,13 +40,24 @@ sub new
 		jaildir => $jaildir // '/',
 	}, $class;
 
-	if (-d $path) {
-		$self->pvt__readdir;
-		$self->{cursor} = 0;
-		$self->pvt__down(1);
+	if (-e $path) {
+		if (-d $path) {
+			$self->pvt__readdir;
+			if (@{$self->{files}}) {
+				$self->{cursor} = 0;
+				$self->pvt__down(1);
+			}
+			else {
+				die "\"$path\" is empty.\n";
+			}
+		}
+		else {
+			0 until $self->pvt__up;
+		}
 	}
 	else {
-		0 until $self->pvt__up;
+		die "\"$path\" not found.\n";
+		return undef;
 	}
 
 	$self;
