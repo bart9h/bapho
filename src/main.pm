@@ -314,17 +314,17 @@ sub do
 				code => sub { $view->seek('last') },
 			},
 			zoom_in => {
-				keys => [ '=', '[+]' ],
+				keys => [ 'z-i', '=', '[+]' ],
 				code => sub { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; },
 				tags => [ 'pic' ],
 			},
 			zoom_out => {
-				keys => [ '-', '[-]' ],
+				keys => [ 'z-o', '-', '[-]' ],
 				code => sub { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; },
 				tags => [ 'pic' ],
 			},
 			zoom_reset => {
-				keys => [  ],
+				keys => [ 'z-z' ],
 				code => sub { $view->{zoom} = 1 },
 				tags => [ 'pic' ],
 			},
@@ -449,7 +449,7 @@ sub handle_event
 				$key = "$self->{key_hold}-$key";
 				$self->{key_hold} = '';
 			}
-			if ($key =~ /^[gv;]$/) {
+			if ($key =~ /^[gvz;]$/) {
 				$self->{key_hold} = $key;
 			}
 			else {
