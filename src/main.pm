@@ -145,6 +145,12 @@ sub enter_tag_mode
 	$self->{menu}->enter('tag_editor', [ Tags::all() ]);
 }#
 
+sub enter_view_editor
+{my ($self) = @_;
+
+	$self->{menu}->enter('view_editor', [ Tags::ALL() ]);
+}#
+
 sub enter_star_view
 {my ($self) = @_;
 
@@ -193,6 +199,21 @@ sub do_menu
 					default {
 						$self->{dirty} = 0;
 					}
+				}
+			}
+		}
+		when (/^view_editor$/) {
+			my $view = $self->{views}->[0];
+			if (defined $activated) {
+				if ($view->{ins}->{$activated}) {
+					delete $view->{ins}->{$activated};
+					$view->{outs}->{$activated} = 1;
+				}
+				elsif ($view->{outs}->{$activated}) {
+					delete $view->{outs}->{$activated};
+				}
+				else {
+					$view->{ins}->{$activated} = 1;
 				}
 			}
 		}
@@ -315,6 +336,10 @@ sub do
 				keys => [ 'control-s' ],
 				code => sub { $app->enter_star_view },
 			},
+			view_edit => {
+				keys => [ 'v-e' ],
+				code => sub { $app->enter_view_editor },
+			},
 			hidden_view => {
 				keys => [ 'control-shift-h' ],
 				code => sub { $app->enter_hidden_view },
@@ -424,7 +449,7 @@ sub handle_event
 				$key = "$self->{key_hold}-$key";
 				$self->{key_hold} = '';
 			}
-			if ($key =~ /^[g;]$/) {
+			if ($key =~ /^[gv;]$/) {
 				$self->{key_hold} = $key;
 			}
 			else {

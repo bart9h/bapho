@@ -32,6 +32,12 @@ sub all
 	return @mru, @rest;
 }#
 
+sub ALL
+{#{my}
+
+	return sort keys %all_tags;
+}#
+
 sub new
 {my ($class, $id) = @_;
 

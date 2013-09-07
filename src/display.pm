@@ -36,6 +36,9 @@ sub display
 		if ($self->{menu}->{action} eq 'tag_editor') {
 			$self->render_tag_editor;
 		}
+		elsif ($self->{menu}->{action} eq 'view_editor') {
+			$self->render_view_editor;
+		}
 		elsif ($args{exif_toggle}) {
 			$self->render_title;
 			$self->render_exif;
@@ -189,6 +192,29 @@ sub display
 			my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
 			my $T = $view->pic->{tags}->get($_)? '*':' ';#tag
 			$self->print(text => $C[0].$T.$_.$T.$C[1]);
+			++$i;
+		}
+	}#
+
+	sub render_view_editor
+	{my ($self) = @_;
+
+		$self->{text}->home;
+		$self->print(
+			font => 0,
+			text => 'EDIT VIEW:',
+		);
+		$self->{text}->set_column;
+
+		my $view = $self->{views}->[0];
+
+		my $i = 0;
+		foreach my $tag (@{$self->{menu}->{items}}) {
+			my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
+			my $T =
+				$view->{ins}->{$tag}  ? '+' :
+				$view->{outs}->{$tag} ? '-' : ' ';#tag
+			$self->print(text => $C[0].$T.$tag.$T.$C[1]);
 			++$i;
 		}
 	}#
