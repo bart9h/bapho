@@ -18,8 +18,8 @@ sub new
 
 	bless my $self = {
 		picitr      => $picitr,
-		ins         => $ins,
-		outs        => $outs,
+		ins         => { map { $_ => 1 } @$ins },
+		outs        => { map { $_ => 1 } @$outs },
 		rows        => 1,
 		cols        => 1,
 		zoom        => 1,
@@ -180,10 +180,10 @@ sub pvt__filter
 {my ($self) = @_;
 caller eq __PACKAGE__ or croak;
 
-	foreach (@{$self->{ins}}) {
+	foreach (keys %{$self->{ins}}) {
 		return 0 unless $self->pic->{tags}->get($_);
 	}
-	foreach (@{$self->{outs}}) {
+	foreach (keys %{$self->{outs}}) {
 		return 0 if     $self->pic->{tags}->get($_);
 	}
 	1;
