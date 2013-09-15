@@ -127,7 +127,7 @@ sub display
 		$self->{text}->home;
 		my $view = $self->{views}->[0];
 
-		$view->pic->{sel} =~ m{^.*/(?<name>[^./]+)\.(?<ext>.*)$};
+		$view->pic->{sel} =~ m|^$args{basedir}/(?<folder>.*/)(?<name>[^./]+)\.(?<ext>.*)$|;
 
 		my $str = ''; #join '/', $view->{cursor}+1, scalar @{$view->{ids}};
 		my $s = $view->{cur_surf};
@@ -136,6 +136,8 @@ sub display
 			$str .= '  '.$s->{width}.'x'.$s->{height};
 			$str .= '  '.int($zoom*100).'%';
 		}
+
+		$self->print(font=>1, text=>$+{folder});
 
 		my $v = scalar @{$self->{views}};
 		$self->print(
