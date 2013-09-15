@@ -515,6 +515,16 @@ sub new
 
 	$args{basedir} = fixlink $args{basedir};
 
+	if (exists $args{files}) {
+		die "only one startdir is currently supported\n"  if scalar @{$args{files}} != 1;
+		my $dir = $args{files}->[0];
+		unless ($dir =~ m{^/}) {
+			my $pwd = `pwd`; chomp $pwd;
+			$dir = $pwd."/$dir";
+		}
+		$args{startdir} = fixlink $dir;
+	}
+
 	my $jaildir = defined $args{startdir}
 		? $args{startdir} =~ m|^$args{basedir}/|
 			? $args{basedir}
@@ -541,17 +551,6 @@ sub new
 			last if $path eq $view->pic->{sel};
 		}
 		exit(0);
-	}
-	else {
-		if (exists $args{files}) {
-			die "only one startdir is currently supported\n"  if scalar @{$args{files}} != 1;
-			my $dir = $args{files}->[0];
-			unless ($dir =~ m{^/}) {
-				my $pwd = `pwd`; chomp $pwd;
-				$dir = $pwd."/$dir";
-			}
-			$args{startdir} = fixlink $dir;
-		}
 	}
 
 	bless my $eu = {
