@@ -177,14 +177,15 @@ sub seek_to_file
 }#
 
 sub pvt__filter
-{my ($self) = @_;
+{my ($self, $pic) = @_;
 caller eq __PACKAGE__ or croak;
 
+	$pic //= $self->pic;
 	foreach (keys %{$self->{ins}}) {
-		return 0 unless $self->pic->{tags}->get($_);
+		return 0 unless $pic->{tags}->get($_);
 	}
 	foreach (keys %{$self->{outs}}) {
-		return 0 if     $self->pic->{tags}->get($_);
+		return 0 if     $pic->{tags}->get($_);
 	}
 	1;
 }#
