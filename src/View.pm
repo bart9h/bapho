@@ -41,20 +41,23 @@ sub page_pics
 {my ($self) = @_;
 
 	my @pics = ();
-	my $i = $self->{picitr};
-	foreach (1 .. $self->{page_cursor}) {
-		my $p = $i->prev;
-		if ($p) {
-			$i = $p;
-		}
-		else {
-			$self->{page_cursor} = 0;
-			last;
-		}
+	my $i = $self->{picitr}->dup;
+	A: foreach (1 .. $self->{page_cursor}) {
+		do {
+			unless ($i->seek(-1)) {
+				$self->{page_cursor} = 0;
+				last A;
+			}
+		} until $self->pvt__filter($i->{pic});
 	}
-	foreach (1 .. $self->{rows} * $self->{cols}) {
+	B: foreach (1 .. $self->{rows} * $self->{cols}) {
 		push @pics, $i->{pic};
-		$i = $i->next  or last;
+		do {
+			unless ($i->seek(1)) {
+				$self->{page_cursor} = 0;
+				last B;
+			}
+		} until $self->pvt__filter($i->{pic});
 	}
 	return @pics;
 }#
