@@ -110,12 +110,22 @@ sub load_state
 sub save_state
 {my ($self) = @_;
 
-	#TODO: save all views
-	args::save_state {
+	my %state = (
 		cursor_file => $self->{cursor_file} // $self->pic->{sel},
 		info_toggle => $args{info_toggle},
 		exif_toggle => $args{exif_toggle},
+	);
+
+	my $view_idx = 1;
+	foreach (@{$self->{views}}) {
+		my $k = "view_$view_idx";
+		$state{$k.'_cursor'} = $_->pic->{sel};
+		$state{$k.'_ins'   } = join ',', keys %{$_->{ins}};
+		$state{$k.'_outs'  } = join ',', keys %{$_->{outs}};
+		++$view_idx;
 	}
+
+	args::save_state(\%state);
 }#
 
 sub close_view
@@ -251,7 +261,7 @@ sub do
 		add_tag_to_actions('global',
 		{#{my}
 			quit => {
-				keys => [],
+				keys => [ 'q' ],
 				code => sub { $app->quit },
 			},
 			toggle_fullscreen => {
@@ -344,7 +354,7 @@ sub do
 				code => sub { $app->enter_hidden_view },
 			},
 			close_view => {
-				keys => [ 'control-w', 'escape', 'q' ],
+				keys => [ 'control-w' ],
 				code => sub { $app->close_view },
 			},
 		}), #}#
