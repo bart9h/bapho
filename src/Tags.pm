@@ -15,7 +15,7 @@ use args qw/%args dbg/;
 my $all_path = $args{basedir}.'/.bapho-tags';
 my %all_tags = map { $_ => 1 } pvt__read_tags($all_path);
 
-sub all
+sub mru
 {#{my}
 
 	my @all = grep { /^[^_]/ } keys %all_tags;
@@ -25,11 +25,21 @@ sub all
 		grep { $all_tags{$_} > 1 }
 		@all
 	);
-	@mru = $mru[0 .. 4]  if scalar @mru > 5;
 
-	my @rest = sort grep { not defined Array::find(\@mru, $_) } @all;
+	if (scalar @mru > 0) {
+		my $mru_max = 10;
+		@mru = @mru[0 .. $mru_max-1]  if scalar @mru > $mru_max;
 
-	return @mru, @rest;
+		my @rest = sort grep { not defined Array::find(\@mru, $_) } @all;
+
+		return (
+			{ label => 'recent', items => [ @mru  ] },
+			{ label => 'others', items => [ @rest ] },
+		);
+	}
+	else {
+		return sort @all;
+	}
 }#
 
 sub ALL

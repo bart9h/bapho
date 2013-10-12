@@ -190,11 +190,15 @@ sub display
 		$self->{text}->set_column;
 
 		my $i = 0;
-		foreach (@{$self->{menu}->{items}}) {
-			my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
-			my $T = $view->pic->{tags}->get($_)? '*':' ';#tag
-			$self->print(text => $C[0].$T.$_.$T.$C[1]);
-			++$i;
+		foreach my $group (@{$self->{menu}->{groups}}) {
+			$self->print(text => '=== '.$group->{label}.': ===')
+				if defined $group->{label};
+			foreach my $item (@{$group->{items}}) {
+				my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
+				my $T = $view->pic->{tags}->get($item)? '*':' ';#tag
+				$self->print(text => $C[0].$T.$item.$T.$C[1]);
+				++$i;
+			}
 		}
 	}#
 

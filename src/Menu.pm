@@ -19,21 +19,33 @@ sub new
 }#
 
 sub enter
-{my ($self, $action, $items) = @_;
+{my ($self, $action, @args) = @_;
 
-	$self->{action}   = $action;
-	$self->{items}    = $items;
-	$self->{cursor}   = 0;
-	$self->{activated} = undef;
+	if (scalar @args == 0) {
+		$self->leave;
+	}
+	else {
+		$self->{action} = $action;
+		$self->{cursor} = 0;
+		$self->{activated} = undef;
+
+		$self->{groups} = (ref $args[0])
+			? [ @args ]
+			: [ { items => [ @args ] } ];
+
+		$self->{items} = [ map { @{$_->{items}} } @{$self->{groups}} ];
+	}
+
 }#
 
 sub leave
 {my ($self) = @_;
 
-	$self->{action}   = '';
-	$self->{items}    = [];
-	$self->{cursor}   = 0;
+	$self->{action}    = '';
+	$self->{cursor}    = 0;
 	$self->{activated} = undef;
+	$self->{groups}    = undef;
+	$self->{items}     = undef;
 }#
 
 sub do

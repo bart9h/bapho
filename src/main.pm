@@ -142,13 +142,13 @@ sub quit
 sub enter_tag_mode
 {my ($self) = @_;
 
-	$self->{menu}->enter('tag_editor', [ Tags::all() ]);
+	$self->{menu}->enter('tag_editor', Tags::mru());
 }#
 
 sub enter_view_editor
 {my ($self) = @_;
 
-	$self->{menu}->enter('view_editor', [ Tags::ALL() ]);
+	$self->{menu}->enter('view_editor', Tags::ALL());
 }#
 
 sub enter_star_view
