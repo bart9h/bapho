@@ -511,6 +511,8 @@ sub new_sdl_window
 sub new
 {#{my constructor}
 
+	Tags::init();
+
 	sub fixlink { -l $_[0] ? readlink $_[0] : $_[0] }
 
 	$args{basedir} = fixlink $args{basedir};

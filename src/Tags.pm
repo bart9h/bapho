@@ -12,8 +12,15 @@ use args qw/%args dbg/;
 
 #}#
 
-my $all_path = $args{basedir}.'/.bapho-tags';
-my %all_tags = map { $_ => 1 } pvt__read_tags($all_path);
+my $all_path;
+my %all_tags;
+
+sub init
+{#
+
+	$all_path = $args{basedir}.'/.bapho-tags';
+	%all_tags = map { $_ => 1 } pvt__read_tags($all_path);
+}#
 
 sub mru
 {#{my}
