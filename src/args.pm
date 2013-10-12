@@ -81,6 +81,20 @@ sub read_args
 		$args{lc $1} = $ENV{$_};
 	}
 
+	sub add_arg {
+		if ($_[0] =~ m/^(..*?)(=(.*))?$/) {
+			my ($arg, $has_val, $val) = ($1, $2, $3);
+			$arg =~ s/-/_/g;
+			if (exists $args{$arg}) {
+				$args{$arg} = $has_val ? $val : 1;
+			}
+			else {
+				say STDERR "unknown arg ($_)";
+				exit 1;
+			}
+		}
+	}
+
 	my $process_args = 1;
 	my %default_args = %args;  # so --help won't display modified args
 	foreach (@_) {
@@ -126,17 +140,9 @@ sub read_args
 				exit 0;
 				#}#
 			}
-			elsif (m/^--(..*?)(=(.*))?$/) {
-				my ($arg, $has_val, $val) = ($1, $2, $3);
-				$arg =~ s/-/_/g;
-				if (exists $args{$arg}) {
-					$args{$arg} = $has_val ? $val : 1;
-					next;
-				}
-				else {
-					say STDERR "unknown arg ($_)";
-					exit 1;
-				}
+			elsif (m/^--(.*)$/) {
+				add_arg($1);
+				next;
 			}
 		}
 
