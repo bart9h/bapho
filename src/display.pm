@@ -196,7 +196,8 @@ sub display
 			foreach my $item (@{$group->{items}}) {
 				my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
 				my $T = $view->pic->{tags}->get($item)? '*':' ';#tag
-				$self->print(text => $C[0].$T.$item.$T.$C[1]);
+				my $color = ($T eq '*') ? 'yellow' : 'white';
+				$self->print(color => $color, text => $C[0].$T.$item.$T.$C[1]);
 				++$i;
 			}
 		}
