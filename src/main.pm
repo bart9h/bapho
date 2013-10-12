@@ -157,7 +157,7 @@ sub enter_star_view
 	unshift @{$self->{views}}, View::new(
 		$self->{views}->[0]->{picitr},
 		['_star'],
-		[ (split /,/, $args{exclude}), '_hidden', 'bianca' ]
+		[ (split /,/, $args{exclude}) ]
 	);
 }#
 
@@ -534,7 +534,7 @@ sub new
 	my $view = View::new(
 		PictureItr->new($args{startdir} // $args{basedir}, $jaildir),
 		[ (split /,/, $args{include}) ],
-		[ (split /,/, $args{exclude}), '_hidden', 'bianca' ]
+		[ (split /,/, $args{exclude}) ]
 	);
 
 

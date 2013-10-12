@@ -13,14 +13,15 @@ our @EXPORT = qw(%args dbg min max);
 #}#
 
 our %args = (
-		basedir => $ENV{HOME}.'/fotos',
+		baphorc => $ENV{HOME}.'/.baphorc', #TODO: xdg?
+		basedir => $ENV{HOME}.'/Pictures', #TODO: xdg?
 		editor => $ENV{EDITOR} // 'gedit',
 		temp_dir => '/tmp',
 		dir_fmt => '%04d/%02d/%02d',
 		jpeg_quality => 80,
 		mv => 1,
 		include => '',
-		exclude => '',
+		exclude => '_hidden',
 		tags => '',
 		verbose => undef,
 		geometry => undef,
@@ -68,20 +69,14 @@ sub dbg
 	0;
 }#
 
-sub state_filename
-{#
-	$args{basedir}.'/.bapho-state';
-}#
+sub state_filename  { $args{basedir}.'/.bapho-state' }
+sub config_filename { $ENV{HOME}.'/.baphorc' }
 
 sub read_args
-{# read environment and cmdline parameters into %args
+{# read ~/.baphorc, environment and cmdline parameters into %args
 
-	foreach (keys %ENV) {
-		/^BAPHO_(\w+)$/ or next;
-		$args{lc $1} = $ENV{$_};
-	}
-
-	sub add_arg {
+	sub add_arg
+	{#
 		if ($_[0] =~ m/^(..*?)(=(.*))?$/) {
 			my ($arg, $has_val, $val) = ($1, $2, $3);
 			$arg =~ s/-/_/g;
@@ -93,7 +88,27 @@ sub read_args
 				exit 1;
 			}
 		}
+	}#
+
+	{# ~/.baphorc
+
+		if (open F, '<', config_filename) {
+			while (<F>) {
+				add_arg($_);
+			}
+			close F;
+		}
+		else {
+			print STDERR "%s: $!\n", config_filename;
+		}
+	}#
+
+	foreach (keys %ENV) {
+		/^BAPHO_(\w+)$/ or next;
+		$args{lc $1} = $ENV{$_};
 	}
+
+	{# cmdline
 
 	my $process_args = 1;
 	my %default_args = %args;  # so --help won't display modified args
@@ -149,6 +164,9 @@ sub read_args
 		$args{files} = []  if not exists $args{files};
 		push @{$args{files}}, $_;
 	}
+
+	}#
+
 	1;
 }#
 
