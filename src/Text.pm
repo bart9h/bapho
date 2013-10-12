@@ -88,13 +88,17 @@ sub print
 
 					my ($w) = @{ SDL::TTF::size_text($font, $arg) };
 
-					if ($mode eq 'layout') {
+					if ($mode eq 'layout')
+					{#{my}   when in layout mode, just calculate the bounding box
+
 						$taller_font = $font
 							if not defined $taller_font
 							or SDL::TTF::font_height($taller_font) > SDL::TTF::font_height($font);
 						$box_width += $w;
-					}
-					else {
+					}#
+					else
+					{#{my}   in draw mode, render the text, increment x position
+
 						my $x0 = $self->{x};
 						my $y0 = $self->{y} + SDL::TTF::font_ascent($taller_font) - SDL::TTF::font_ascent($font);
 
@@ -113,14 +117,17 @@ sub print
 						}
 
 						do_print($font, $surf, $x0, $y0, $color, $arg);
+
 						$self->{x} += $w;
-					}
+					}#
 				}
 				default { confess }
 			}
 		}
 
-		if ($mode eq 'layout') {
+		if ($mode eq 'layout')
+		{#{my}  render shade behind text
+
 			my $height = .5*$self->{border} + SDL::TTF::font_height($taller_font);
 			my $shade = SDL::Surface->new(0, $box_width, $height);
 			SDL::Video::fill_rect($shade,
@@ -130,18 +137,30 @@ sub print
 			SDL::Video::blit_surface($shade, undef, $surf,
 				SDL::Rect->new($self->{x}-$self->{border}, $self->{y}, $box_width, $height)
 			);
-		}
+		}#
 	}
 
-	$self->{max_x} = max($self->{max_x}, $self->{x});
-	my $h = SDL::TTF::font_height($taller_font);
-	$self->{y} += $h;
-	if ($self->{y}+$h > $surf->height) { #aki tb
-		$self->{y} = $self->{y0};
-		$self->{x0} = $self->{max_x} + $self->{border};
-		$self->{max_x} = 0;
-	}
-	$self->{x} = $self->{x0};
+	{#{my}  end of the line
+
+		# updates max_x
+		$self->{max_x} = max($self->{max_x}, $self->{x});
+
+		my $h = SDL::TTF::font_height($taller_font);
+
+		# line feed
+		$self->{y} += $h;
+
+		# if there's no room from another line
+		if ($self->{y}+$h > $surf->height) {
+			# begin new column
+			$self->{y} = $self->{y0};
+			$self->{x0} = $self->{max_x} + $self->{border};
+			$self->{max_x} = 0;
+		}
+
+		# carriage return
+		$self->{x} = $self->{x0};
+	}#
 }#
 
 sub set_column
