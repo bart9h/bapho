@@ -19,7 +19,7 @@ sub init
 {#
 
 	$all_path = $args{basedir}.'/.bapho-tags';
-	%all_tags = map { $_ => 1 } pvt__read_tags($all_path);
+	%all_tags = %{pvt__read_tags($all_path)};
 }#
 
 sub mru
@@ -86,7 +86,7 @@ sub add
 {my ($self, $something) = @_;
 
 	if ($something =~ m{/}) {
-		foreach (pvt__read_tags($something)) {
+		foreach (keys %{pvt__read_tags($something)}) {
 			$self->pvt__set_tag($_);
 		}
 	}
@@ -191,22 +191,21 @@ caller eq __PACKAGE__ or croak;
 sub pvt__read_tags
 {my ($filename) = @_;
 caller eq __PACKAGE__ or croak;
-	wantarray or croak;
 
 	if (open F, $filename) {
 		say "reading $filename"  if dbg 'tags,file';
-		my @rc = ();
+		my %rc = ();
 		foreach (<F>) {
 			s/^\s*(.*?)\s*$/$1/;
 			next if m/^#/;
 			next if $_ eq '';
-			push @rc, $_;
+			$rc{$_} = 1;
 		}
 		close F;
-		@rc;
+		\%rc;
 	}
 	else {
-		();
+		{};
 	}
 }#
 
