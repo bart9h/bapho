@@ -93,7 +93,7 @@ sub print
 
 						$taller_font = $font
 							if not defined $taller_font
-							or SDL::TTF::font_height($taller_font) > SDL::TTF::font_height($font);
+							or SDL::TTF::font_height($font) > SDL::TTF::font_height($taller_font);
 						$box_width += $w;
 					}#
 					else
