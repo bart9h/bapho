@@ -166,13 +166,19 @@ caller eq __PACKAGE__ or croak;
 			-e $filename or FileItr->dirty();
 			if ($args{nop}) {
 				say "Saving \"$filename\"...";
-				say "\t$_" foreach sort keys %$tags;
+				foreach my $tag (sort keys %$tags) {
+					my $line = $tags->{$tag} ? "$tag=$tags->{$tag}" : $tag;
+					say "\t$line";
+				}
 				say "done.";
 			}
 			else {
 				open F, '>', $filename  or die "$filename: $!";
 				say "Saving \"$filename\"."  if dbg 'tags,file';
-				print F "$_\n"  foreach sort keys %$tags;
+				foreach my $tag (sort keys %$tags) {
+					my $line = $tags->{$tag} ? "$tag=$tags->{$tag}" : $tag;
+					print F "$line\n";
+				}
 				close F;
 			}
 		}
@@ -198,7 +204,12 @@ caller eq __PACKAGE__ or croak;
 			s/^\s*(.*?)\s*$/$1/;
 			next if m/^#/;
 			next if $_ eq '';
-			$rc{$_} = 1;
+			if (m/^(.+)=(\d+)$/) {
+				$rc{$1} = $2;
+			}
+			else {
+				$rc{$_} = 1;
+			}
 		}
 		close F;
 		\%rc;
