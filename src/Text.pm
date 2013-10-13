@@ -67,7 +67,7 @@ sub home
 sub print
 {my ($self, $surf, @args) = @_;
 
-	my $taller_font;
+	my ($taller_font, $taller_font_height, $taller_font_ascent);
 	my $box_width;
 
 	$box_width += 2*$self->{border};
@@ -91,16 +91,19 @@ sub print
 					if ($mode eq 'layout')
 					{#{my}   when in layout mode, just calculate the bounding box
 
-						$taller_font = $font
-							if not defined $taller_font
-							or SDL::TTF::font_height($font) > SDL::TTF::font_height($taller_font);
+						my $h = SDL::TTF::font_height($font);
+						if (not defined $taller_font or $h > $taller_font_height) {
+							$taller_font = $font;
+							$taller_font_height = $h;
+						}
+
 						$box_width += $w;
 					}#
 					else
 					{#{my}   in draw mode, render the text, increment x position
 
 						my $x0 = $self->{x};
-						my $y0 = $self->{y} + SDL::TTF::font_ascent($taller_font) - SDL::TTF::font_ascent($font);
+						my $y0 = $self->{y} + $taller_font_ascent - SDL::TTF::font_ascent($font);
 
 						sub do_print
 						{my ($font, $surf, $x, $y, $color, $text) = @_;
@@ -126,7 +129,9 @@ sub print
 		}
 
 		if ($mode eq 'layout')
-		{#{my}  render shade behind text
+		{#{my}  set $taller_font_ascent, render shade behind text
+
+			$taller_font_ascent = SDL::TTF::font_height($taller_font);
 
 			my $height = .5*$self->{border} + SDL::TTF::font_height($taller_font);
 			my $shade = SDL::Surface->new(0, $box_width, $height);
