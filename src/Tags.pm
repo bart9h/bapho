@@ -103,8 +103,7 @@ sub toggle
 		delete $self->{tags}->{$tag};
 	}
 	else {
-		$self->pvt__set_tag($tag);
-		$all_tags{$tag} = time;
+		$self->pvt__set_tag($tag, time);
 	}
 
 	$self->pvt__save_pic_tags;
@@ -139,13 +138,13 @@ sub toggle_star
 }#
 
 sub pvt__set_tag
-{my ($self, $tag) = @_;
+{my ($self, $tag, $time) = @_;
 caller eq __PACKAGE__ or croak;
 
 	say "Setting tag \"$tag\" to \"$self->{id}\"."  if dbg 'tags';
 	$self->{tags}->{$tag} = 1;
-	unless (defined $all_tags{$tag}) {
-		$all_tags{$tag} = 1;
+	if (not defined $all_tags{$tag} or $time) {
+		$all_tags{$tag} = $time;
 		pvt__save_tags($all_path, \%all_tags);
 	}
 }#
