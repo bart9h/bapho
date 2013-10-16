@@ -29,7 +29,7 @@ sub mru
 
 	my @mru = (
 		sort { $all_tags{$b} <=> $all_tags{$a} }
-		grep { $all_tags{$_} > 1 }
+		grep { $all_tags{$_} > time - 7*24*60*60 }
 		@all
 	);
 
