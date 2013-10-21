@@ -12,24 +12,27 @@ use args qw/%args dbg/;
 
 #}#
 
-my $all_path;
-my %all_tags;
+my %singleton;
 
 sub init
-{#
+{#{my}
 
-	$all_path = $args{basedir}.'/.bapho-tags';
-	%all_tags = %{pvt__read_tags($all_path)};
+	my $all_path = $args{basedir}.'/.bapho-tags';
+
+	%singleton = (
+		all_path => $all_path,
+		all_tags => pvt__read_tags($all_path),
+	);
 }#
 
 sub mru
 {#{my}
 
-	my @all = grep { /^[^_]/ } keys %all_tags;
+	my @all = grep { /^[^_]/ } keys %{$singleton{all_tags}};
 
 	my @mru = (
-		sort { $all_tags{$b} <=> $all_tags{$a} }
-		grep { $all_tags{$_} > time - 7*24*60*60 }
+		sort { $singleton{all_tags}->{$b} <=> $singleton{all_tags}->{$a} }
+		grep { $singleton{all_tags}->{$_} > time - 7*24*60*60 }
 		@all
 	);
 
@@ -52,7 +55,7 @@ sub mru
 sub ALL
 {#{my}
 
-	return sort keys %all_tags;
+	return sort keys %{$singleton{all_tags}};
 }#
 
 sub new
@@ -143,9 +146,9 @@ caller eq __PACKAGE__ or croak;
 
 	say "Setting tag \"$tag\" to \"$self->{id}\"."  if dbg 'tags';
 	$self->{tags}->{$tag} = 1;
-	if (not defined $all_tags{$tag} or $time) {
-		$all_tags{$tag} = $time;
-		pvt__save_tags($all_path, \%all_tags);
+	if (not defined $singleton{all_tags}->{$tag} or $time) {
+		$singleton{all_tags}->{$tag} = $time;
+		pvt__save_tags($singleton{all_path}, $singleton{all_tags});
 	}
 }#
 

@@ -139,7 +139,7 @@ sub quit
 	exit(0);
 }#
 
-sub enter_tag_mode
+sub enter_tag_editor
 {my ($self) = @_;
 
 	$self->{menu}->enter('tag_editor', Tags::mru());
@@ -193,7 +193,7 @@ sub do_menu
 						-e $filename or FileItr->dirty();
 						system "\$EDITOR $filename";
 						$self->pic->add($filename);
-						$self->enter_tag_mode;
+						$self->enter_tag_editor;
 						$self->display;
 					}
 					default {
@@ -394,7 +394,7 @@ sub do
 			},
 			tag_edit => {
 				keys => [ 't' ],
-				code => sub { $app->enter_tag_mode },
+				code => sub { $app->enter_tag_editor },
 			},
 			repeat_last_tag => {
 				keys => [ '.' ],

@@ -106,7 +106,7 @@ sub develop
 				$cmd = "convert -sharpen 5x2 -quality 90 -resize 1920x1080 \"$ppm\" \"$jpg\"";
 				my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
 				$cmd = "($cmd; notify-send \"$base\") &";
-				say $cmd if dbg;
+				say $cmd;
 				system $cmd;
 			}
 		}
