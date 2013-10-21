@@ -203,16 +203,12 @@ caller eq __PACKAGE__ or croak;
 	if (open F, $filename) {
 		say "reading $filename"  if dbg 'tags,file';
 		my %rc = ();
-		foreach (<F>) {
-			s/^\s*(.*?)\s*$/$1/;
-			next if m/^#/;
-			next if $_ eq '';
-			if (m/^(.+)=(\d+)$/) {
-				$rc{$1} = $2;
-			}
-			else {
-				$rc{$_} = 1;
-			}
+		foreach my $line (<F>) {
+			$line =~ s/^\s*(.*?)\s*$/$1/;
+			next if $line =~ m/^#/;
+			next if $line eq '';
+			my ($tag, $val) = ($line =~ m/^(.+)=(\d+)$/) ? ($1, $2) : ($line, 1);
+			$rc{$tag} = $val;
 		}
 		close F;
 		\%rc;
