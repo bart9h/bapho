@@ -23,6 +23,7 @@ sub init
 		all_path => $all_path,
 		all_tags => pvt__read_tags($all_path),
 		last_edit => {},
+		clean_last_edit => 0,
 	);
 }#
 
@@ -71,7 +72,7 @@ sub new
 sub begin_edit
 {#{my}
 
-	$singleton{last_edit} = {};
+	$singleton{clean_last_edit} = 1;
 }#
 
 sub repeat_last_edit
@@ -130,6 +131,11 @@ sub toggle
 {my ($self, $tag) = @_;
 
 	sub toggle_singleton {
+		if ($singleton{clean_last_edit}) {
+			$singleton{last_edit} = {};
+			$singleton{clean_last_edit} = 0;
+		}
+
 		if (exists $singleton{last_edit}->{$_[0]}) {
 			delete $singleton{last_edit}->{$_[0]};
 		}
