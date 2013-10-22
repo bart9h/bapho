@@ -22,6 +22,7 @@ sub init
 	%singleton = (
 		all_path => $all_path,
 		all_tags => pvt__read_tags($all_path),
+		last_edit => {},
 	);
 }#
 
@@ -67,6 +68,32 @@ sub new
 	}, $class;
 }#
 
+sub begin_edit
+{#{my}
+
+	$singleton{last_edit} = {};
+}#
+
+sub repeat_last_edit
+{my ($self) = @_;
+
+	foreach my $tag (keys %{$singleton{last_edit}}) {
+		given ($singleton{last_edit}->{$tag}) {
+			when (1) {
+				$self->{tags}->{$tag} = 1;
+			}
+			when (0) {
+				delete $self->{tags}->{$tag};
+			}
+			default {
+				die;
+			}
+		}
+	}
+
+	$self->pvt__save_pic_tags;
+}#
+
 sub get
 {my ($self, $tag) = @_;
 
@@ -104,9 +131,11 @@ sub toggle
 
 	if (exists $self->{tags}->{$tag}) {
 		delete $self->{tags}->{$tag};
+		$singleton{last_edit}->{$tag} = 0;
 	}
 	else {
 		$self->pvt__set_tag($tag, time);
+		$singleton{last_edit}->{$tag} = 1;
 	}
 
 	$self->pvt__save_pic_tags;

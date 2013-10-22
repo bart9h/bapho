@@ -143,6 +143,7 @@ sub enter_tag_editor
 {my ($self) = @_;
 
 	$self->{menu}->enter('tag_editor', Tags::mru());
+	Tags::begin_edit();
 }#
 
 sub enter_view_editor
@@ -179,8 +180,6 @@ sub do_menu
 		when (/^tag_editor$/) {
 			if (defined $activated) {
 				$self->pic->{tags}->toggle($activated);
-				$self->{last_tag} = $activated
-					if $self->pic->{tags}->get($activated);
 			}
 			elsif (not $self->{dirty}) {
 				$self->{dirty} = 1;
@@ -398,7 +397,7 @@ sub do
 			},
 			repeat_last_tag => {
 				keys => [ '.' ],
-				code => sub { $view->pic->{tags}->toggle($app->{last_tag}) },
+				code => sub { $view->pic->{tags}->repeat_last_edit },
 			},
 			delete_picture => {
 				keys => [ 'delete' ],
@@ -561,7 +560,6 @@ sub new
 		factory    => Factory::new,
 		menu       => Menu::new,
 		key_hold   => '',
-		last_tag   => '',
 		dirty      => 1,
 
 		# rendering state
