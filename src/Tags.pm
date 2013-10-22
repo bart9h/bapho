@@ -129,13 +129,22 @@ sub add
 sub toggle
 {my ($self, $tag) = @_;
 
+	sub toggle_singleton {
+		if (exists $singleton{last_edit}->{$_[0]}) {
+			delete $singleton{last_edit}->{$_[0]};
+		}
+		else {
+			$singleton{last_edit}->{$_[0]} = $_[1];
+		}
+	}
+
 	if (exists $self->{tags}->{$tag}) {
 		delete $self->{tags}->{$tag};
-		$singleton{last_edit}->{$tag} = 0;
+		toggle_singleton($tag, 0);
 	}
 	else {
 		$self->pvt__set_tag($tag, time);
-		$singleton{last_edit}->{$tag} = 1;
+		toggle_singleton($tag, 1);
 	}
 
 	$self->pvt__save_pic_tags;
