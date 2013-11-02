@@ -142,7 +142,7 @@ sub quit
 sub enter_tag_editor
 {my ($self) = @_;
 
-	$self->{menu}->enter('tag_editor', Tags::mru());
+	$self->{menu}->enter('tag_editor', Tags::groups());
 	Tags::begin_edit();
 }#
 

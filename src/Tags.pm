@@ -28,9 +28,7 @@ sub init
 }#
 
 sub mru
-{#{my}
-
-	my @all = grep { /^[^_]/ } keys %{$singleton{all_tags}};
+{my (@all) = @_;
 
 	my @mru = (
 		sort { $singleton{all_tags}->{$b} <=> $singleton{all_tags}->{$a} }
@@ -38,20 +36,35 @@ sub mru
 		@all
 	);
 
-	if (scalar @mru > 0) {
-		my $mru_max = 10;
-		@mru = @mru[0 .. $mru_max-1]  if scalar @mru > $mru_max;
+	my $mru_max = 10;
 
-		my @rest = sort grep { not defined Array::find(\@mru, $_) } @all;
+	scalar @mru > $mru_max
+		? @mru[0 .. $mru_max-1]
+		: @mru;
+}#
 
-		return (
-			{ label => 'recent', items => [ @mru  ] },
-			{ label => 'others', items => [ @rest ] },
-		);
-	}
-	else {
-		return sort @all;
-	}
+sub groups
+{#{my}
+
+	my @groups = ();
+
+	my @all = sort grep { /^[^_]/ } keys %{$singleton{all_tags}};
+
+	my @mru = mru @all;
+
+	my @rest = Array::subtract(\@all, @mru);
+
+	my @people = grep { m/^name:/  } @rest;
+	my @places = grep { m/^place:/ } @rest;
+
+	@rest = Array::subtract(\@rest, @people, @places);
+
+	return grep { scalar @{$_->{items}} > 0 } (
+		{ label => 'recent', items => [ @mru    ] },
+		{ label => 'people', items => [ @people ] },
+		{ label => 'places', items => [ @places ] },
+		{ label => 'others', items => [ @rest   ] },
+	);
 }#
 
 sub ALL
