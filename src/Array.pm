@@ -18,6 +18,13 @@ sub find
 	undef;
 }#
 
+sub subtract
+{my ($array_ref, @to_remove) = @_;
+
+	grep {
+		not defined Array::find(\@to_remove, $_)
+	} @$array_ref
+}#
 
 1;
 # vim600:fdm=marker:fmr={my,}#:
