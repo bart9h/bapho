@@ -1,5 +1,5 @@
-BaPhO -- the [ba]rt9h's [ph]oto [o]rganizer
-===========================================
+BaPhO (bart9h's photo organizer)
+================================
 
 http://github.com/bart9h/bapho
 
