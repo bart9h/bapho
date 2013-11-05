@@ -73,7 +73,7 @@ Features
 - Print files from selected photos to stdout,
   to facilitate integration with other tools.
 
-(check ./TODO file for known bugs and more planned features)
+(check ./TODO.markdown file for known bugs and more planned features)
 
 
 System requirements
