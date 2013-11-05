@@ -1,8 +1,8 @@
-------------------------
 Poor man's issue tracker
-------------------------
+========================
 
-Bugs:
+Bugs
+----
 
 * First/last picture not being filtered.
 
@@ -11,7 +11,8 @@ Bugs:
 * Thumbs view does not honor filters.
 
 
-Missing features:
+Missing features
+----------------
 
 * Handle tags for people and places separately.
 
@@ -32,7 +33,8 @@ Missing features:
 * Documentation (usage, keyboard commands).
 
 
-Enhancements:
+Enhancements
+------------
 
 * Export images
   * Select resolution.
@@ -60,7 +62,8 @@ Enhancements:
   (ex: in case of a renamed directory).
 
 
-Optimizations:
+Optimizations
+-------------
 
 * Asynchronous image loading.
 
