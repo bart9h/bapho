@@ -15,7 +15,7 @@ Missing features:
 
 * Handle tags for people and places separately.
 
-* Interface to define new views (edit in/out filters).
+* Persist views between sessions.
 
 * Cycle through multiple files of a picture.
   * Option to set selected one.
@@ -29,9 +29,7 @@ Missing features:
 
 * CPANize code.
 
-* Missing documentation (README).
-  * Usage, keyboard commands.
-  * Feature list.
+* Documentation (usage, keyboard commands).
 
 
 Enhancements:
