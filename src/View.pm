@@ -135,21 +135,21 @@ sub seek
 			my $d = $dir>0?1:-1;
 			$self->pvt__filter or warn 'invalid itr';
 			my $valid_itr = $itr->dup;  # backup
-			while ($dir) {
+			while(1) {
 				if ($itr->seek($d)) {
 					$self->pvt__filter or next;
 					$valid_itr = $itr->dup;  # update
-					$dir -= $d;
 					$self->{page_cursor} += $d;
+					$dir -= $d;
+					return 1 if $dir == 0;
 				}
 				else {
 					%$itr = %$valid_itr;  # restore
-					last;
+					return 0;
 				}
 			}
 		}
 	}
-
 }#
 
 sub seek_levels
