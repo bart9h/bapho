@@ -375,6 +375,18 @@ sub do
 				keys => [ 'control-f' ],
 				code => sub { $view->pic->open_folder },
 			},
+			mark_first => {
+				keys => [ 'r-a' ],
+				code => sub { $view->mark('first') },
+			},
+			mark_last => {
+				keys => [ 'r-b' ],
+				code => sub { $view->mark('last') },
+			},
+			print_marked_pics => {
+				keys => [ 'r-p' ],
+				code => sub { foreach($view->marked_pics) { say foreach(keys $_->{files}) } }
+			},
 			print_files => {
 				keys => [ 'p' ],
 				code => sub { $view->pic->print }
@@ -448,7 +460,7 @@ sub handle_event
 				$key = "$self->{key_hold}-$key";
 				$self->{key_hold} = '';
 			}
-			if ($key =~ /^[gvz;]$/) {
+			if ($key =~ /^[grvz;]$/) {
 				$self->{key_hold} = $key;
 			}
 			else {

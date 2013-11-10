@@ -25,6 +25,7 @@ sub new
 		zoom        => 1,
 		page_cursor => 0,
 		selection   => {},
+		marks       => {},
 	};
 
 	$self->seek('+1') unless $self->pvt__filter;
@@ -178,6 +179,36 @@ sub seek_to_file
 	until ($self->pvt__filter) {
 		$self->{picitr}->seek(1);
 	}
+}#
+
+sub mark
+{my ($self, $mark) = @_;
+
+	$self->{marks}->{$mark} = $self->{picitr}->dup;
+}#
+
+sub marked_pics
+{my ($self) = @_;
+
+	my ($first, $last) = map { $self->{marks}->{$_} } qw/first last/;
+	return unless defined $first and defined $last;
+
+	if ($first->{id} gt $last->{id}) {
+		my $tmp = $first;
+		$first = $last;
+		$last = $tmp;
+	}
+
+	my @rc;
+
+	my $itr = $first->dup;
+	while ($itr) {
+		push @rc, $itr->{pic};
+		last if $itr->{id} eq $last->{id};
+		$self->seek('+1', $itr) or last;
+	}
+
+	@rc;
 }#
 
 sub pvt__filter
