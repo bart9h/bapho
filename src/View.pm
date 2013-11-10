@@ -116,15 +116,16 @@ sub adjust_page_and_cursor
 }#
 
 sub seek
-{my ($self, $dir) = @_;
+{my ($self, $dir, $itr) = @_;
+	$itr //= $self->{picitr};
 
 	given ($dir) {
 		when (/^first$/) {
-			$self->{picitr}->first;
+			$itr->first;
 			$self->pvt__filter or $self->seek('+1');
 		}
 		when (/^last$/)  {
-			$self->{picitr}->last;
+			$itr->last;
 			$self->pvt__filter or $self->seek('-1');
 		}
 		when (/^[+-]/)   {
@@ -133,16 +134,16 @@ sub seek
 
 			my $d = $dir>0?1:-1;
 			$self->pvt__filter or warn 'invalid itr';
-			my $valid_itr = $self->{picitr}->dup;  # backup
+			my $valid_itr = $itr->dup;  # backup
 			while ($dir) {
-				if ($self->{picitr}->seek($d)) {
+				if ($itr->seek($d)) {
 					$self->pvt__filter or next;
-					$valid_itr = $self->{picitr}->dup;  # update
+					$valid_itr = $itr->dup;  # update
 					$dir -= $d;
 					$self->{page_cursor} += $d;
 				}
 				else {
-					$self->{picitr} = $valid_itr;  # restore
+					%$itr = %$valid_itr;  # restore
 					last;
 				}
 			}
