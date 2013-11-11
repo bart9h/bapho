@@ -387,6 +387,10 @@ sub do
 				keys => [ 'r-p' ],
 				code => sub { foreach($view->marked_pics) { say foreach(keys $_->{files}) } }
 			},
+			tag_marked_pics => {
+				keys => [ 'r-.' ],
+				code => sub { foreach($view->marked_pics) { $_->{tags}->repeat_last_edit } }
+			},
 			print_files => {
 				keys => [ 'p' ],
 				code => sub { $view->pic->print }
@@ -394,6 +398,10 @@ sub do
 			print_files_selected => {
 				keys => [ ';-p' ],
 				code => sub { $_->print foreach($view->selected_pics) }
+			},
+			tag_selected_pics => {
+				keys => [ ';-.' ],
+				code => sub { $_->{tags}->repeat_last_edit foreach($view->selected_pics) }
 			},
 			toggle_star => {
 				keys => [ 's' ],
