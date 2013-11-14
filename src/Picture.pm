@@ -40,6 +40,7 @@ sub add
 	if (is_pic($path) or is_vid($path)) {
 		$self->{sel} = $path
 			if not defined $self->{sel}
+			or not -s $self->{sel}
 			or -M $path < -M $self->{sel};
 	}
 }#
