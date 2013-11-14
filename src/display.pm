@@ -127,7 +127,8 @@ sub display
 		$self->{text}->home;
 		my $view = $self->{views}->[0];
 
-		$view->pic->{sel} =~ m|^$args{basedir}/(?<folder>.*/)?(?<name>[^./]+)\.(?<ext>.*)$|;
+		my $dir = $self->{jaildir}; $dir =~ s{/$}{};
+		$view->pic->{sel} =~ m|^$dir/(?<folder>.*/)?(?<name>[^./]+)\.(?<ext>.*)$|;
 
 		my $str = ''; #join '/', $view->{cursor}+1, scalar @{$view->{ids}};
 		my $s = $view->{cur_surf};
