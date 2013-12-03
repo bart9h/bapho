@@ -21,13 +21,11 @@ sub new
 sub enter
 {my ($self, $action, @args) = @_;
 
-	if (scalar @args == 0) {
-		$self->leave;
-	}
-	else {
+	$self->leave; #reset
+
+	if (scalar @args > 0) {
+
 		$self->{action} = $action;
-		$self->{cursor} = 0;
-		$self->{activated} = undef;
 
 		$self->{groups} = (ref $args[0])
 			? [ @args ]
@@ -41,11 +39,13 @@ sub enter
 sub leave
 {my ($self) = @_;
 
-	$self->{action}    = '';
-	$self->{cursor}    = 0;
-	$self->{activated} = undef;
-	$self->{groups}    = undef;
-	$self->{items}     = undef;
+	$self->{action}      = '';
+	$self->{item_cursor} = 0;
+	$self->{activated}   = undef;
+	$self->{groups}      = undef;
+	$self->{items}       = undef;
+	$self->{text_input}  = [];
+	$self->{text_cursor} = 0;
 }#
 
 sub do
@@ -53,26 +53,50 @@ sub do
 
 	return 0 unless defined $command;
 
+	# abbreviations
+	my $item = $self->{items}->[$self->{item_cursor}];
+	my $in = $self->{text_input};
+
 	my $N = scalar @{$self->{items}};
 	$self->{activated} = undef;
 
 	given ($command) {
-		when (/^(k|up)$/)            { $self->{cursor}-- }
-		when (/^(j|down)$/)          { $self->{cursor}++ }
-		when (/^(g-g|home)$/)        { $self->{cursor} = 0 }
-		when (/^(end)$/)             { $self->{cursor} = $N - 1 }
-		when (/^(q|escape|close)$/)  { $self->leave }
-		when (/^shift-([a-z0-9])$/)  { $self->pvt__jump($1) }
-		when (/^(l|space|enter|return)$/) {
-			$self->{activated} = $self->{items}->[$self->{cursor}];
+		when (/^([a-z:])$/) {
+			push @$in, $command;
+			++$self->{text_cursor};
 		}
-		default {
-			return 0;
+		when (/^(right)$/) {
+			++$self->{text_cursor}  if $self->{text_cursor} < scalar @$in;
 		}
+		when (/^(left)$/) {
+			--$self->{text_cursor}  if $self->{text_cursor} > 0;
+		}
+		when (/^(home)$/) {
+			$self->{text_cursor} = 0;
+		}
+		when (/^(end)$/) {
+			$self->{text_cursor} = scalar @$in;
+		}
+		when (/^(tab)$/) {
+			@$in = split //, $item;
+			$self->{text_cursor} = scalar @$in;
+		}
+		when (/^(ctrl-h|backspace)$/) {
+			if ($self->{text_cursor} > 0) {
+				my $c = ($text->{text_cursor} -= 1);
+				@$in = (@$in[0 .. $c-1], @$in[$c+1 .. $#$in]);
+			}
+		}
+		when (/^(down)$/) { $self->{item_cursor}++ }
+		when (/^(end)$/) { $self->{item_cursor} = $N - 1 }
+		when (/^(q|escape|close)$/) { $self->leave }
+		when (/^shift-([a-z0-9])$/) { $self->pvt__jump($1) }
+		when (/^(space|enter|return)$/) { $self->{activated} = $item }
+		default { return 0 }
 	}
 
-	$self->{cursor} = 0     if $self->{cursor} <  0;
-	$self->{cursor} = $N-1  if $self->{cursor} >= $N;
+	$self->{item_cursor} = 0     if $self->{item_cursor} <  0;
+	$self->{item_cursor} = $N-1  if $self->{item_cursor} >= $N;
 
 	return 1;
 }#

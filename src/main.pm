@@ -184,10 +184,10 @@ sub do_menu
 			elsif (not $self->{dirty}) {
 				$self->{dirty} = 1;
 				given ($command) {
-					when (/^(t|toggle info)$/) {
+					when (/^(toggle info)$/) {
 						$self->{menu}->leave;
 					}
-					when (/^e$/ and not $args{fullscreen}) {
+					when (/^control-e$/ and not $args{fullscreen}) {
 						my $filename = $self->pic->{id}.'.tags';
 						-e $filename or FileItr->dirty();
 						system "\$EDITOR $filename";
