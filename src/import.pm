@@ -56,8 +56,13 @@ sub guess_path
 	sub path2path
 	{my ($source_file) = @_;
 
-		my ($basename, $year, $mon, $mday, $hour, $min, $sec) = $source_file =~
-			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?).(?:3gp|m4v|jpg)$}
+		my ($basename, $year, $mon, $mday, $hour, $min, $sec) = (
+			$source_file =~
+			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?)\.(?:3gp|m4v|jpg)$}
+		) || (
+			$source_file =~
+			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.jpg$}
+		)
 			or return undef;
 
 		my ($dir, undef) = datetime2path($year, $mon, $mday, $hour, $min, $sec);
