@@ -11,77 +11,84 @@ use args qw/%args dbg/;
 
 #}#
 
-sub datetime2path
-{my ($year, $mon, $mday, $hour, $min, $sec) = @_;
-
-	my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
-
-	my $basename = sprintf '%02d%02d%02d-%02d%02d%02d', $year, $mon, $mday, $hour, $min, $sec;
-
-	return ($dir, $basename);
-}#
-
-sub exif2path
-{my ($source_file) = @_;
-
-	use Image::ExifTool qw(:Public);
-	my $exif = ImageInfo($source_file);
-
-	my $date_key;
-	foreach (qw/DateTimeOriginal FileModifyDate/) {
-		if (defined $exif->{$_}) {
-			$date_key = $_;
-			last;
-		}
-	}
-
-	unless (defined $date_key) {
-		warn "Bad exif in \"$source_file\"".(dbg() ? ($exif->{Error} // Dumper $exif) : '')."\n";
-		return undef;
-	}
-
-	my ($year, $mon, $mday, $hour, $min, $sec) =
-		$exif->{$date_key}
-		=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
-	foreach ($year, $mon, $mday) {
-		if (not defined $_  or  $_ <= 0) {
-			warn "Invalid exif date in \"$source_file\".\n";
-			warn Dumper $exif  if dbg;
-			return undef;
-		}
-	}
-
-	return datetime2path($year, $mon, $mday, $hour, $min, $sec);
-}#
-
-sub path2path
-{my ($source_file) = @_;
-
-	my ($basename, $year, $mon, $mday, $hour, $min, $sec) = $source_file =~
-		m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?).(?:3gp|m4v|jpg)$}
-		or return undef;
-
-	my ($dir, undef) = datetime2path($year, $mon, $mday, $hour, $min, $sec);
-	return ($dir, $basename);
-}#
-
-sub filedate2path
-{my ($source_file) = @_;
-
-	my @s = stat $source_file;
-	my $mtime = $s[9];
-	my ($sec,$min,$hour,$mday,$mon,$year) = gmtime $mtime;
-	return datetime2path($year+1900, $mon+1, $mday, $hour, $min, $sec);
-}#
-
 sub guess_path
 {my ($source_file) = @_;
 
-	my ($dir, $name) = path2path($source_file);
-	if (not defined $dir) {
-		($dir, $name) = exif2path($source_file);
-	}
-	return ($dir, $name);
+	my @rc;
+	$rc[0] or @rc = exif2path($source_file);
+	$rc[0] or @rc = path2path($source_file);
+	$rc[0] or @rc = filedate2path($source_file);
+	return @rc;
+
+	sub exif2path
+	{my ($source_file) = @_;
+
+		use Image::ExifTool qw(:Public);
+		my $exif = ImageInfo($source_file);
+
+		my $date_key;
+		foreach (qw/DateTimeOriginal FileModifyDate/) {
+			if (defined $exif->{$_}) {
+				$date_key = $_;
+				last;
+			}
+		}
+
+		unless (defined $date_key) {
+			warn "Bad exif in \"$source_file\"".(dbg() ? ($exif->{Error} // Dumper $exif) : '')."\n";
+			return undef;
+		}
+
+		my ($year, $mon, $mday, $hour, $min, $sec) =
+			$exif->{$date_key}
+			=~ /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/;
+		foreach ($year, $mon, $mday) {
+			if (not defined $_  or  $_ <= 0) {
+				warn "Invalid exif date in \"$source_file\".\n";
+				warn Dumper $exif  if dbg;
+				return undef;
+			}
+		}
+
+		return datetime2path($year, $mon, $mday, $hour, $min, $sec);
+	}#
+
+	sub path2path
+	{my ($source_file) = @_;
+
+		my ($basename, $year, $mon, $mday, $hour, $min, $sec) = $source_file =~
+			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?).(?:3gp|m4v|jpg)$}
+			or return undef;
+
+		my ($dir, undef) = datetime2path($year, $mon, $mday, $hour, $min, $sec);
+		return ($dir, $basename);
+	}#
+
+	sub filedate2path
+	{my ($source_file) = @_;
+
+		my @s = stat $source_file;
+		my $mtime = $s[9];
+		my ($sec,$min,$hour,$mday,$mon,$year) = gmtime $mtime;
+		my ($dir, $basename) = datetime2path($year+1900, $mon+1, $mday, $hour, $min, $sec)
+			or return undef;
+
+		print "Use file modification time ($basename)? [Y/n] ";
+		my $answer = <STDIN>; chomp $answer;
+		return undef unless $answer eq '' or lc $answer eq 'y';
+	}#
+
+	sub datetime2path
+	{my ($year, $mon, $mday, $hour, $min, $sec) = @_;
+		foreach (@_) { return undef unless defined }
+
+		my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
+
+		my $basename = sprintf '%02d%02d%02d-%02d%02d%02d', $year, $mon, $mday, $hour, $min, $sec;
+
+		return ($dir, $basename);
+	}#
+
 }#
 
 sub get_target_path
@@ -105,18 +112,11 @@ sub get_target_path
 	}
 
 	my ($dir, $basename) = guess_path($source_file);
-	unless (defined $dir) {
-		($dir, $basename) = filedate2path($source_file);
-		defined $dir or return undef;
-		print "Use file modification time ($basename)? [Y/n] ";
-		my $answer = <STDIN>; chomp $answer;
-		return unless $answer eq '' or lc $answer eq 'y';
-	}
 
 	my $target_file;
-	foreach ('a' .. 'z', 0) {
-		$_  or die 'Duplicated timestamp overflow!';
-		$target_file = "$dir/$basename$_.$ext";
+	foreach my $append_char ('a' .. 'z', undef) {
+		$append_char or die 'Duplicated timestamp overflow!';
+		$target_file = "$dir/$basename$append_char.$ext";
 		if (!-e $target_file) {
 			return $target_file;
 		}
