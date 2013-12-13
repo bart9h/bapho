@@ -5,11 +5,12 @@ use 5.010;
 
 sub getenv { defined $ENV{$_[0]} ? $ENV{$_[0]} : defined $_[1] ? $_[1] : '' }
 
+my $jpeg_quality = getenv('quality', 90);
 my $tmp_ppm = '/tmp/bapho-export-tmp.ppm';
-my $imagemagic_command = 'convert -verbose '.getenv('IMAGE_MAGIC_OPTIONS').' "%I"[%Wx%H] -quality 96'; #has no %O, included later
+my $imagemagic_command = 'convert -verbose '.getenv('IMAGE_MAGIC_OPTIONS').' "%I"[%Wx%H] -quality '.$jpeg_quality; #has no %O, included later
 my $ufraw_command = 'ufraw-batch %I --out-type=ppm --output='.$tmp_ppm;
 my $ufraw_defaults = ' --wb=camera --gamma=0.45 --linearity=0.10 --exposure=0 --restore=lch --clip=digital --saturation=1.0 --wavelet-denoising-threshold=0.0 --base-curve=camera --curve=linear --black-point=0.0 --interpolation=ahd --color-smoothing --grayscale=none --lensfun=auto --auto-crop';
-my $ufraw_post = ' && convert -verbose '.$tmp_ppm.'[%Wx%H] -quality 96 -sharpen 3x1 "%O" && rm -v '.$tmp_ppm;
+my $ufraw_post = ' && convert -verbose '.$tmp_ppm.'[%Wx%H] -quality '.$jpeg_quality.' -sharpen 3x1 "%O" && rm -v '.$tmp_ppm;
 my $copy_command = 'cp -v "%I" "%O"';
 
 my %exts = (
