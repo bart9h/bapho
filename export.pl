@@ -35,43 +35,12 @@ my ($width, $height, $output_dir) = map {
 mkdir "$output_dir";
 -d $output_dir or die "Error: no dir \"$output_dir\".\n";
 
-sub get_nstars
-{my ($file) = @_;
-
-	my $tags_file = $file;
-	$tags_file =~ s/\.\w+$/\.tags/;
-
-	if (open F, $tags_file) {
-		my %tags = ();
-		foreach (<F>) {
-			s/^\s*(.*?)\s*$/$1/;
-			next if m/^#/;
-			next if $_ eq '';
-			$tags{$_} = 1;
-		}
-		close F;
-
-		my $n = 0;
-		foreach ('', 1 .. 5) {
-			$n = ($_ ? $_ : 1)  if exists $tags{'_star'.$_};
-		}
-		return $n;
-	}
-
-	return 0;
-}
-
 my @errors;
-my $min_stars = getenv('min_stars');
 my $nop = getenv('nop');
 
 # process arguments from stdin
 foreach my $arg (<STDIN>) {
 	chomp $arg;
-
-	if ($min_stars) {
-		next unless get_nstars($arg) >= $min_stars;
-	}
 
 	my $output_file = $arg;
 	$output_file =~ s{^.*/([^/]+)\.\w+$}{$output_dir/$1.jpg};
