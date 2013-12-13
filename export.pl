@@ -57,7 +57,12 @@ foreach my $arg (<STDIN>) {
 			given ($ext) {
 				when ('ufraw') {
 					$cmd =~ s/%C/$input_file/;
-					$input_file =~ s/\.ufraw$/\.cr2/;
+					if ($input_file =~ /\.ufraw$/) {
+						$input_file =~ s/\.ufraw$/\.cr2/;
+						unless (-e $input_file) {
+							$input_file =~ s/^(.*?\/\d{8}-\d{6}[a-z]).*?(\.cr2)$/$1$2/;
+						}
+					}
 				}
 				when (['mov','mpg']) {
 					$output_file =~ s/\.jpg$/\.$ext/;
