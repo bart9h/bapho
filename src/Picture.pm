@@ -106,7 +106,7 @@ sub develop
 			if (not -s $jpg and $M1 and (not $M0 or $M0 != $M1)) {
 				$cmd = "convert -sharpen 3x1 -quality 90 -resize 1920x1080 \"$ppm\" \"$jpg\"";
 				my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
-				$cmd = "($cmd; notify-send \"$base\") &";
+				$cmd = "($cmd && rm -v \"$ppm\"; notify-send \"$base\") &";
 				say $cmd;
 				system $cmd;
 			}
