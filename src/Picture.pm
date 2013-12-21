@@ -104,7 +104,7 @@ sub develop
 			my $jpg = $file; $jpg =~ s/\.[^.]+$/\.jpg/;
 			my $M1 = -M $ppm;
 			if (not -s $jpg and $M1 and (not $M0 or $M0 != $M1)) {
-				$cmd = "convert -sharpen 3x1 -quality 90 -resize 1920x1080 \"$ppm\" \"$jpg\"";
+				$cmd = "convert -sharpen 3x1 -quality 90 \"$ppm\" \"$jpg\"";
 				my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
 				$cmd = "($cmd && rm -v \"$ppm\"; notify-send \"$base\") &";
 				say $cmd;
