@@ -4,10 +4,7 @@
 
 #include "ppport.h"
 
-
 MODULE = Bapho		PACKAGE = Bapho
 
 void
 hello()
-	CODE:
-		printf("Hello, world!\n");
