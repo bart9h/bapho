@@ -297,12 +297,13 @@ sub garbage_collector
 	{
 		last if $self->{bytes_used} < $self->{max_bytes};
 
-		my $surf = $self->{items}->{$_->{filename}}->{$_->{res}}->{surf};
+		my ($filename, $res) = ($_->{filename}, $_->{res});
+		my $surf = $self->{items}->{$filename}->{$res}->{surf};
 		my $surf_bytes = $surf->pitch * $surf->h;
-		printf "freeing %.2f MB from $_->{filename} @ $_->{res}\n", $surf_bytes/(1024*1024)
+		printf "freeing %.2f MB from $filename @ $res\n", $surf_bytes/(1024*1024)
 			if dbg 'cache,memory,gc';
 		$self->{bytes_used} -= $surf_bytes;
-		delete $self->{items}->{$_->{filename}}->{$_->{res}};
+		delete $self->{items}->{$filename}->{$res};
 		$self->{loaded_files} -= 1;
 	}
 }#
