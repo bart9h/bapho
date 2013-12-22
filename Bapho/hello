@@ -2,3 +2,7 @@
 use ExtUtils::testlib;
 use Bapho;
 Bapho::hello();
+my $tres = 3;
+my $triplo = Bapho::triplo($tres);
+print "O triplo de $tres eh $triplo.\n";
+Bapho::salute('Foo');
