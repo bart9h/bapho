@@ -5,3 +5,5 @@ Bapho/MYMETA.yml
 Bapho/Makefile
 Bapho/blib/
 Bapho/pm_to_blib
+Bapho/Makefile.old
+Bapho/*.o
