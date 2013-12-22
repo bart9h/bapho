@@ -1,0 +1,4 @@
+#!/usr/bin/perl
+use ExtUtils::testlib;
+use Bapho;
+Bapho::hello();
