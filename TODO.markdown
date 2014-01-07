@@ -6,8 +6,6 @@ Bugs
 
 * First/last picture not being filtered.
 
-* PictureItr points to .tags file + .tags is deleted = die when seek.
-
 * Thumbs view does not honor filters.
 
 

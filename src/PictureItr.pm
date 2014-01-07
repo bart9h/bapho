@@ -60,7 +60,7 @@ sub seek
 sub next { $_[0]->dup->seek(+1) }
 sub prev { $_[0]->dup->seek(-1) }
 sub path { join ',', sort keys %{$_[0]->{pic}->{files}} }
-sub dup  { PictureItr->new($_[0]->{itr}->path, $_[0]->{jaildir}) }
+sub dup  { PictureItr->new($_[0]->{pic}->{sel}, $_[0]->{jaildir}) }
 
 sub first
 {my ($self) = @_;
