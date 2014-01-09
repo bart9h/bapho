@@ -65,9 +65,9 @@ Optimizations
 
 * Asynchronous image loading.
 
-* Faster image loading.
+* Faster image loading (disk cache).
   * Save jpegs with fullscreen size, and maybe thumbnails too.
-  * Implement loading directly from EXIF.
+  * Load directly from EXIF (in C?).
 
 * Read-ahead image loading.
 

@@ -82,10 +82,10 @@ System requirements
 - Perl 5.10
 
 - SDL Perl module
-  http://search.cpan.org/~dgoehrig/SDL_Perl-2.1.3/
+  <http://search.cpan.org/~dgoehrig/SDL_Perl-2.1.3/>
 
 - Image::ExifTool Perl module
-  http://search.cpan.org/~exiftool/Image-ExifTool-7.67/
+  <http://search.cpan.org/~exiftool/Image-ExifTool-7.67/>
 
 - fontconfig and other system tools found on
   any Linux system (mkdir, which, cmp, rm, mv, cp, xdpyinfo)

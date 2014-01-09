@@ -86,6 +86,8 @@ sub path2id
 sub pvt__init
 {my ($self, $path, $dir) = @_;
 caller eq __PACKAGE__ or croak;
+confess unless $path;
+$dir //= 1;
 
 	$self->{itr} = FileItr->new($path, $self->{jaildir});
 
@@ -95,7 +97,7 @@ caller eq __PACKAGE__ or croak;
 	}
 
 	until ($self->{pic}->{sel}) {
-		$self->seek($dir // 1);
+		$self->seek($dir);
 	}
 
 	$self;

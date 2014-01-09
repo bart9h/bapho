@@ -56,7 +56,7 @@ sub new
 		}
 	}
 	else {
-		die "\"$path\" not found.\n";
+		confess "\"$path\" not found.";
 		return undef;
 	}
 
