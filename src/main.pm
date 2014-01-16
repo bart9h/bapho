@@ -101,9 +101,28 @@ sub load_state
 
 	args::load_state;
 
-	if (defined $args{cursor_file} and not defined $args{startdir}) {
-		$_->seek_to_file($args{cursor_file}, $self->{jaildir})
-			foreach @{$self->{views}};
+	# restore view from args
+	my $i = 1;
+	while (defined $args{"view_${i}_cursor"}) {
+		my $view = View::new(
+			PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
+			[ (split /,/, $args{"view_${i}_ins"}) ],
+			[ (split /,/, $args{"view_${i}_outs"}) ]
+		);
+		$view->seek_to_file($args{"view_${i}_cursor"}, $self->{jaildir});
+		push @{$self->{views}}, $view;
+
+		delete $args{"view_${i}_$_"}  foreach qw/cursor ins outs/;
+		++$i;
+	}
+
+	# if no views loaded, create one
+	if (scalar @{$self->{views}} == 0) {
+		push @{$self->{views}}, View::new(
+			PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
+			[ (split /,/, $args{include}) ],
+			[ (split /,/, $args{exclude}) ]
+		);
 	}
 }#
 
@@ -562,18 +581,14 @@ sub new
 			: $args{startdir}
 		: $args{basedir};
 
-	my $view = View::new(
-		PictureItr->new($args{startdir} // $args{basedir}, $jaildir),
-		[ (split /,/, $args{include}) ],
-		[ (split /,/, $args{exclude}) ]
-	);
-
 
 	if ($args{import}) {
 		use import;
 		exit(import::import_any($args{files}) ? 0 : 1);
 	}
 	elsif ($args{print}) {
+		die "not implemented\n";
+=a
 		$view->seek('first');
 		while(1) {
 			my $path = $view->pic->{sel};
@@ -582,6 +597,7 @@ sub new
 			last if $path eq $view->pic->{sel};
 		}
 		exit(0);
+=cut
 	}
 
 	bless my $eu = {
@@ -606,9 +622,15 @@ sub new
 
 	$eu->{app} = $eu->new_sdl_window();
 
-	push @{$eu->{views}}, $view;
-
 	$eu->load_state;
+	if (scalar @{$eu->{views}} == 0) {
+		push @{$eu->{views}}, View::new(
+			PictureItr->new($args{startdir} // $args{basedir}, $jaildir),
+			[ (split /,/, $args{include}) ],
+			[ (split /,/, $args{exclude}) ]
+		);
+	}
+
 	$eu;
 }#
 
