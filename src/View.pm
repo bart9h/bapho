@@ -120,34 +120,32 @@ sub seek
 {my ($self, $dir, $itr) = @_;
 	$itr //= $self->{picitr};
 
-	given ($dir) {
-		when (/^first$/) {
-			$itr->first;
-			$self->pvt__filter or $self->seek('+1');
-		}
-		when (/^last$/)  {
-			$itr->last;
-			$self->pvt__filter or $self->seek('-1');
-		}
-		when (/^[+-]/)   {
-			$dir =~ s/line/$self->{cols}/e;
-			$dir =~ s/page/$self->{cols}*$self->{rows}/e;
+	if ($dir eq 'first') {
+		$itr->first;
+		$self->pvt__filter or $self->seek('+1');
+	}
+	elsif ($dir eq 'last')  {
+		$itr->last;
+		$self->pvt__filter or $self->seek('-1');
+	}
+	elsif ($dir =~ /^[+-]/)   {
+		$dir =~ s/line/$self->{cols}/e;
+		$dir =~ s/page/$self->{cols}*$self->{rows}/e;
 
-			my $d = $dir>0?1:-1;
-			$self->pvt__filter or warn 'invalid itr';
-			my $valid_itr = $itr->dup;  # backup
-			while(1) {
-				if ($itr->seek($d)) {
-					$self->pvt__filter or next;
-					$valid_itr = $itr->dup;  # update
-					$self->{page_cursor} += $d;
-					$dir -= $d;
-					return 1 if $dir == 0;
-				}
-				else {
-					%$itr = %$valid_itr;  # restore
-					return 0;
-				}
+		my $d = $dir>0?1:-1;
+		$self->pvt__filter or warn 'invalid itr';
+		my $valid_itr = $itr->dup;  # backup
+		while(1) {
+			if ($itr->seek($d)) {
+				$self->pvt__filter or next;
+				$valid_itr = $itr->dup;  # update
+				$self->{page_cursor} += $d;
+				$dir -= $d;
+				return 1 if $dir == 0;
+			}
+			else {
+				%$itr = %$valid_itr;  # restore
+				return 0;
 			}
 		}
 	}

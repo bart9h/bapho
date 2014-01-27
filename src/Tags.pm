@@ -92,16 +92,15 @@ sub repeat_last_edit
 {my ($self) = @_;
 
 	foreach my $tag (keys %{$singleton{last_edit}}) {
-		given ($singleton{last_edit}->{$tag}) {
-			when (1) {
-				$self->{tags}->{$tag} = 1;
-			}
-			when (0) {
-				delete $self->{tags}->{$tag};
-			}
-			default {
-				die;
-			}
+		my $t = $singleton{last_edit}->{$tag};
+		if ($t == 1) {
+			$self->{tags}->{$tag} = 1;
+		}
+		elsif ($t == 0) {
+			delete $self->{tags}->{$tag};
+		}
+		else {
+			die;
 		}
 	}
 

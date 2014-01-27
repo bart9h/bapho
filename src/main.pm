@@ -205,44 +205,40 @@ sub do_menu
 	$self->{dirty} = $self->{menu}->do($command);
 	my $activated = $self->{menu}->{activated};
 
-	given ($self->{menu}->{action}) {
-		when (/^tag_editor$/) {
-			if (defined $activated) {
-				$self->pic->{tags}->toggle($activated);
+	if ($self->{menu}->{action} eq 'tag_editor') {
+		if (defined $activated) {
+			$self->pic->{tags}->toggle($activated);
+		}
+		elsif (not $self->{dirty}) {
+			$self->{dirty} = 1;
+			if ($command =~ /^(t|toggle info)$/) {
+				$self->{menu}->leave;
 			}
-			elsif (not $self->{dirty}) {
-				$self->{dirty} = 1;
-				given ($command) {
-					when (/^(t|toggle info)$/) {
-						$self->{menu}->leave;
-					}
-					when (/^e$/ and not $args{fullscreen}) {
-						my $filename = $self->pic->{id}.'.tags';
-						-e $filename or FileItr->dirty();
-						system "\$EDITOR $filename";
-						$self->pic->add($filename);
-						$self->enter_tag_editor;
-						$self->display;
-					}
-					default {
-						$self->{dirty} = 0;
-					}
-				}
+			elsif ($command eq 'e' and not $args{fullscreen}) {
+				my $filename = $self->pic->{id}.'.tags';
+				-e $filename or FileItr->dirty();
+				system "\$EDITOR $filename";
+				$self->pic->add($filename);
+				$self->enter_tag_editor;
+				$self->display;
+			}
+			else {
+				$self->{dirty} = 0;
 			}
 		}
-		when (/^view_editor$/) {
-			my $view = $self->{views}->[0];
-			if (defined $activated) {
-				if ($view->{ins}->{$activated}) {
-					delete $view->{ins}->{$activated};
-					$view->{outs}->{$activated} = 1;
-				}
-				elsif ($view->{outs}->{$activated}) {
-					delete $view->{outs}->{$activated};
-				}
-				else {
-					$view->{ins}->{$activated} = 1;
-				}
+	}
+	elsif ($self->{menu}->{action} eq 'view_editor') {
+		my $view = $self->{views}->[0];
+		if (defined $activated) {
+			if ($view->{ins}->{$activated}) {
+				delete $view->{ins}->{$activated};
+				$view->{outs}->{$activated} = 1;
+			}
+			elsif ($view->{outs}->{$activated}) {
+				delete $view->{outs}->{$activated};
+			}
+			else {
+				$view->{ins}->{$activated} = 1;
 			}
 		}
 	}
@@ -485,49 +481,46 @@ sub handle_event
 	state $control = 0;
 
 	use SDL::Constants;
-	given ($event->type) {
-		when ($_ == SDL_KEYDOWN()) {
-			my $key = SDL::Events::get_key_name($event->key_sym);
-			$shift   = 1  if $key =~ m{^(left|right)\ shift$};
-			$control = 1  if $key =~ m{^(left|right)\ ctrl$};
-			$key =   'shift-'.$key  if $shift;
-			$key = 'control-'.$key  if $control;
+	if ($event->type == SDL_KEYDOWN()) {
+		my $key = SDL::Events::get_key_name($event->key_sym);
+		$shift   = 1  if $key =~ m{^(left|right)\ shift$};
+		$control = 1  if $key =~ m{^(left|right)\ ctrl$};
+		$key =   'shift-'.$key  if $shift;
+		$key = 'control-'.$key  if $control;
 
-			if ($self->{key_hold}) {
-				$key = "$self->{key_hold}-$key";
-				$self->{key_hold} = '';
-			}
-			if ($key =~ /^[grvz;]$/) {
-				$self->{key_hold} = $key;
-			}
-			else {
-				$key =~ s/\ /_/g;
-				$self->do($key);
-			}
+		if ($self->{key_hold}) {
+			$key = "$self->{key_hold}-$key";
+			$self->{key_hold} = '';
 		}
-		when ($_ == SDL_KEYUP()) {
-			given (SDL::Events::get_key_name($event->key_sym)) {
-				when (m{^(left|right)\ shift$}) { $shift   = 0 }
-				when (m{^(left|right)\ ctrl$})  { $control = 0 }
-			}
+		if ($key =~ /^[grvz;]$/) {
+			$self->{key_hold} = $key;
 		}
-		when ($_ == SDL_MOUSEBUTTONDOWN()) {
-			$self->do(
-				{
-					3 => 'info_toggle',
-					4 => 'page_down',
-					5 => 'page_up',
-				}->{$event->button} // 'button-'.$event->button
-			);
+		else {
+			$key =~ s/\ /_/g;
+			$self->do($key);
 		}
-		when ($_ == SDL_VIDEORESIZE()) {
-			say 'resizing to '.join('x',$event->resize_w,$event->resize_h) if dbg;
-			$self->{app}->resize($event->resize_w, $event->resize_h);
-			$self->{dirty} = 1;
-		}
-		when ($_ == SDL_QUIT()) {
-			$self->quit;
-		}
+	}
+	elsif ($event->type == SDL_KEYUP()) {
+		my $sym = SDL::Events::get_key_name($event->key_sym);
+		if    ($sym =~ m{^(left|right)\ shift$}) { $shift   = 0 }
+		elsif ($sym =~ m{^(left|right)\ ctrl$})  { $control = 0 }
+	}
+	elsif ($event->type == SDL_MOUSEBUTTONDOWN()) {
+		$self->do(
+			{
+				3 => 'info_toggle',
+				4 => 'page_down',
+				5 => 'page_up',
+			}->{$event->button} // 'button-'.$event->button
+		);
+	}
+	elsif ($event->type == SDL_VIDEORESIZE()) {
+		say 'resizing to '.join('x',$event->resize_w,$event->resize_h) if dbg;
+		$self->{app}->resize($event->resize_w, $event->resize_h);
+		$self->{dirty} = 1;
+	}
+	elsif ($event->type == SDL_QUIT()) {
+		$self->quit;
 	}
 }#
 

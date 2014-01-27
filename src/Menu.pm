@@ -56,19 +56,21 @@ sub do
 	my $N = scalar @{$self->{items}};
 	$self->{activated} = undef;
 
-	given ($command) {
-		when (/^(k|up)$/)            { $self->{cursor}-- }
-		when (/^(j|down)$/)          { $self->{cursor}++ }
-		when (/^(g-g|home)$/)        { $self->{cursor} = 0 }
-		when (/^(end)$/)             { $self->{cursor} = $N - 1 }
-		when (/^(q|escape|close)$/)  { $self->leave }
-		when (/^shift-([a-z0-9])$/)  { $self->pvt__jump($1) }
-		when (/^(l|space|enter|return)$/) {
-			$self->{activated} = $self->{items}->[$self->{cursor}];
-		}
-		default {
-			return 0;
-		}
+	if    ($command =~ /^(k|up)$/)            { $self->{cursor}-- }
+	elsif ($command =~ /^(j|down)$/)          { $self->{cursor}++ }
+	elsif ($command =~ /^(g-g|home)$/)        { $self->{cursor} = 0 }
+	elsif ($command =~ /^(end)$/)             { $self->{cursor} = $N - 1 }
+	elsif ($command =~ /^(q|escape|close)$/) {
+		$self->leave;
+	}
+	elsif ($command =~ /^shift-([a-z0-9])$/) {
+		$self->pvt__jump($1);
+	}
+	elsif ($command =~ /^(l|space|enter|return)$/) {
+		$self->{activated} = $self->{items}->[$self->{cursor}];
+	}
+	else {
+		return 0;
 	}
 
 	$self->{cursor} = 0     if $self->{cursor} <  0;

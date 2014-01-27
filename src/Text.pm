@@ -75,57 +75,55 @@ sub print
 		my $color = $self->{white};
 		for (my $i = 0;  $i < $#args;  $i += 2) {
 			my ($cmd, $arg) = ($args[$i], $args[$i+1]);
-			given ($cmd) {
-				when (/font/) {
-					$self->{font} = $arg;
-				}
-				when (/color/) {
-					$color = $self->{$arg};
-				}
-				when (/text/) {
-					my $font        = $self->{fonts}->[$self->{font}]->{fill}    or confess;
-					my $font_border = $self->{fonts}->[$self->{font}]->{border}  or confess;
-
-					my ($w) = @{ SDL::TTF::size_text($font, $arg) };
-
-					if ($mode eq 'layout')
-					{#{my}   when in layout mode, just calculate the bounding box
-
-						my $h = SDL::TTF::font_height($font);
-						if (not defined $taller_font or $h > $taller_font_height) {
-							$taller_font = $font;
-							$taller_font_height = $h;
-						}
-
-						$box_width += $w;
-					}#
-					else
-					{#{my}   in draw mode, render the text, increment x position
-
-						my $x0 = $self->{x};
-						my $y0 = $self->{y} + $taller_font_ascent - SDL::TTF::font_ascent($font);
-
-						sub do_print
-						{my ($font, $surf, $x, $y, $color, $text) = @_;
-
-							my $ts = SDL::TTF::render_text_solid($font, $text, $color);
-							my $r = SDL::Rect->new($x, $y, SDL::Surface::w($ts), SDL::Surface::w($ts));
-							SDL::Video::blit_surface($ts, undef, $surf, $r);
-						}#
-
-						for(my $x = $x0-1; $x <= $x0+1; $x+=2) {
-							for(my $y = $y0-1; $y <= $y0+1; $y+=2) {
-								do_print($font_border, $surf, $x, $y, $self->{black}, $arg);
-							}
-						}
-
-						do_print($font, $surf, $x0, $y0, $color, $arg);
-
-						$self->{x} += $w;
-					}#
-				}
-				default { confess }
+			if ($cmd eq 'font') {
+				$self->{font} = $arg;
 			}
+			elsif ($cmd eq 'color') {
+				$color = $self->{$arg};
+			}
+			elsif ($cmd eq 'text') {
+				my $font        = $self->{fonts}->[$self->{font}]->{fill}    or confess;
+				my $font_border = $self->{fonts}->[$self->{font}]->{border}  or confess;
+
+				my ($w) = @{ SDL::TTF::size_text($font, $arg) };
+
+				if ($mode eq 'layout')
+				{#{my}   when in layout mode, just calculate the bounding box
+
+					my $h = SDL::TTF::font_height($font);
+					if (not defined $taller_font or $h > $taller_font_height) {
+						$taller_font = $font;
+						$taller_font_height = $h;
+					}
+
+					$box_width += $w;
+				}#
+				else
+				{#{my}   in draw mode, render the text, increment x position
+
+					my $x0 = $self->{x};
+					my $y0 = $self->{y} + $taller_font_ascent - SDL::TTF::font_ascent($font);
+
+					sub do_print
+					{my ($font, $surf, $x, $y, $color, $text) = @_;
+
+						my $ts = SDL::TTF::render_text_solid($font, $text, $color);
+						my $r = SDL::Rect->new($x, $y, SDL::Surface::w($ts), SDL::Surface::w($ts));
+						SDL::Video::blit_surface($ts, undef, $surf, $r);
+					}#
+
+					for(my $x = $x0-1; $x <= $x0+1; $x+=2) {
+						for(my $y = $y0-1; $y <= $y0+1; $y+=2) {
+							do_print($font_border, $surf, $x, $y, $self->{black}, $arg);
+						}
+					}
+
+					do_print($font, $surf, $x0, $y0, $color, $arg);
+
+					$self->{x} += $w;
+				}#
+			}
+			else { confess }
 		}
 
 		if ($mode eq 'layout')

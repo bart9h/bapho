@@ -81,52 +81,52 @@ sub develop
 	my $file = $self->guess_source($app) or return;
 
 	my $cmd;
-	given ($file) {
-		when (/\.ufraw$/i) {
-			$cmd = "ufraw \"$file\" || gvim \"$file\"";
-		}
-		when (/\.cr2$/i) {
-			$cmd = "ufraw \"$file\"";
-		}
-		when (is_pic($file)) {
-			$cmd = "gimp \"$file\" &";
-		}
+	if ($file =~ /\.ufraw$/i) {
+		$cmd = "ufraw \"$file\" || gvim \"$file\"";
 	}
-	if (defined $cmd) {
-		say $cmd if dbg;
+	elsif ($file =~ /\.cr2$/i) {
+		$cmd = "ufraw \"$file\"";
+	}
+	elsif (is_pic($file)) {
+		$cmd = "gimp \"$file\" &";
+	}
+	else {
+		return;
+	}
 
-		my $ppm = $file; $ppm =~ s/\.[^.]+$/\.ppm/;
-		my $M0 = -M $ppm;
+	say $cmd if dbg;
 
-		system $cmd;
+	my $ppm = $file; $ppm =~ s/\.[^.]+$/\.ppm/;
+	my $M0 = -M $ppm;
 
-		if ($cmd =~ /^ufraw /) {
-			my $jpg = $file; $jpg =~ s/\.[^.]+$/\.jpg/;
-			my $cr2 = $file; $cr2 =~ s/\.[^.]+$/\.cr2/;
-			my $M1 = -M $ppm;
-			if ($M1 and (not $M0 or $M0 != $M1)) { # new .ppm was created
-				if (-s $jpg) { # jpg already exists
-					if (-w $jpg) { # if it's writeable, remove
-						unlink $jpg and say "removed \"$jpg\"";
+	system $cmd;
+
+	if ($cmd =~ /^ufraw /) {
+		my $jpg = $file; $jpg =~ s/\.[^.]+$/\.jpg/;
+		my $cr2 = $file; $cr2 =~ s/\.[^.]+$/\.cr2/;
+		my $M1 = -M $ppm;
+		if ($M1 and (not $M0 or $M0 != $M1)) { # new .ppm was created
+			if (-s $jpg) { # jpg already exists
+				if (-w $jpg) { # if it's writeable, remove
+					unlink $jpg and say "removed \"$jpg\"";
+				}
+				else { # if read-only, backup
+					my $bk = $jpg; $bk =~ s/jpg$/original.jpg/;
+					if (-s $bk and not -w $bk) { # backup already exists
+						unlink $jpg and say "\"$bk\" exists, \"$jpg\" removed";
 					}
-					else { # if read-only, backup
-						my $bk = $jpg; $bk =~ s/jpg$/original.jpg/;
-						if (-s $bk and not -w $bk) { # backup already exists
-							unlink $jpg and say "\"$bk\" exists, \"$jpg\" removed";
-						}
-						else { # create backup
-							unlink $bk and say "\"$bk\" removed"  if -e $bk;
-							rename $jpg, $bk and say "\"$jpg\" -> \"$bk\"";
-						}
+					else { # create backup
+						unlink $bk and say "\"$bk\" removed"  if -e $bk;
+						rename $jpg, $bk and say "\"$jpg\" -> \"$bk\"";
 					}
 				}
-				-e $jpg and die "\"$jpg\" still exists";
-				$cmd = "convert -sharpen 3x1 -quality 90 \"$ppm\" \"$jpg\" && exiftool -tagsFromFile \"$cr2\" \"$jpg\"";
-				my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
-				$cmd = "($cmd && rm -v \"$ppm\" && notify-send \"$base\") &";
-				say $cmd;
-				system $cmd;
 			}
+			-e $jpg and die "\"$jpg\" still exists";
+			$cmd = "convert -sharpen 3x1 -quality 90 \"$ppm\" \"$jpg\" && exiftool -tagsFromFile \"$cr2\" \"$jpg\"";
+			my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
+			$cmd = "($cmd && rm -v \"$ppm\" && notify-send \"$base\") &";
+			say $cmd;
+			system $cmd;
 		}
 	}
 }#
