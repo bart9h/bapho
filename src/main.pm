@@ -557,6 +557,7 @@ sub new
 	sub fixlink { -l $_[0] ? readlink $_[0] : $_[0] }
 
 	$args{basedir} = fixlink $args{basedir};
+	-d $args{basedir}  or die "$args{basedir} not found.\n";
 
 	if (exists $args{files}) {
 		die "only one startdir is currently supported\n"  if scalar @{$args{files}} != 1;

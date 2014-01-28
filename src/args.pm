@@ -99,7 +99,7 @@ sub read_args
 			close F;
 		}
 		else {
-			print STDERR "%s: $!\n", config_filename;
+			printf STDERR "%s: $!\n", config_filename;
 		}
 	}#
 
@@ -192,7 +192,7 @@ sub load_state
 	say "Loading state file $file." if dbg 'file';
 
 	unless (open F, $file) {
-		printf "<%s: $!\n", $file;
+		printf "%s: $!\n", $file;
 		return;
 	}
 
