@@ -178,15 +178,36 @@ sub import_files
 {my (@files) = @_;
 
 	use File::Find;
+
+	my @imported_files;
 	find(
 		{
 			no_chdir => 1,
 			wanted => sub {
-				create_tags_file(import_file($_)) unless -d;
+				unless (-d) {
+					my $path = import_file($_);
+					if ($path) {
+						create_tags_file($path);
+						push @imported_files, $path;
+					}
+				}
 			},
 		},
 		@files
 	);
+
+	# Mark .jpg as writeable if there's an equivalent .cr2 file.
+	# NOTE: The way it's written only works because ".cr2" lt ".jpg"
+	my ($last_base, $last_ext);
+	foreach my $path (sort @imported_files) {
+		$path =~ m{^(?<base>.+?)\.(?<ext>[^.]+)$} or next;
+		chmod 0644, $path
+			if  $+{ext} eq 'jpg'
+			and $+{base} eq $last_base
+			and $last_ext eq 'cr2';
+		($last_base, $last_ext) = ($+{base}, $+{ext});
+	}
+
 	1;
 }#
 
