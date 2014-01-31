@@ -52,7 +52,7 @@ sub page_pics
 		} until $self->pvt__filter($i->{pic});
 	}
 	B: foreach (1 .. $self->{rows} * $self->{cols}) {
-		push @pics, $i->{pic};
+		push @pics, $i->dup->{pic};
 		do {
 			unless ($i->seek(1)) {
 				$self->{page_cursor} = 0;
