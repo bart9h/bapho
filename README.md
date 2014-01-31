@@ -18,8 +18,9 @@ committing to a specific software. Of course, if I choose
 an open source software, I could code a export/import
 tool if I decide to switch to another one.
 But I also didn't want to commit to a specific layout
-for the folders. What I really want, and fell it's
-the Right Thing To Do, it's to just use the filesystem.
+for the folders, or a database for the metadata.
+What I really want, and fell it's the Right Thing To Do,
+it's to just use the filesystem.
 None did that, so I decided to create my own.
 
 
@@ -52,11 +53,14 @@ Features
 
 - Handles video too (with MPlayer).
 
-- Use tags, names, places, stars (rating);
-  and a view editor to filter those.
-  - [planned] Persist views between sessions.
+- Use tags, names, places, stars (rating).
 
 - Easily apply multiple tags to multiple photos.
+
+- Multiple views (tab-like)
+  - Built-in view editor.
+  - Filter by rating and tags.
+  - Persist views between sessions.
 
 - Use system memory to cache pictures on memory
   for super fast viewing.
@@ -73,7 +77,7 @@ Features
 - Print files from selected photos to stdout,
   to facilitate integration with other tools.
 
-(check the [TODO file](TODO.markdown) for known bugs and more planned features)
+(check the [TODO file](TODO.md) for known bugs and more planned features)
 
 
 System requirements
@@ -96,6 +100,10 @@ Optional external tools
 
 - UFRaw, to develop raw files
 
+- Gimp, to edit other image files
+
+- ImageMagick, to auto-apply sharpening when saving .ppm files
+
 - gphoto2, to import files directly from the camera
 
 - any text editor (defined by the EDITOR environment variable) to enter new tags
@@ -103,3 +111,7 @@ Optional external tools
 - MPlayer, to handle video
   http://mplayerhq.hu/
 
+
+```VimL
+vim:filetype=markdown:
+```

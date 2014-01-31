@@ -1,73 +1,66 @@
 Poor man's issue tracker
 ========================
 
-Bugs
-----
-
-* First/last picture not being filtered.
-
-* Thumbs view does not honor filters.
-
 
 Missing features
 ----------------
 
-* Handle tags for people and places separately.
+- Handle tags for people and places separately.
 
-* Persist views between sessions.
+- Cycle through multiple files of a picture.
+  - Option to set selected one.
 
-* Cycle through multiple files of a picture.
-  * Option to set selected one.
+- Zoom in (up to 1/1 pixels).
+  - Pan.
 
-* Zoom in (up to 1/1 pixels).
-  * Pan.
+- Image rotation.
 
-* Image rotation.
+- Text line editing (to enter new tags, renaming files/dirs).
 
-* Text line editing (to enter new tags, renaming files/dirs).
-
-* CPANize code.
-
-* Documentation (usage, keyboard commands).
+- Documentation (usage, keyboard commands).
 
 
 Enhancements
 ------------
 
-* Export images
-  * Select resolution.
-  * Upload to photo-hosting web services (PicasaWeb, Flickr, Imgur, etc).
-  * Set a picture as wallpaper.
+- Export images
+  - Select resolution.
+  - Upload to photo-hosting web services (PicasaWeb, Flickr, Imgur, etc).
+  - Set a picture as wallpaper.
 
-* Folder handling
-  * Folder iterator.
-  * Toggle between file view and folder view.
-  * Folder tagging.
+- Folder handling
+  - Folder iterator.
+  - Toggle between file view and folder view.
+  - Folder tagging.
 
-* Slideshow.
+- Slideshow.
 
-* Option to import then run the gui showing only the just-imported pics.
+- Option to import then run the gui showing only the just-imported pics.
 
-* Mouse support (GUI).
+- Mouse support (GUI).
 
-* Display image histogram.
+- Display image histogram.
 
-* Screensaver.
+- Screensaver.
 
-* OSD transparency.
+- OSD transparency.
 
-* When importing, load files first, to check for duplicates
+- When importing, load files first, to check for duplicates
   (ex: in case of a renamed directory).
 
 
 Optimizations
 -------------
 
-* Asynchronous image loading.
+- Asynchronous image loading.
 
-* Faster image loading (disk cache).
-  * Save jpegs with fullscreen size, and maybe thumbnails too.
-  * Load directly from EXIF (in C?).
+- Faster image loading (disk cache).
+  - Save jpegs with fullscreen size, and maybe thumbnails too.
+  - Load directly from EXIF (in C?).
 
-* Read-ahead image loading.
+- Read-ahead image loading.
 
+
+```VimL
+vim:filetype=markdown:
+```

@@ -59,6 +59,7 @@ sub new
 
 sub get
 {my ($self, $path, $width, $height) = @_;
+	defined $path or confess;
 
 	sub res_key
 	{my ($width, $height) = @_;
