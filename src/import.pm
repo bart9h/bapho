@@ -61,7 +61,7 @@ sub guess_path
 			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?)\.(?:3gp|m4v|jpg)$}
 		) || (
 			$source_file =~
-			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.jpg$}
+			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.(jpg|cr2)$}
 		)
 			or return undef;
 
@@ -117,6 +117,10 @@ sub get_target_path
 	}
 
 	my ($dir, $basename) = guess_path($source_file);
+	unless ($dir and $basename) {
+		warn "Couldn't guess destination path for \"$source_file\".\n";
+		return undef;
+	}
 
 	my $target_file;
 	foreach my $append_char ('a' .. 'z', undef) {

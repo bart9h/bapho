@@ -103,10 +103,13 @@ sub read_args
 		}
 	}#
 
-	foreach (keys %ENV) {
-		/^BAPHO_(\w+)$/ or next;
-		$args{lc $1} = $ENV{$_};
-	}
+	{# environment
+
+		foreach (keys %ENV) {
+			/^BAPHO_(\w+)$/i or next;
+			$args{lc $1} = $ENV{$_};
+		}
+	}#
 
 	{# cmdline
 
