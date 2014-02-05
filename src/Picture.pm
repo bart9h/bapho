@@ -124,7 +124,7 @@ sub develop
 			-e $jpg and die "\"$jpg\" still exists";
 			$cmd = "convert -sharpen 3x1 -quality 90 \"$ppm\" \"$jpg\" && exiftool -tagsFromFile \"$cr2\" \"$jpg\"";
 			my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
-			$cmd = "($cmd && rm -v \"$ppm\" && notify-send \"$base\") &";
+			$cmd = "notify-send sharpening...; $cmd && rm -v \"$ppm\" && notify-send \"$base\"";
 			say $cmd;
 			system $cmd;
 		}
