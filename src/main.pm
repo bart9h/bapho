@@ -218,7 +218,7 @@ sub do_menu
 				my $filename = $self->pic->{id}.'.tags';
 				-e $filename or FileItr->dirty();
 				system "\$EDITOR $filename";
-				$self->pic->add($filename);
+				$self->pic->add($filename, time);
 				$self->enter_tag_editor;
 				$self->display;
 			}

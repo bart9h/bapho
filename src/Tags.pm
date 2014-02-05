@@ -126,16 +126,16 @@ sub get_nstars
 }#
 
 sub add
-{my ($self, $something) = @_;
+{my ($self, $something, $time) = @_;
 
 	if ($something =~ m{/}) {
 		foreach (keys %{pvt__read_tags($something)}) {
-			$self->pvt__set_tag($_);
+			$self->pvt__set_tag($_, $time);
 		}
 	}
 	else {
-		$self->pvt__set_tag($something);
-		$self->pvt__save_pic_tags;  #TODO: only if tag was new
+		$self->pvt__set_tag($something, $time);
+		$self->pvt__save_pic_tags;
 	}
 }#
 

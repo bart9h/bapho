@@ -26,10 +26,10 @@ sub new
 }#
 
 sub add
-{my ($self, $path) = @_;
+{my ($self, $path, $time) = @_;
 
 	if ($path =~ /\.tags$/i) {
-		$self->{tags}->add($path);
+		$self->{tags}->add($path, $time);
 	}
 	else {
 		croak "Duplicate file $path." if exists $self->{files}->{$path};
