@@ -2,8 +2,8 @@
 use 5.010;
 use File::Basename;
 BEGIN {
-	$ENV{BAPHO_LIBDIR} //= dirname(-l $0 ? readlink $0 : $0).'/src';
-	unshift @INC, $ENV{BAPHO_LIBDIR};
+	$ENV{BAPHO_LIBDIR} //= dirname(-l $0 ? readlink $0 : $0);
+	unshift @INC, $ENV{BAPHO_LIBDIR}.'/src', $ENV{BAPHO_LIBDIR}.'/Bapho/lib';
 }
 use main;
 main (@ARGV);
