@@ -5,6 +5,8 @@ Poor man's issue tracker
 Missing features
 ----------------
 
+- Tag renaming.
+
 - Handle tags for people and places separately.
 
 - Cycle through multiple files of a picture.

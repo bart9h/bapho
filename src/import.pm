@@ -206,7 +206,8 @@ sub import_files
 	foreach my $path (sort @imported_files) {
 		$path =~ m{^(?<base>.+?)\.(?<ext>[^.]+)$} or next;
 		chmod 0644, $path
-			if  $+{ext} eq 'jpg'
+			if  defined $last_base
+			and $+{ext} eq 'jpg'
 			and $+{base} eq $last_base
 			and $last_ext eq 'cr2';
 		($last_base, $last_ext) = ($+{base}, $+{ext});
