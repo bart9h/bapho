@@ -122,20 +122,26 @@ sub get_target_path
 		return undef;
 	}
 
-	my $target_file;
+	sub skiprm {
+		return 0  unless (-e $_[0] && -e $_[1]);
+		return 0  unless (-s $_[0] == -s $_[1]);
+		if (0 == system "cmp \"$_[0]\" \"$_[1]\"") {
+			say "skipping \"$_[0]\" == \"$_[1]\""  unless $args{quiet};
+			system "rm \"$_[0]\"".($args{quiet}?'':' -v')  if $args{mv};
+			return 1;
+		}
+	}
+
+	#TODO: skip jpg if equivalent cr2 was skipped
+	my $base = "$basename*.$ext*";
+	foreach my $target_file (glob("$dir*/$base"), glob("$dir*/.bapho-trash/$base")) {
+		return undef  if skiprm($source_file, $target_file);
+	}
+
 	foreach my $append_char ('a' .. 'z', undef) {
 		$append_char or die 'Duplicated timestamp overflow!';
-		$target_file = "$dir/$basename$append_char.$ext";
-		if (!-e $target_file) {
-			return $target_file;
-		}
-		else {
-			if (0 == system "cmp \"$source_file\" \"$target_file\"") {
-				say "skipping \"$source_file\" == \"$target_file\""  unless $args{quiet};
-				system "rm \"$source_file\"".($args{quiet}?'':' -v')  if $args{mv};
-				return undef;
-			}
-		}
+		my $file = "$dir/$basename$append_char.$ext";
+		return $file  unless -e $file;
 	}
 }#
 
