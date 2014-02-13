@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 use ExtUtils::testlib;
 use Bapho;
-Bapho::hello();
-my $tres = 3;
-my $triplo = Bapho::triplo($tres);
-print "O triplo de $tres eh $triplo.\n";
-Bapho::salute('Foo');
+my ($w, $h) = (400, 240);
+Bapho::display_init('test', 0, 0, $w, $h, 0);
+$w = Bapho::display_w() or die;
+$h = Bapho::display_h() or die;
+sleep 1;

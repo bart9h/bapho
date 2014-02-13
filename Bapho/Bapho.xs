@@ -6,13 +6,17 @@
 
 MODULE = Bapho		PACKAGE = Bapho
 
-void
-hello()
+bool
+display_init(title, x, y, w, h, isFullscreen)
+	const char* title
+	int x
+	int y
+	int w
+	int h
+	bool isFullscreen
 
 int
-triplo(input)
-	int input
+display_w()
 
-void
-salute(input)
-	const char* input
+int
+display_h()
