@@ -107,9 +107,9 @@ sub load_state
 		my $view = View::new(
 			PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
 			[ (split /,/, $args{"view_${i}_ins"}) ],
-			[ (split /,/, $args{"view_${i}_outs"}) ]
+			[ (split /,/, $args{"view_${i}_outs"}) ],
+			$args{"view_${i}_cursor"},
 		);
-		$view->seek_to_file($args{"view_${i}_cursor"}, $self->{jaildir});
 		push @{$self->{views}}, $view;
 
 		delete $args{"view_${i}_$_"}  foreach qw/cursor ins outs/;
@@ -615,16 +615,7 @@ sub new
 	};
 
 	$eu->{app} = $eu->new_sdl_window();
-
 	$eu->load_state;
-	if (scalar @{$eu->{views}} == 0) {
-		push @{$eu->{views}}, View::new(
-			PictureItr->new($args{startdir} // $args{basedir}, $jaildir),
-			[ (split /,/, $args{include}) ],
-			[ (split /,/, $args{exclude}) ]
-		);
-	}
-
 	$eu;
 }#
 

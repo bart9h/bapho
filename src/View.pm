@@ -13,7 +13,7 @@ use PictureItr;
 #}#
 
 sub new
-{my ($picitr, $ins, $outs) = @_;
+{my ($picitr, $ins, $outs, $file) = @_;
 	$picitr or croak;
 
 	bless my $self = {
@@ -28,7 +28,12 @@ sub new
 		marks       => {},
 	};
 
-	$self->seek('+1') unless $self->pvt__filter;
+	if (defined $file) {
+		$self->seek_to_file($file, $self->{picitr}->{jaildir});
+	}
+	else {
+		$self->seek('+1')  if not $self->pvt__filter;
+	}
 
 	return $self;
 }#
