@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
+#include <SDL2/SDL_image.h>
 
 /* global data */
 struct Display
@@ -37,6 +38,11 @@ bool display_init (const char* title,
 	return true;
 }
 
+void display_flush()
+{
+	SDL_UpdateWindowSurface(G.window);
+}
+
 int display_w()
 {
 	int w, h;
@@ -49,6 +55,30 @@ int display_h()
 	int w, h;
 	SDL_GetWindowSize(G.window, &w, &h);
 	return h;
+}
+
+void display_image (const char* path,
+		int x, int y, int w, int h)
+{
+#if 0
+	SDL_Surface* original = IMG_Load(path);
+	if (original != NULL) {
+		SDL_Surface* zoom = zoomSurface(original,
+				double(w)/original.w,
+				double(h)/original.h,
+				SMOOTHING_ON);
+		if (zoom != NULL) {
+			SDL_Blit
+		}
+	}
+#else
+	SDL_Surface* surf = IMG_Load(path);
+	if (surf != NULL) {
+		SDL_Rect r;  r.x=x;r.y=y;r.w=w;r.h=h;
+		SDL_BlitScaled(surf, NULL, SDL_GetWindowSurface(G.window), &r);
+		SDL_FreeSurface(surf); //TODO: cache
+	}
+#endif
 }
 
 // vim600:foldmethod=syntax:foldnestmax=1:

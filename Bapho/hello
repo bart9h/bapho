@@ -11,6 +11,8 @@ $h = Bapho::display_h() or die;
 while(1) {
 	if (my $event = Bapho::get_event()) {
 		say "got event($event)";
-		last if $event =~ /^(Q|Escape|quit)$/;
+		last  if $event =~ /^(Q|Escape|quit)$/;
+		Bapho::display_image('1.jpg', 0, 0, $w, $h)  if $event eq 'I';
 	}
+	Bapho::display_flush();
 }
