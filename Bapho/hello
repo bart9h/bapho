@@ -1,8 +1,16 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
+use 5.010;
 use ExtUtils::testlib;
 use Bapho;
 my ($w, $h) = (400, 240);
 Bapho::display_init('test', 0, 0, $w, $h, 0);
 $w = Bapho::display_w() or die;
 $h = Bapho::display_h() or die;
-sleep 1;
+while(1) {
+	if (my $event = Bapho::get_event()) {
+		say "got event($event)";
+		last if $event =~ /^(Q|Escape|quit)$/;
+	}
+}

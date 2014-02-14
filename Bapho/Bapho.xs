@@ -20,3 +20,6 @@ display_w()
 
 int
 display_h()
+
+const char*
+get_event()
