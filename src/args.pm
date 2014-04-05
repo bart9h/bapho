@@ -38,18 +38,14 @@ our %args = (
 				DateTimeOriginal
 				Model
 				LensID
-				ISO
-				ShutterSpeed
 				Aperture
+				ShutterSpeed
+				ISO
 				FocalLength
-				Flash
-				FocusMode
-				ColorTemperature
-				WhiteBalance
+				ExposureProgram
 				ExposureCompensation
-				Sharpness
-				Orientation
-				UserComment
+				FocusMode
+				Flash
 			/
 		#}#
 		],
