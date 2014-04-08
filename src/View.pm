@@ -127,22 +127,22 @@ sub seek
 
 	if ($dir eq 'first') {
 		$itr->first;
-		$self->pvt__filter or $self->seek('+1');
+		$self->pvt__filter($itr->{pic}) or $self->seek('+1');
 	}
 	elsif ($dir eq 'last')  {
 		$itr->last;
-		$self->pvt__filter or $self->seek('-1');
+		$self->pvt__filter($itr->{pic}) or $self->seek('-1');
 	}
 	elsif ($dir =~ /^[+-]/)   {
 		$dir =~ s/line/$self->{cols}/e;
 		$dir =~ s/page/$self->{cols}*$self->{rows}/e;
 
 		my $d = $dir>0?1:-1;
-		$self->pvt__filter or warn 'invalid itr';
+		$self->pvt__filter($itr->{pic}) or warn 'invalid itr';
 		my $valid_itr = $itr->dup;  # backup
 		while(1) {
 			if ($itr->seek($d)) {
-				$self->pvt__filter or next;
+				$self->pvt__filter($itr->{pic}) or next;
 				$valid_itr = $itr->dup;  # update
 				$self->{page_cursor} += $d;
 				$dir -= $d;
