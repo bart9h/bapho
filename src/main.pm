@@ -417,8 +417,12 @@ sub do
 				code => sub { foreach($view->marked_pics) { $_->{tags}->repeat_last_edit } }
 			},
 			print_files => {
-				keys => [ 'p' ],
+				keys => [ 'p-p' ],
 				code => sub { $view->pic->print }
+			},
+			print_folder => {
+				keys => [ 'p-f' ],
+				code => sub { $_->print foreach($view->folder_pics) }
 			},
 			print_files_selected => {
 				keys => [ ';-p' ],
@@ -489,10 +493,10 @@ sub handle_event
 		$key = 'control-'.$key  if $control;
 
 		if ($self->{key_hold}) {
-			$key = "$self->{key_hold}-$key";
+			$key = "$self->{key_hold}-$key"; #FIXME: can't use - key
 			$self->{key_hold} = '';
 		}
-		if ($key =~ /^[grvz;]$/) {
+		if ($key =~ /^[gprvz;]$/) { #FIXME: compute the list of keys that a start a multi-key binding
 			$self->{key_hold} = $key;
 		}
 		else {

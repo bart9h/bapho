@@ -193,25 +193,25 @@ sub mark
 sub marked_pics
 {my ($self) = @_;
 
-	my ($first, $last) = map { $self->{marks}->{$_} } qw/first last/;
-	return unless defined $first and defined $last;
+	return pvt__pics_between_itrs (
+		$self->{marks}->{first},
+		$self->{marks}->{last}
+	);
+}#
 
-	if ($first->{id} gt $last->{id}) {
-		my $tmp = $first;
-		$first = $last;
-		$last = $tmp;
-	}
+sub folder_pics
+{my ($self) = @_;
 
-	my @rc;
+	my $first = $self->{picitr}->dup;
+	my $last  = $self->{picitr}->dup;
 
-	my $itr = $first->dup;
-	while ($itr) {
-		push @rc, $itr->{pic};
-		last if $itr->{id} eq $last->{id};
-		$self->seek('+1', $itr) or last;
-	}
+	$first->first();
+	$first->seek('+1')  unless $self->pvt__filter($first->{pic});
 
-	@rc;
+	$last->last();
+	$last->seek('-1')   unless $self->pvt__filter($last->{pic});
+
+	return $self->pvt__pics_between_itrs($first, $last);
 }#
 
 sub pvt__filter
@@ -226,6 +226,31 @@ caller eq __PACKAGE__ or croak;
 		return 0 if     $pic->{tags}->get($_);
 	}
 	1;
+}#
+
+sub pvt__pics_between_itrs
+{my ($self, $first, $last) = @_;
+caller eq __PACKAGE__ or croak;
+
+	return () unless defined $first and defined $last;
+
+	# swap endpoints if not ordered
+	if ($first->{id} gt $last->{id}) {
+		my $tmp = $first;
+		$first = $last;
+		$last = $tmp;
+	}
+
+	my @rc;
+
+	my $itr = $first->dup;
+	while ($itr) {
+		push @rc, $itr->{pic};
+		last if $itr->{id} ge $last->{id};
+		$self->seek('+1', $itr) or last;
+	}
+
+	@rc;
 }#
 
 1;
