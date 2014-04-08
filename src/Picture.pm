@@ -131,6 +131,22 @@ sub develop
 	}
 }#
 
+sub develop_pics
+{my (@pics) = @_;
+
+	my @raws;
+	foreach my $pic (@pics) {
+		foreach my $file (keys %{$pic->{files}}) {
+			push @raws, $file  if $file =~ /\.cr2$/i;
+		}
+	}
+
+	my $cmd = 'darktable '.join(' ', map { '"'.$_.'"' } @raws).' &';
+	say $cmd if dbg;
+	system $cmd;
+	FileItr->dirty();
+}#
+
 sub play
 {my ($self) = @_;
 

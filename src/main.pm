@@ -428,6 +428,18 @@ sub do
 				keys => [ ';-p' ],
 				code => sub { $_->print foreach($view->selected_pics) }
 			},
+			develop_folder => {
+				keys => [ 'o' ],
+				code => sub { Picture::develop_pics($view->folder_pics) }
+			},
+			develop_selected => {
+				keys => [ ';-d' ],
+				code => sub { Picture::develop_pics($view->selected_pics) }
+			},
+			develop_marked => {
+				keys => [ 'r-d' ],
+				code => sub { Picture::develop_pics($view->marked_pics) }
+			},
 			tag_selected_pics => {
 				keys => [ ';-.' ],
 				code => sub { $_->{tags}->repeat_last_edit foreach($view->selected_pics) }
