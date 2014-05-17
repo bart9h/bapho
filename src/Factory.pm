@@ -158,8 +158,40 @@ sub get
 			}
 
 			if ($item->{surf}) {
-				$item->{width}  //= $item->{surf}->w;
-				$item->{height} //= $item->{surf}->h;
+				if ($exif and $exif->{Orientation} =~ /^Rotate (\d+) CW$/) {
+					$item->{degrees_clockwise} = $1;
+					if(0 and "why this doesn't work?") {
+						my $num_clockwise_turns = int($item->{degrees_clockwise}/90);
+						say "rotating $num_clockwise_turns CW turns";
+						$item->{surf} = SDL::GFX::Rotozoom::rotate_surface_90_degrees(
+							$item->{surf}, $num_clockwise_turns
+						);
+					}
+					else {
+						my ($new_width, $new_height) = @{ SDL::GFX::Rotozoom::surface_size(
+							$item->{surf}->w,
+							$item->{surf}->h,
+							$item->{degrees_clockwise} * -1,
+							1
+						) };
+						my $zoom = 1/(sort $new_width/$width, $new_height/$height)[1];
+						my $smooth = 1;
+						$item->{surf} = SDL::GFX::Rotozoom::surface(
+							$item->{surf},
+							$item->{degrees_clockwise} * -1,
+							$zoom,
+							$smooth
+						);
+					}
+
+					$item->{width}  = $item->{surf}->w;
+					$item->{height} = $item->{surf}->h;
+				}
+				else {
+					$item->{degrees_cw} = 0;
+					$item->{width}  //= $item->{surf}->w;
+					$item->{height} //= $item->{surf}->h;
+				}
 			}
 
 			return $item;
