@@ -254,7 +254,7 @@ sub do
 	my %actions = (#{my
 
 		add_tag_to_actions('global',
-		{#{my}
+		{#{my
 			quit => {
 				keys => [ 'q' ],
 				code => sub { $app->quit },
@@ -280,7 +280,7 @@ sub do
 		}), #}#
 
 		add_tag_to_actions('browser',
-		{#{my}
+		{#{my
 			previous_picture => {
 				keys => [ 'left', 'h' ],
 				code => sub { $view->seek('-1') },
@@ -351,7 +351,7 @@ sub do
 		}), #}#
 
 		add_tag_to_actions('pic',
-		{#{my}
+		{#{my
 			selection_toggle => {
 				keys => [ 'x' ],
 				code => sub { $view->toggle_selection },
@@ -447,7 +447,7 @@ sub do
 		}), #}#
 
 		add_tag_to_actions('menu',
-		{#{my}
+		{#{my
 
 		}), #}#
 
