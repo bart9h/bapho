@@ -21,7 +21,7 @@ use View;
 
 #}#
 
-sub pic { $_[0]->{views}->[0]->pic }
+sub view { $_[0]->{views}->[0] }
 
 sub get_root_geometry
 {my ($self) = @_;
@@ -187,7 +187,7 @@ sub do_menu
 
 	if ($self->{menu}->{action} eq 'tag_editor') {
 		if (defined $activated) {
-			$self->pic->{tags}->toggle($activated);
+			$self->view->pic->{tags}->toggle($activated);
 		}
 		elsif (not $self->{dirty}) {
 			$self->{dirty} = 1;
@@ -195,10 +195,10 @@ sub do_menu
 				$self->{menu}->leave;
 			}
 			elsif ($command eq 'e' and not $args{fullscreen}) {
-				my $filename = $self->pic->{id}.'.tags';
+				my $filename = $self->view->pic->{id}.'.tags';
 				-e $filename or FileItr->dirty();
 				system "\$EDITOR $filename";
-				$self->pic->add($filename, time);
+				$self->view->pic->add($filename, time);
 				$self->enter_tag_editor;
 				$self->display;
 			}
@@ -208,17 +208,16 @@ sub do_menu
 		}
 	}
 	elsif ($self->{menu}->{action} eq 'view_editor') {
-		my $view = $self->{views}->[0];
 		if (defined $activated) {
-			if ($view->{ins}->{$activated}) {
-				delete $view->{ins}->{$activated};
-				$view->{outs}->{$activated} = 1;
+			if ($self->view->{ins}->{$activated}) {
+				delete $self->view->{ins}->{$activated};
+				$self->view->{outs}->{$activated} = 1;
 			}
-			elsif ($view->{outs}->{$activated}) {
-				delete $view->{outs}->{$activated};
+			elsif ($self->view->{outs}->{$activated}) {
+				delete $self->view->{outs}->{$activated};
 			}
 			else {
-				$view->{ins}->{$activated} = 1;
+				$self->view->{ins}->{$activated} = 1;
 			}
 		}
 	}
@@ -250,7 +249,7 @@ sub do
 	return unless defined $command;
 	return if $self->do_menu($command);
 
-	my ($app, $view) = ($self, $self->{views}->[0]);
+	my ($app, $view) = ($self, $self->view);
 	my %actions = (#{my
 
 		add_tag_to_actions('global',

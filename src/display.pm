@@ -20,15 +20,13 @@ sub display
 	sub render_all
 	{my ($self, @args) = @_;
 
-		my $view = $self->{views}->[0];
-
-		if ($view->{zoom} < -1) {
+		if ($self->view->{zoom} < -1) {
 			$self->render_thumbnails;
 		}
 		else {
-			$view->{rows} = $view->{cols} = 1;
+			$self->view->{rows} = $self->view->{cols} = 1;
 			$self->render_pic(
-				$view->pic,
+				$self->view->pic,
 				$self->{app}->w, $self->{app}->h,
 				0, 0);
 		}
@@ -52,9 +50,8 @@ sub display
 	sub render_pic
 	{our ($self, $pic, $w, $h, $x, $y, $is_cursor) = @_; #{my}
 
-		my $view = $self->{views}->[0];
 		my $surf = $self->{factory}->get($pic->{sel}, $w, $h);
-		$view->{cur_surf} = $surf  if $pic eq $view->pic;
+		$self->view->{cur_surf} = $surf  if $pic eq $self->view->pic;
 
 		SDL::Video::blit_surface($surf->{surf}, undef, $self->{app},
 			SDL::Rect->new(
@@ -96,14 +93,14 @@ sub display
 		}#
 
 		render_cursor     if $is_cursor;
-		render_selection  if $view->is_selected($pic);
+		render_selection  if $self->view->is_selected($pic);
 	}#
 
 	sub render_thumbnails
 	{my ($self) = @_;
 
 		my ($W, $H) = ($self->{app}->width, $self->{app}->height);
-		my $view = $self->{views}->[0];
+		my $view = $self->view;
 
 		my $d = (sort $W, $H)[0];  # smallest window dimention
 		my $n = -$view->{zoom};  # number of pictures across that dimention
@@ -125,13 +122,12 @@ sub display
 	{my ($self) = @_;
 
 		$self->{text}->home;
-		my $view = $self->{views}->[0];
 
 		my $dir = $self->{jaildir}; $dir =~ s{/$}{};
-		$view->pic->{sel} =~ m|^$dir/(?<folder>.*/)?(?<name>[^./]+)\.(?<ext>.*)$|;
+		$self->view->pic->{sel} =~ m|^$dir/(?<folder>.*/)?(?<name>[^./]+)\.(?<ext>.*)$|;
 
-		my $str = ''; #join '/', $view->{cursor}+1, scalar @{$view->{ids}};
-		my $s = $view->{cur_surf};
+		my $str = ''; #join '/', $self->view->{cursor}+1, scalar @{$self->view->{ids}};
+		my $s = $self->view->{cur_surf};
 		if ($s and $s->{width} and $s->{height}) {
 			my $zoom = $s->{surf}->w/$s->{width};
 			$str .= '  '.$s->{width}.'x'.$s->{height};
@@ -144,11 +140,11 @@ sub display
 		$self->print(
 			font=>0, text=>$+{name},
 			font=>1, text=>".$+{ext}  $str",
-			$view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
+			$self->view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
 			$v>1 ? (font=>0, text=>"  [$v views]") : (),
 		);
 
-		my $n = $view->pic->{tags}->get_nstars;
+		my $n = $self->view->pic->{tags}->get_nstars;
 		if ($n > 0) {
 			$self->print(color=>'yellow', font=>2, text=>'(*)'x$n);
 		}
@@ -160,14 +156,14 @@ sub display
 		$self->print(font=>1, text=>'tags:');
 		$self->{text}->set_column;
 		$self->print(text=>$_)
-			foreach map { ' '.$_ } $self->{views}->[0]->pic->{tags}->get;
+			foreach map { ' '.$_ } $self->view->pic->{tags}->get;
 	}#
 
 	sub render_exif
 	{my ($self) = @_;
 
 		$self->print(font=>1, text=>'exif:');
-		if (my $exif = $self->{views}->[0]->{cur_surf}->{exif}) {
+		if (my $exif = $self->view->{cur_surf}->{exif}) {
 			$self->{text}->set_column;
 			$self->print(text => $_)
 				foreach map { "  $_: $exif->{$_}" }
@@ -179,9 +175,9 @@ sub display
 	sub render_tag_editor
 	{my ($self) = @_;
 
-		my $view = $self->{views}->[0];
+		my $pic = $self->view->pic;
 
-		$view->pic->{sel} =~ m{^.*/(?<name>[^./]+)\.(?<ext>.*)$};
+		$pic->{sel} =~ m{^.*/(?<name>[^./]+)\.(?<ext>.*)$};
 
 		$self->{text}->home;
 		$self->print(
@@ -196,7 +192,7 @@ sub display
 				if defined $group->{label};
 			foreach my $item (@{$group->{items}}) {
 				my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
-				my $T = $view->pic->{tags}->get($item)? '*':' ';#tag
+				my $T = $pic->{tags}->get($item)? '*':' ';#tag
 				my $color = ($T eq '*') ? 'yellow' : 'white';
 				$self->print(color => $color, text => $C[0].$T.$item.$T.$C[1]);
 				++$i;
@@ -214,14 +210,12 @@ sub display
 		);
 		$self->{text}->set_column;
 
-		my $view = $self->{views}->[0];
-
 		my $i = 0;
 		foreach my $tag (@{$self->{menu}->{items}}) {
 			my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
 			my $T =
-				$view->{ins}->{$tag}  ? '+' :
-				$view->{outs}->{$tag} ? '-' : ' ';#tag
+				$self->view->{ins}->{$tag}  ? '+' :
+				$self->view->{outs}->{$tag} ? '-' : ' ';#tag
 			$self->print(text => $C[0].$T.$tag.$T.$C[1]);
 			++$i;
 		}
