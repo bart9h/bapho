@@ -115,7 +115,7 @@ sub load_state
 		delete $args{"view_${i}_$_"}  foreach qw/cursor ins outs/;
 		++$i;
 	}
-	foreach (qw/current_view/) {
+	foreach (qw/current_view last_view/) {
 		$self->{$_} = $args{$_}  if defined $args{$_};
 	}
 
@@ -136,6 +136,7 @@ sub save_state
 		info_toggle  => $args{info_toggle},
 		exif_toggle  => $args{exif_toggle},
 		current_view => $self->{current_view},
+		last_view    => $self->{last_view},
 	);
 
 	my $view_idx = 1;
@@ -153,16 +154,23 @@ sub save_state
 sub view_set_cursor
 {my ($self, $idx) = @_;
 
+	my $original_view = $self->{current_view};
+
 	my $N = scalar @{$self->{views}};
 	$self->{current_view} =
 		$idx < 0 ? $N-1 :
 		$idx >= $N ? 0 :
 		$idx;
+
+	if ($self->{current_view} != $original_view) {
+		$self->{last_view} = $original_view;
+	}
 }#
 
 sub close_view
 {my ($self) = @_;
 
+	$self->{last_view} = undef;
 	splice @{$self->{views}}, $self->{current_view}, 1;
 	if ($self->{current_view} >= scalar @{$self->{views}}) {
 		$self->{current_view} = scalar @{$self->{views}} - 1;
@@ -367,6 +375,10 @@ sub do
 			view_prev => {
 				keys => [ 'v-p', 'shift-tab' ],
 				code => sub { $self->view_set_cursor($self->{current_view}-1) },
+			},
+			view_last => {
+				keys => [ 'v-v' ],
+				code => sub { $self->view_set_cursor($self->{last_view}) if defined $self->{last_view} },
 			},
 			view_1 => { keys => [ 'v-1', 'f1' ], code => sub { $self->view_set_cursor(0) } },
 			view_2 => { keys => [ 'v-2', 'f2' ], code => sub { $self->view_set_cursor(1) } },
@@ -619,6 +631,7 @@ sub new
 
 		views         => [],
 		current_view  => 0,
+		last_view     => undef,
 		factory       => Factory::new,
 		menu          => Menu::new,
 		key_hold      => '',
