@@ -274,18 +274,18 @@ sub do
 	return unless defined $command;
 	return if $self->do_menu($command);
 
-	my ($app, $view) = ($self, $self->view);
+	my $view = $self->view;
 	my %actions = (#{my
 
 		add_tag_to_actions('global',
 		{#{my
 			quit => {
 				keys => [ 'q' ],
-				code => sub { $app->quit },
+				code => sub { $self->quit },
 			},
 			toggle_fullscreen => {
 				keys => [ 'f', 'f11' ],
-				code => sub { $app->fullscreen_toggle },
+				code => sub { $self->fullscreen_toggle },
 				tags => [ 'global' ],
 			},
 			info_toggle => {
@@ -362,11 +362,11 @@ sub do
 			},
 			view_edit => {
 				keys => [ 'v-e' ],
-				code => sub { $app->enter_view_editor },
+				code => sub { $self->enter_view_editor },
 			},
 			view_delete => {
 				keys => [ 'v-d', 'control-w' ],
-				code => sub { $app->close_view },
+				code => sub { $self->close_view },
 			},
 			view_next => {
 				keys => [ 'v-n', 'tab' ],
@@ -471,7 +471,7 @@ sub do
 			},
 			tag_edit => {
 				keys => [ 't' ],
-				code => sub { $app->enter_tag_editor },
+				code => sub { $self->enter_tag_editor },
 			},
 			repeat_last_tag => {
 				keys => [ '.' ],
