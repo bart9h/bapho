@@ -8,6 +8,7 @@ use 5.010;
 use Carp;
 use Data::Dumper;
 
+use args qw/%args dbg/;
 use PictureItr;
 
 #}#
@@ -15,6 +16,9 @@ use PictureItr;
 sub new
 {my ($picitr, $ins, $outs, $file) = @_;
 	$picitr or croak;
+
+	defined $ins   or $ins  = [];
+	defined $outs  or $outs = [ (split /,/, $args{exclude}) ];
 
 	bless my $self = {
 		picitr      => $picitr,
