@@ -368,6 +368,15 @@ sub do
 				keys => [ 'v-p', 'shift-tab' ],
 				code => sub { $self->view_set_cursor($self->{current_view}-1) },
 			},
+			view_1 => { keys => [ 'v-1', 'f1' ], code => sub { $self->view_set_cursor(0) } },
+			view_2 => { keys => [ 'v-2', 'f2' ], code => sub { $self->view_set_cursor(1) } },
+			view_3 => { keys => [ 'v-3', 'f3' ], code => sub { $self->view_set_cursor(2) } },
+			view_4 => { keys => [ 'v-4', 'f4' ], code => sub { $self->view_set_cursor(3) } },
+			view_5 => { keys => [ 'v-5', 'f5' ], code => sub { $self->view_set_cursor(4) } },
+			view_6 => { keys => [ 'v-6', 'f6' ], code => sub { $self->view_set_cursor(5) } },
+			view_7 => { keys => [ 'v-7', 'f7' ], code => sub { $self->view_set_cursor(6) } },
+			view_8 => { keys => [ 'v-8', 'f8' ], code => sub { $self->view_set_cursor(7) } },
+			view_9 => { keys => [ 'v-9', 'f9' ], code => sub { $self->view_set_cursor(8) } },
 		}), #}#
 
 		add_tag_to_actions('pic',
