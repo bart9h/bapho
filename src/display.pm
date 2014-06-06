@@ -136,12 +136,12 @@ sub display
 
 		$self->print(font=>1, text=>($+{folder} // './'));
 
-		my $v = scalar @{$self->{views}};
+		my ($vi, $vN) = ($self->{current_view}+1, scalar @{$self->{views}});
 		$self->print(
 			font=>0, text=>$+{name},
 			font=>1, text=>".$+{ext}  $str",
 			$self->view->pic->{tags}->get('_hidden') ? (font=>0, text=>'  (!)') : (), #TODO:loopify
-			$v>1 ? (font=>0, text=>"  [$v views]") : (),
+			$vN>1 ? (font=>0, text=>"  [view $vi/$vN]") : (),
 		);
 
 		my $n = $self->view->pic->{tags}->get_nstars;

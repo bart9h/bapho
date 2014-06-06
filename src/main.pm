@@ -21,7 +21,7 @@ use View;
 
 #}#
 
-sub view { $_[0]->{views}->[0] }
+sub view { $_[0]->{views}->[$_[0]->{current_view}] }
 
 sub get_root_geometry
 {my ($self) = @_;
@@ -115,6 +115,9 @@ sub load_state
 		delete $args{"view_${i}_$_"}  foreach qw/cursor ins outs/;
 		++$i;
 	}
+	foreach (qw/current_view/) {
+		$self->{$_} = $args{$_}  if defined $args{$_};
+	}
 
 	# if no views loaded, create one
 	if (scalar @{$self->{views}} == 0) {
@@ -130,8 +133,9 @@ sub save_state
 {my ($self) = @_;
 
 	my %state = (
-		info_toggle => $args{info_toggle},
-		exif_toggle => $args{exif_toggle},
+		info_toggle  => $args{info_toggle},
+		exif_toggle  => $args{exif_toggle},
+		current_view => $self->{current_view},
 	);
 
 	my $view_idx = 1;
@@ -146,10 +150,23 @@ sub save_state
 	args::save_state(\%state);
 }#
 
+sub view_set_cursor
+{my ($self, $idx) = @_;
+
+	my $N = scalar @{$self->{views}};
+	$self->{current_view} =
+		$idx < 0 ? $N-1 :
+		$idx >= $N ? 0 :
+		$idx;
+}#
+
 sub close_view
 {my ($self) = @_;
 
-	shift @{$self->{views}};
+	splice @{$self->{views}}, $self->{current_view}, 1;
+	if ($self->{current_view} >= scalar @{$self->{views}}) {
+		$self->{current_view} = scalar @{$self->{views}} - 1;
+	}
 
 	unless (@{$self->{views}}) {
 		# the last view was closed
@@ -331,13 +348,9 @@ sub do
 				code => sub { $view->{zoom} = 1 },
 				tags => [ 'pic' ],
 			},
-			view_next => {
-				keys => [ 'v-n', 'tab' ],
-				code => sub { Array::rotate $app->{views} },
-			},
 			view_create => {
 				keys => [ 'v-c', 'control-t' ],
-				code => sub { unshift @{$self->{views}}, View::new($view->{picitr}) },
+				code => sub { push @{$self->{views}}, View::new($view->{picitr}); $self->view_set_cursor(-1) },
 			},
 			view_edit => {
 				keys => [ 'v-e' ],
@@ -346,6 +359,14 @@ sub do
 			view_delete => {
 				keys => [ 'v-d', 'control-w' ],
 				code => sub { $app->close_view },
+			},
+			view_next => {
+				keys => [ 'v-n', 'tab' ],
+				code => sub { $self->view_set_cursor($self->{current_view}+1) },
+			},
+			view_prev => {
+				keys => [ 'v-p', 'shift-tab' ],
+				code => sub { $self->view_set_cursor($self->{current_view}-1) },
 			},
 		}), #}#
 
@@ -587,22 +608,23 @@ sub new
 
 	bless my $eu = {
 
-		views      => [],
-		factory    => Factory::new,
-		menu       => Menu::new,
-		key_hold   => '',
-		dirty      => 1,
+		views         => [],
+		current_view  => 0,
+		factory       => Factory::new,
+		menu          => Menu::new,
+		key_hold      => '',
+		dirty         => 1,
 
 		# rendering state
-		info_toggle => 1,
-		exif_toggle => 0,
-		text => Text::new(
+		info_toggle   => 1,
+		exif_toggle   => 0,
+		text          => Text::new(
 			'Bitstream Vera Sans Mono:20',
 			':18',
 			':32',
 		),
 
-		jaildir => $jaildir,
+		jaildir       => $jaildir,
 	};
 
 	$eu->{app} = $eu->new_sdl_window();
