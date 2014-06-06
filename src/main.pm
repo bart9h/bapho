@@ -130,7 +130,6 @@ sub save_state
 {my ($self) = @_;
 
 	my %state = (
-		cursor_file => $self->{cursor_file} // $self->pic->{sel},
 		info_toggle => $args{info_toggle},
 		exif_toggle => $args{exif_toggle},
 	);
@@ -150,13 +149,10 @@ sub save_state
 sub close_view
 {my ($self) = @_;
 
-	my $curr_cursor_file = $self->pic->{sel};
-
 	shift @{$self->{views}};
 
 	unless (@{$self->{views}}) {
 		# the last view was closed
-		$self->{cursor_file} = $curr_cursor_file;
 		$self->quit;
 	}
 }#
@@ -179,22 +175,6 @@ sub enter_view_editor
 {my ($self) = @_;
 
 	$self->{menu}->enter('view_editor', Tags::ALL());
-}#
-
-sub enter_star_view
-{my ($self) = @_;
-
-	unshift @{$self->{views}}, View::new(
-		$self->{views}->[0]->{picitr},
-		['_star'],
-		[ (split /,/, $args{exclude}) ]
-	);
-}#
-
-sub enter_hidden_view
-{my ($self) = @_;
-
-	unshift @{$self->{views}}, View::new($self->pic, ['_hidden'], []);
 }#
 
 sub do_menu
@@ -352,24 +332,20 @@ sub do
 				code => sub { $view->{zoom} = 1 },
 				tags => [ 'pic' ],
 			},
-			switch_views => {
-				keys => [ 'tab' ],
+			view_next => {
+				keys => [ 'v-n', 'tab' ],
 				code => sub { Array::rotate $app->{views} },
 			},
-			starred_view => {
-				keys => [ 'control-s' ],
-				code => sub { $app->enter_star_view },
+			view_create => {
+				keys => [ 'v-c', 'control-t' ],
+				code => sub { unshift @{$self->{views}}, View::new($view->{picitr}) },
 			},
 			view_edit => {
 				keys => [ 'v-e' ],
 				code => sub { $app->enter_view_editor },
 			},
-			hidden_view => {
-				keys => [ 'control-shift-h' ],
-				code => sub { $app->enter_hidden_view },
-			},
-			close_view => {
-				keys => [ 'control-w' ],
+			view_delete => {
+				keys => [ 'v-d', 'control-w' ],
 				code => sub { $app->close_view },
 			},
 		}), #}#
