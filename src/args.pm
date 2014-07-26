@@ -178,7 +178,7 @@ sub save_state
 		return;
 	}
 
-	foreach (keys %$h) {
+	foreach (sort keys %$h) {
 		print F "$_=$h->{$_}\n";
 	}
 
