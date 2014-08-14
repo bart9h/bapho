@@ -134,7 +134,15 @@ sub display
 			$str .= '  '.int($zoom*100).'%';
 		}
 
-		$self->print(font=>1, text=>($+{folder} // './'));
+		my $fileitr = $self->view->{picitr}->{itr};
+		$self->print(
+			font=>1,
+			text=>sprintf('%s [%d/%d]',
+				($+{folder} // './'),
+				$fileitr->{cursor},
+				scalar @{$fileitr->{files}},
+			),
+		);
 
 		my ($vi, $vN) = ($self->{current_view}+1, scalar @{$self->{views}});
 		$self->print(
