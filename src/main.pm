@@ -461,9 +461,13 @@ sub do
 				keys => [ ';-.' ],
 				code => sub { $_->{tags}->repeat_last_edit foreach($view->selected_pics) }
 			},
-			toggle_star => {
+			add_star => {
 				keys => [ 's' ],
 				code => sub { $view->pic->{tags}->toggle_star },
+			},
+			remove_star => {
+				keys => [ 'shift-s' ],
+				code => sub { $view->pic->{tags}->toggle_star(-1) },
 			},
 			toggle_hidden => {
 				keys => [ 'shift-1' ],

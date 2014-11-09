@@ -169,11 +169,17 @@ sub toggle
 }#
 
 sub toggle_star
-{my ($self) = @_;
+{my ($self, $dir) = @_;
+	$dir //= 1;
 
 	my $n = $self->get_nstars;
 	say "was($n)" if dbg 'tags';
-	$n = ($n<5) ? $n+1 : 0;
+	if ($dir > 0) {
+		$n = ($n<5) ? $n+1 : 0;
+	}
+	else {
+		$n = ($n>0) ? $n-1 : 5;
+	}
 	say "is($n)" if dbg 'tags';
 
 	foreach ("", 1 .. 5) {
