@@ -15,6 +15,7 @@ my $copy_command = 'cp -v "%I" "%O"';
 
 my %exts = (
 	png   => { priority => 1, command => $imagemagic_command.' "%O"' },
+	png   => { priority => 1, command => $imagemagic_command.' "%O"' },
 	tif   => { priority => 2, command => $imagemagic_command.' "%O"' },
 	ppm   => { priority => 3, command => $imagemagic_command.' -sharpen 3x1 "%O"' }, #-sharpen needs to be before %O
 	ufraw => { priority => 4, command => $ufraw_command.' --conf="%C"'.$ufraw_post },
