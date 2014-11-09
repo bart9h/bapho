@@ -51,17 +51,22 @@ sub get_root_geometry
 sub get_window_geometry
 {my ($self) = @_;
 
-	if (defined $args{geometry}) {
-		$args{geometry} =~ /(\d+)x(\d+)/
-		? ($1, $2)
-		: (0, 0)
+	my ($w, $h) = (0, 0);
+	if ($args{fullscreen}) {
+		($w, $h) = get_root_geometry;
 	}
-	elsif ($args{fullscreen}) {
-		get_root_geometry;
+	elsif (defined $args{geometry}) {
+		if ($args{geometry} =~ /(\d+)x(\d+)/) {
+			($w, $h) = ($1, $2);
+		}
 	}
 	else {
-		(0, 0);
+		($w, $h) = get_root_geometry;
+		$w /= 2;
+		$h /= 2;
 	}
+
+	return ($w, $h);
 }#
 
 sub fullscreen_toggle
@@ -69,30 +74,16 @@ sub fullscreen_toggle
 
 	$args{fullscreen} = not $args{fullscreen};
 
-	my ($w, $h);
-	if ($args{fullscreen}) {
-		($w, $h) = $args{geometry} ? get_window_geometry : get_root_geometry;
-	}
-	else {
-		if ($args{geometry}) {
-			($w, $h) = get_window_geometry;
-		}
-		else {
-			($w, $h) = get_root_geometry;
-			$w /= 2;
-			$h /= 2;
-		}
-	}
 
 	# This two different orders for in and out of fullscreen
 	# is to avoid changing screen resolutions.
 	if ($args{fullscreen}) {
-		$self->{app}->resize($w, $h);
+		$self->{app}->resize(get_window_geometry);
 		SDL::Video::wm_toggle_fullscreen($self->{app});
 	}
 	else {
 		SDL::Video::wm_toggle_fullscreen($self->{app});
-		$self->{app}->resize($w, $h);
+		$self->{app}->resize(get_window_geometry);
 	}
 }#
 
