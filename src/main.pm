@@ -80,10 +80,12 @@ sub fullscreen_toggle
 	if ($args{fullscreen}) {
 		$self->{app}->resize(get_window_geometry);
 		SDL::Video::wm_toggle_fullscreen($self->{app});
+		SDL::Mouse::show_cursor(0);
 	}
 	else {
 		SDL::Video::wm_toggle_fullscreen($self->{app});
 		$self->{app}->resize(get_window_geometry);
+		SDL::Mouse::show_cursor(1);
 	}
 }#
 
@@ -655,8 +657,6 @@ sub main
 	args::read_args(@arghs);
 
 	my $self = new;
-
-	SDL::Mouse::show_cursor(0);
 
 	use SDL::Event;
 	my $event = new SDL::Event;
