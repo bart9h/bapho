@@ -26,9 +26,11 @@ sub new
 		border => 8,
 		fonts => [],
 		font => 0,
-		white  => SDL::Color->new(255, 255, 255),
-		yellow => SDL::Color->new(255, 255, 0),
 		black  => SDL::Color->new(0, 0, 0),
+		green => SDL::Color->new(0, 255, 0),
+		red => SDL::Color->new(255, 0, 0),
+		yellow => SDL::Color->new(255, 255, 0),
+		white  => SDL::Color->new(255, 255, 255),
 	};
 
 	$self->home;

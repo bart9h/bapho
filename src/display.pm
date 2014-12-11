@@ -221,10 +221,16 @@ sub display
 		my $i = 0;
 		foreach my $tag (@{$self->{menu}->{items}}) {
 			my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
-			my $T =
-				$self->view->{ins}->{$tag}  ? '+' :
-				$self->view->{outs}->{$tag} ? '-' : ' ';#tag
-			$self->print(text => $C[0].$T.$tag.$T.$C[1]);
+			my ($T, $color) = (' ', 'white');
+			if ($self->view->{ins}->{$tag}) {
+				$T = '+';
+				$color = 'green';
+			}
+			elsif ($self->view->{outs}->{$tag}) {
+				$T = '-';
+				$color = 'red'  unless $tag =~ m{^(_hidden|outra)$};
+			}
+			$self->print(color => $color, text => $C[0].$T.$tag.$T.$C[1]);
 			++$i;
 		}
 	}#
