@@ -59,14 +59,15 @@ sub develop
 	{my ($self, $app) = @_;
 
 		my %app_exts = (
-			ufraw => [ 'ufraw', 'cr2' ],
+			darktable => [ 'cr2' ],
+			ufraw => [ 'ufraw' ],
 			gimp  => [ 'xcf', 'ppm', 'tif', 'png', 'jpg' ],
 		);
 		not $app or $app_exts{$app} or confess;
 
 		foreach my $a ( $app
 				? ( $app )
-				: ( 'ufraw', 'gimp' )
+				: ( 'darktable', 'ufraw', 'gimp' )
 		) {
 			foreach my $ext (@{$app_exts{$a}}) {
 				foreach (keys %{$self->{files}}) {
@@ -85,7 +86,7 @@ sub develop
 		$cmd = "ufraw \"$file\" || gvim \"$file\"";
 	}
 	elsif ($file =~ /\.cr2$/i) {
-		$cmd = "ufraw \"$file\"";
+		$cmd = "darktable \"$file\"";
 	}
 	elsif (is_pic($file)) {
 		$cmd = "gimp \"$file\" &";
