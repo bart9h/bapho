@@ -30,7 +30,7 @@ our %args = (
 		import => undef,
 		print => undef,
 		cache_size_mb => undef,
-		pic_extensions => [ qw/jpeg jpg tiff tif png cr2/ ],
+		pic_extensions => [ qw/jpeg jpg tiff tif png cr2 raf/ ],
 		vid_extensions => [ qw/mpeg mpg avi mkv mp4 m4v mov flv 3gp/ ],
 		exif_tags => [
 		#{#

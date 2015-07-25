@@ -61,7 +61,7 @@ sub guess_path
 			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?)\.(?:3gp|m4v|jpg)$}
 		) || (
 			$source_file =~
-			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.(jpg|cr2)$}
+			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.(jpg|cr2|raf)$}
 		)
 			or return undef;
 
@@ -215,7 +215,7 @@ sub import_files
 			if  defined $last_base
 			and $+{ext} eq 'jpg'
 			and $+{base} eq $last_base
-			and $last_ext eq 'cr2';
+			and $last_ext =~ /^(cr2|raf)$/;
 		($last_base, $last_ext) = ($+{base}, $+{ext});
 	}
 

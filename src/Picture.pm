@@ -52,32 +52,32 @@ sub open_folder
 	system "xdg-open \"$1\"";
 }#
 
-sub develop
+sub guess_source
 {my ($self, $app) = @_;
 
-	sub guess_source
-	{my ($self, $app) = @_;
+	my %app_exts = (
+		darktable => [ 'cr2', 'raf' ],
+		ufraw => [ 'ufraw' ],
+		gimp  => [ 'xcf', 'ppm', 'tif', 'png', 'jpg' ],
+	);
+	not $app or $app_exts{$app} or confess;
 
-		my %app_exts = (
-			darktable => [ 'cr2' ],
-			ufraw => [ 'ufraw' ],
-			gimp  => [ 'xcf', 'ppm', 'tif', 'png', 'jpg' ],
-		);
-		not $app or $app_exts{$app} or confess;
-
-		foreach my $a ( $app
-				? ( $app )
-				: ( 'darktable', 'ufraw', 'gimp' )
-		) {
-			foreach my $ext (@{$app_exts{$a}}) {
-				foreach (keys %{$self->{files}}) {
-					/\.$ext$/ and -r and return $_;
-				}
+	foreach my $a ( $app
+			? ( $app )
+			: ( 'darktable', 'ufraw', 'gimp' )
+	) {
+		foreach my $ext (@{$app_exts{$a}}) {
+			foreach (keys %{$self->{files}}) {
+				/\.$ext$/ and -r and return $_;
 			}
 		}
+	}
 
-		return undef;
-	}#
+	return undef;
+}#
+
+sub develop
+{my ($self, $app) = @_;
 
 	my $file = $self->guess_source($app) or return;
 
@@ -137,9 +137,7 @@ sub develop_pics
 
 	my @raws;
 	foreach my $pic (@pics) {
-		foreach my $file (keys %{$pic->{files}}) {
-			push @raws, $file  if $file =~ /\.cr2$/i;
-		}
+		push @raws, $pic->guess_source('darktable');
 	}
 
 	my $cmd = 'darktable '.join(' ', map { '"'.$_.'"' } @raws).' &';
