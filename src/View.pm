@@ -210,10 +210,7 @@ sub folder_pics
 	my $last  = $self->{picitr}->dup;
 
 	$first->first();
-	$first->seek('+1')  unless $self->pvt__filter($first->{pic});
-
 	$last->last();
-	$last->seek('-1')   unless $self->pvt__filter($last->{pic});
 
 	return $self->pvt__pics_between_itrs($first, $last);
 }#
@@ -248,9 +245,12 @@ caller eq __PACKAGE__ or croak;
 	my @rc;
 
 	my $itr = $first->dup;
-	while ($itr) {
+	until ($self->pvt__filter($itr->{pic})) {
+		$itr->seek('+1');
+	}
+
+	while ($itr->{id} le $last->{id}) {
 		push @rc, $itr->{pic};
-		last if $itr->{id} ge $last->{id};
 		$self->seek('+1', $itr) or last;
 	}
 
