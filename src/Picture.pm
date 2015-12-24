@@ -38,11 +38,19 @@ sub add
 	$self->{files}->{$path} = 1;
 
 	if (is_pic($path) or is_vid($path)) {
-		$self->{sel} = $path
-			if not defined $self->{sel}
-			or not -s $self->{sel}
-			or -M $path < -M $self->{sel};
+		$self->{sel} = $path  if $self->sel_compare($path);
 	}
+}#
+
+sub sel_compare
+{my ($self, $path) = @_;
+
+	return 1 unless defined $self->{sel} and -s $self->{sel};
+	return 0 if !is_raw($self->{sel}) and  is_raw($path);
+	return 1 if  is_raw($self->{sel}) and !is_raw($path);
+	return 0 if !is_vid($self->{sel}) and  is_vid($path);
+	return 1 if  is_vid($self->{sel}) and !is_vid($path);
+	return -M $path > -M $self->{sel};
 }#
 
 sub open_folder
