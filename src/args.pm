@@ -12,6 +12,8 @@ our @EXPORT = qw(%args dbg min max);
 
 #}#
 
+my @raw_extensions = qw/cr2 raf/;
+
 our %args = (
 		baphorc => $ENV{HOME}.'/.baphorc', #TODO: xdg?
 		basedir => $ENV{HOME}.'/Pictures', #TODO: xdg?
@@ -30,7 +32,8 @@ our %args = (
 		import => undef,
 		print => undef,
 		cache_size_mb => undef,
-		pic_extensions => [ qw/jpeg jpg tiff tif png cr2 raf/ ],
+		raw_extensions => [ @raw_extensions ],
+		pic_extensions => [ qw/jpeg jpg tiff tif png/, @raw_extensions ],
 		vid_extensions => [ qw/mpeg mpg avi mkv mp4 m4v mov flv 3gp/ ],
 		exif_tags => [
 		#{#
