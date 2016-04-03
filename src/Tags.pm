@@ -36,7 +36,7 @@ sub mru
 		@all
 	);
 
-	my $mru_max = 10;
+	my $mru_max = 20;
 
 	scalar @mru > $mru_max
 		? @mru[0 .. $mru_max-1]
