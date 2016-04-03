@@ -420,7 +420,7 @@ sub do
 			},
 			print_marked_pics => {
 				keys => [ 'r-p' ],
-				code => sub { foreach($view->marked_pics) { say foreach(keys $_->{files}) } }
+				code => sub { foreach($view->marked_pics) { say foreach(keys %{$_->{files}}) } }
 			},
 			tag_marked_pics => {
 				keys => [ 'r-.' ],
