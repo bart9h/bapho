@@ -12,17 +12,21 @@ my $ufraw_command = 'rm -f -v '.$tmp_ppm.'; ufraw-batch %I --out-type=ppm --outp
 my $ufraw_defaults = ' --wb=camera --gamma=0.45 --linearity=0.10 --exposure=0 --restore=lch --clip=digital --saturation=1.0 --wavelet-denoising-threshold=0.0 --base-curve=camera --curve=linear --black-point=0.0 --interpolation=ahd --color-smoothing --grayscale=none --lensfun=auto --auto-crop';
 my $ufraw_post = ' && convert -verbose '.$tmp_ppm.'[%Wx%H] -quality '.$jpeg_quality.' -sharpen 3x1 "%O"';
 my $copy_command = 'cp -v "%I" "%O"';
+my $darktable_command = 'darktable-cli --width %W --height %H "%I" "%O"';
 
 my %exts = (
 	png   => { priority => 1, command => $imagemagic_command.' "%O"' },
 	png   => { priority => 1, command => $imagemagic_command.' "%O"' },
 	tif   => { priority => 2, command => $imagemagic_command.' "%O"' },
 	ppm   => { priority => 3, command => $imagemagic_command.' -sharpen 3x1 "%O"' }, #-sharpen needs to be before %O
-	ufraw => { priority => 4, command => $ufraw_command.' --conf="%C"'.$ufraw_post },
-	cr2   => { priority => 5, command => $ufraw_command.$ufraw_defaults.$ufraw_post },
-	jpg   => { priority => 6, command => $copy_command },
-	mov   => { priority => 6, command => $copy_command },
-	mpg   => { priority => 6, command => $copy_command },
+	'cr2.xmp' => { priority => 4, command => $darktable_command },
+	'raf.xmp' => { priority => 4, command => $darktable_command },
+	ufraw => { priority => 5, command => $ufraw_command.' --conf="%C"'.$ufraw_post },
+	cr2   => { priority => 6, command => $ufraw_command.$ufraw_defaults.$ufraw_post },
+	raf   => { priority => 6, command => $darktable_command },
+	jpg   => { priority => 7, command => $copy_command },
+	mov   => { priority => 7, command => $copy_command },
+	mpg   => { priority => 7, command => $copy_command },
 );
 
 # get arguments from the environment variables
@@ -70,6 +74,9 @@ foreach my $arg (<STDIN>) {
 			}
 			elsif ($ext eq 'mov' or $ext eq 'mpg') {
 				$output_file =~ s/\.jpg$/\.$ext/;
+			}
+			elsif ($ext =~ /^(cr2|raf)\.xmp$/) {
+				$input_file =~ s/\.xmp$//;
 			}
 			$cmd =~ s/%I/$input_file/;
 			$cmd =~ s/%O/$output_file/;
