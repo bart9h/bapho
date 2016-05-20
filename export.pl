@@ -42,16 +42,20 @@ my $nop = getenv('nop');
 # process arguments from stdin
 foreach my $arg (<STDIN>) {
 	chomp $arg;
+	say "Processing \"$arg\"...";
 
 	my $output_file = $arg;
 	$output_file =~ s{^.*/([^/]+)\.\w+$}{$output_dir/$1.jpg};
-	#-e $output_file and die "Error: \"$output_file\" already exists.\n";
-	-s $output_file and next;
+	if (-s $output_file) {
+		say "\t\"$output_file\" already exists, skipping.";
+		next;
+	}
 
 	foreach my $ext (sort { $exts{$a}->{priority} <=> $exts{$b}->{priority} } keys %exts) {
 
 		my $input_file = $arg;
 		$input_file =~ s/\.\w+$/\.$ext/;
+		say "\tTrying \"$input_file\".";
 		if (-e $input_file) {
 
 			my $cmd = $exts{$ext}->{command};
@@ -74,8 +78,11 @@ foreach my $arg (<STDIN>) {
 			$cmd =~ s/%W/$width/;
 			$cmd =~ s/%H/$height/;
 
-			say $cmd;
-			unless ($nop) {
+			if ($nop) {
+				say "\tNot calling `$cmd'.";
+			}
+			else {
+				say "\tCalling `$cmd'.";
 				system $cmd;
 				unless (-s $output_file) {
 					say "Error: \"$output_file\" was not created.";
