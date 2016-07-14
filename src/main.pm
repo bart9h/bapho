@@ -646,6 +646,7 @@ sub new
 		jaildir       => $jaildir,
 	};
 
+	$ENV{SDL_VIDEO_ALLOW_SCREENSAVER} = 1;
 	$eu->{app} = $eu->new_sdl_window();
 	$eu->load_state;
 	$eu;
