@@ -34,6 +34,8 @@ sub enter
 			: [ { items => [ @args ] } ];
 
 		$self->{items} = [ map { @{$_->{items}} } @{$self->{groups}} ];
+
+		SDL::Events::enable_key_repeat(200, 25);
 	}
 
 }#
@@ -46,6 +48,7 @@ sub leave
 	$self->{activated} = undef;
 	$self->{groups}    = undef;
 	$self->{items}     = undef;
+	SDL::Events::enable_key_repeat(200, 200);
 }#
 
 sub do
