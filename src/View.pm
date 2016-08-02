@@ -21,7 +21,7 @@ sub new
 	defined $outs  or $outs = [ (split /,/, $args{exclude}) ];
 
 	bless my $self = {
-		picitr      => $picitr,
+		picitr      => $picitr->dup(),
 		ins         => { map { $_ => 1 } @$ins },
 		outs        => { map { $_ => 1 } @$outs },
 		rows        => 1,
