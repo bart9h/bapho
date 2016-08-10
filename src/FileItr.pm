@@ -29,7 +29,7 @@ sub dirty { $dirty = 1 }
 sub new
 {my ($class, $path, $jaildir) = @_;
 
-	$path or croak;
+	$path  or croak;
 
 	$path =~ s{/$}{};
 
@@ -100,8 +100,8 @@ sub last  { $_[0]->{cursor} = $#{$_[0]->{files}}; $_[0] }
 
 sub pvt__seek
 {my ($self, $dir) = @_;
-caller eq __PACKAGE__ or croak;
-say "pvt__seek (parent=$self->{parent}, cursor=$self->{cursor}, dir=$dir)" if dbg 'trace';
+caller eq __PACKAGE__  or croak;
+say "pvt__seek (parent=$self->{parent}, cursor=$self->{cursor}, dir=$dir)"  if dbg 'trace';
 
 	if ($dirty) {
 		$self->pvt__find($self->{files}->[$self->{cursor}]);
@@ -123,8 +123,8 @@ say "pvt__seek (parent=$self->{parent}, cursor=$self->{cursor}, dir=$dir)" if db
 
 sub pvt__up
 {my ($self) = @_;
-#caller eq __PACKAGE__ or croak;  # View.pm uses this sub
-say "pvt__up (parent=$self->{parent})" if dbg 'trace';
+#caller eq __PACKAGE__  or croak;  # View.pm uses this sub
+say "pvt__up (parent=$self->{parent})"  if dbg 'trace';
 
 	my $base = $self->{jaildir};
 	$base =~ s{/$}{};
@@ -136,8 +136,8 @@ say "pvt__up (parent=$self->{parent})" if dbg 'trace';
 
 sub pvt__down
 {my ($self, $dir) = @_;
-caller eq __PACKAGE__ or croak;
-say "pvt__down (parent=$self->{parent})" if dbg 'trace';
+caller eq __PACKAGE__  or croak;
+say "pvt__down (parent=$self->{parent})"  if dbg 'trace';
 
 	while (-d $self->path) {
 		$self->{parent} = $self->path;
@@ -155,8 +155,8 @@ say "pvt__down (parent=$self->{parent})" if dbg 'trace';
 
 sub pvt__find
 {my ($self, $name) = @_;
-caller eq __PACKAGE__ or croak;
-say "pvt__find (parent=$self->{parent}, name=$name)" if dbg 'trace';
+caller eq __PACKAGE__  or croak;
+say "pvt__find (parent=$self->{parent}, name=$name)"  if dbg 'trace';
 
 	$self->pvt__readdir;
 
@@ -177,7 +177,7 @@ say "pvt__find (parent=$self->{parent}, name=$name)" if dbg 'trace';
 
 sub pvt__readdir
 {my ($self) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	if (opendir(my $dh, $self->{parent})) {
 		$self->{files} = [

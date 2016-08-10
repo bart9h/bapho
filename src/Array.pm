@@ -12,7 +12,7 @@ sub find
 {my ($array_ref, $needle) = @_;
 
 	foreach (0 .. $#$array_ref) {
-		return $_ if $array_ref->[$_] eq $needle;
+		return $_  if $array_ref->[$_] eq $needle;
 	}
 
 	undef;

@@ -20,7 +20,7 @@ use SDL::Color;
 sub new
 {#{my}
 
-	(SDL::TTF::init() == 0) or die;
+	(SDL::TTF::init() == 0)  or die;
 
 	bless my $self = {
 		border => 8,
@@ -41,10 +41,10 @@ sub new
 		my @a = split /:/;
 
 		$name = $a[0]  unless $a[0] eq '';
-		defined $name or croak 'Must specify font name.';
+		defined $name  or croak 'Must specify font name.';
 
 		$size = $a[1]  if $a[1];
-		$size or croak 'Size must be positive.';
+		$size  or croak 'Size must be positive.';
 
 		my $file = `fc-match -v '$name' | grep file: | cut -d \\\" -f 2`;
 		chomp $file;
@@ -176,9 +176,8 @@ sub set_column
 }#
 
 #{my system sanity check
-	$_ = `which fc-match`;
-	chomp;
-	-x or die 'fc-match not found.  fontconfig is required.';
+	$_ = `which fc-match`;  chomp;
+	-x  or die 'fc-match not found.  fontconfig is required.';
 #}#
 1;
 # vim600:fdm=marker:fmr={my,}#:

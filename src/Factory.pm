@@ -41,7 +41,7 @@ sub new
 				}
 				close F;
 			}
-			$total_kb and $free_kb or die;
+			$total_kb and $free_kb  or die;
 
 			# 1/4 of total memory, or half the free memory
 			my ($a, $b) = ($total_kb/4, $free_kb/2);
@@ -59,7 +59,7 @@ sub new
 
 sub get
 {my ($self, $path, $width, $height) = @_;
-	defined $path or confess;
+	defined $path  or confess;
 
 	sub res_key
 	{my ($width, $height) = @_;
@@ -80,13 +80,13 @@ sub get
 			my $tag = ($width<=160 && $height<=120) ? 'ThumbnailImage' : 'PreviewImage';
 			#FIXME: better method to do this (thumbnail size may vary)
 
-			say "using $tag" if dbg 'file';
+			say "using $tag"  if dbg 'file';
 
 			if (defined $exif->{$tag}) {
 
 				my $tmp = $args{temp_dir}.'/bapho-exifpreview.jpg';
 
-				open F, '>', $tmp or die "$tmp: $!";
+				open F, '>', $tmp  or die "$tmp: $!";
 				print F ${$exif->{$tag}};
 				close F;
 
@@ -125,16 +125,16 @@ sub get
 					$item = $self->load_file($cache_filename);
 					my $s = $item->{surf};
 					if($s->width >= $width and $s->height >= $height) {
-						say "using $cache_filename" if dbg 'cache';
+						say "using $cache_filename"  if dbg 'cache';
 						return $item;
 					}
 					else {
-						say "$cache_filename too small" if dbg 'cache';
+						say "$cache_filename too small"  if dbg 'cache';
 					}
 				}
 
 				# render image
-				say "rendering $cache_filename" if dbg 'cache';
+				say "rendering $cache_filename"  if dbg 'cache';
 				$item->{surf} = Folder::render_surf($path, $width, $height, $self);
 
 				# save cache  (TODO: save directly to jpg)
@@ -249,7 +249,7 @@ sub get
 			# First res larger than asked, or the largest one.
 			foreach (sort keys %{$self->{items}->{$path}}) {
 				$origin = $self->{items}->{$path}->{$_};
-				last if $_ gt $res;
+				last  if $_ gt $res;
 			}
 
 			# If none were loaded, create new.
@@ -309,7 +309,7 @@ sub garbage_collector
 			$self->{max_bytes}/(1024*1024)
 		if dbg 'cache,memory,gc';
 
-	return if $self->{bytes_used} < $self->{max_bytes};
+	return  if $self->{bytes_used} < $self->{max_bytes};
 
 	foreach (
 		sort {
@@ -327,7 +327,7 @@ sub garbage_collector
 		} keys %{$self->{items}}
 	)
 	{
-		last if $self->{bytes_used} < $self->{max_bytes};
+		last  if $self->{bytes_used} < $self->{max_bytes};
 
 		my ($filename, $res) = ($_->{filename}, $_->{res});
 		my $surf = $self->{items}->{$filename}->{$res}->{surf};

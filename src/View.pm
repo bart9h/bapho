@@ -15,7 +15,7 @@ use PictureItr;
 
 sub new
 {my ($picitr, $ins, $outs, $file) = @_;
-	$picitr or croak;
+	$picitr  or croak;
 
 	defined $ins   or $ins  = [];
 	defined $outs  or $outs = [ (split /,/, $args{exclude}) ];
@@ -77,10 +77,10 @@ sub set_selected
 
 	foreach ((scalar @pics) ? (@pics) : ($self->pic)) {
 		if (exists $self->{selection}->{$_->{id}}) {
-			delete $self->{selection}->{$_->{id}} unless $selected;
+			delete $self->{selection}->{$_->{id}}  unless $selected;
 		}
 		else {
-			$self->{selection}->{$_->{id}} = $_ if $selected;
+			$self->{selection}->{$_->{id}} = $_  if $selected;
 		}
 	}
 }#
@@ -92,7 +92,7 @@ sub toggle_selection_page
 
 	my $selected = 0;
 	foreach (@pics) {
-		next if $self->is_selected($_);
+		next  if $self->is_selected($_);
 		$selected = 1;
 		last;
 	}
@@ -131,26 +131,26 @@ sub seek
 
 	if ($dir eq 'first') {
 		$itr->first;
-		$self->pvt__filter($itr->{pic}) or $self->seek('+1');
+		$self->pvt__filter($itr->{pic})  or $self->seek('+1');
 	}
 	elsif ($dir eq 'last')  {
 		$itr->last;
-		$self->pvt__filter($itr->{pic}) or $self->seek('-1');
+		$self->pvt__filter($itr->{pic})  or $self->seek('-1');
 	}
 	elsif ($dir =~ /^[+-]/)   {
 		$dir =~ s/line/$self->{cols}/e;
 		$dir =~ s/page/$self->{cols}*$self->{rows}/e;
 
 		my $d = $dir>0?1:-1;
-		$self->pvt__filter($itr->{pic}) or warn 'invalid itr';
+		$self->pvt__filter($itr->{pic})  or warn 'invalid itr';
 		my $valid_itr = $itr->dup;  # backup
 		while(1) {
 			if ($itr->seek($d)) {
-				$self->pvt__filter($itr->{pic}) or next;
+				$self->pvt__filter($itr->{pic})  or next;
 				$valid_itr = $itr->dup;  # update
 				$self->{page_cursor} += $d;
 				$dir -= $d;
-				return 1 if $dir == 0;
+				return 1  if $dir == 0;
 			}
 			else {
 				%$itr = %$valid_itr;  # restore
@@ -174,7 +174,7 @@ sub seek_levels
 	$self->{picitr}->{itr}->{cursor} = 0;
 	# re-build picitr
 	$self->{picitr} = $self->{picitr}->dup;
-	$self->pvt__filter or $self->seek('+1');
+	$self->pvt__filter  or $self->seek('+1');
 	$self->{page_cursor} = 0;
 }#
 
@@ -217,23 +217,23 @@ sub folder_pics
 
 sub pvt__filter
 {my ($self, $pic) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	$pic //= $self->pic;
 	foreach (keys %{$self->{ins}}) {
-		return 0 unless $pic->{tags}->get($_);
+		return 0  unless $pic->{tags}->get($_);
 	}
 	foreach (keys %{$self->{outs}}) {
-		return 0 if     $pic->{tags}->get($_);
+		return 0  if     $pic->{tags}->get($_);
 	}
 	1;
 }#
 
 sub pvt__pics_between_itrs
 {my ($self, $first, $last) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
-	return () unless defined $first and defined $last;
+	return ()  unless defined $first and defined $last;
 
 	# swap endpoints if not ordered
 	if ($first->{id} gt $last->{id}) {
@@ -251,7 +251,7 @@ caller eq __PACKAGE__ or croak;
 
 	while ($itr->{id} le $last->{id}) {
 		push @rc, $itr->{pic};
-		$self->seek('+1', $itr) or last;
+		$self->seek('+1', $itr)  or last;
 	}
 
 	@rc;

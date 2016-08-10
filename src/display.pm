@@ -110,7 +110,7 @@ sub display
 		my @pics = $view->page_pics;
 		THUMB: foreach my $y (0 .. $view->{rows}-1) {
 			foreach my $x (0 .. $view->{cols}-1) {
-				my $pic = shift @pics or last THUMB;
+				my $pic = shift @pics  or last THUMB;
 				$self->render_pic($pic,
 					$w, $h, $x*$w, $y*$h,
 					$pic->{id} eq $view->{picitr}->{pic}->{id});

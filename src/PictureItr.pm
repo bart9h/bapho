@@ -36,12 +36,12 @@ sub seek
 				return undef;
 			}
 			local $_ = $self->{itr}->path;
-			next if m{/\.bapho-};
-			next if m{/\.([^/]*-)?trash/}i;
-			next if m{/\.qiv-select/};
-			next if m{/Picasa.ini$};
+			next  if m{/\.bapho-};
+			next  if m{/\.([^/]*-)?trash/}i;
+			next  if m{/\.qiv-select/};
+			next  if m{/Picasa.ini$};
 			my $id = path2id($_);
-			next if $id eq '';
+			next  if $id eq '';
 			if ($id ne $self->{id}) {
 				$self->{id} = $id;
 				last;
@@ -49,7 +49,7 @@ sub seek
 		}
 
 		$self->pvt__build_pic;
-		next unless $self->{pic}->{sel};
+		next  unless $self->{pic}->{sel};
 
 		$dir -= $d;
 	}
@@ -85,8 +85,8 @@ sub path2id
 
 sub pvt__init
 {my ($self, $path, $dir) = @_;
-caller eq __PACKAGE__ or croak;
-confess unless $path;
+caller eq __PACKAGE__  or croak;
+confess  unless $path;
 $dir //= 1;
 
 	$self->{itr} = FileItr->new($path, $self->{jaildir});
@@ -105,14 +105,14 @@ $dir //= 1;
 
 sub pvt__build_pic
 {my ($self) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	$self->{pic} = Picture::new($self->{id});
 
 	for(;;) { # Seek backwards
 
 		# until the start of current dir
-		last if $self->{itr}->{cursor} == 0;
+		last  if $self->{itr}->{cursor} == 0;
 		$self->{itr}->{cursor}--;
 
 		# or when the id change
@@ -129,7 +129,7 @@ caller eq __PACKAGE__ or croak;
 		$self->{pic}->add($self->{itr}->path);
 
 		# until the end of the dir
-		last if $self->{itr}->{cursor} == scalar @{$self->{itr}->{files}} - 1;
+		last  if $self->{itr}->{cursor} == scalar @{$self->{itr}->{files}} - 1;
 		$self->{itr}->{cursor}++;
 
 		# or when the id change

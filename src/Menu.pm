@@ -54,7 +54,7 @@ sub leave
 sub do
 {my ($self, $command) = @_;
 
-	return 0 unless defined $command;
+	return 0  unless defined $command;
 
 	my $N = scalar @{$self->{items}};
 	$self->{activated} = undef;
@@ -84,13 +84,13 @@ sub do
 
 sub pvt__jump
 {my ($self, $char) = @_;
-	caller eq __PACKAGE__ or croak;
+	caller eq __PACKAGE__  or croak;
 
 	my $i = $self->{cursor};
 	for(;;) {
 		++$i;
-		$i = 0 if $i >= scalar @{$self->{items}};
-		return if $i == $self->{cursor};
+		$i = 0  if $i >= scalar @{$self->{items}};
+		return  if $i == $self->{cursor};
 		if ($self->{items}->[$i] =~ /^$char/) {
 			$self->{cursor} = $i;
 			return;

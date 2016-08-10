@@ -32,12 +32,12 @@ sub add
 		$self->{tags}->add($path, $time);
 	}
 	else {
-		croak "Duplicate file $path." if exists $self->{files}->{$path};
+		croak "Duplicate file $path."  if exists $self->{files}->{$path};
 	}
 
 	$self->{files}->{$path} = 1;
 
-	if (is_pic($path) or is_vid($path)) {
+	if (is_pic($path)  or is_vid($path)) {
 		$self->{sel} = $path  if $self->sel_compare($path);
 	}
 }#
@@ -45,18 +45,18 @@ sub add
 sub sel_compare
 {my ($self, $path) = @_;
 
-	return 1 unless defined $self->{sel} and -s $self->{sel};
-	return 0 if !is_raw($self->{sel}) and  is_raw($path);
-	return 1 if  is_raw($self->{sel}) and !is_raw($path);
-	return 0 if !is_vid($self->{sel}) and  is_vid($path);
-	return 1 if  is_vid($self->{sel}) and !is_vid($path);
+	return 1  unless defined $self->{sel} and -s $self->{sel};
+	return 0  if !is_raw($self->{sel}) and  is_raw($path);
+	return 1  if  is_raw($self->{sel}) and !is_raw($path);
+	return 0  if !is_vid($self->{sel}) and  is_vid($path);
+	return 1  if  is_vid($self->{sel}) and !is_vid($path);
 	return -M $path > -M $self->{sel};
 }#
 
 sub open_folder
 {my ($self) = @_;
 
-	$self->{sel} =~ m{^(.*?/)[^/]+$} or die;
+	$self->{sel} =~ m{^(.*?/)[^/]+$}  or die;
 	system "xdg-open \"$1\"";
 }#
 
@@ -87,7 +87,7 @@ sub guess_source
 sub develop
 {my ($self, $app) = @_;
 
-	my $file = $self->guess_source($app) or return;
+	my $file = $self->guess_source($app)  or return;
 
 	my $cmd;
 	if ($file =~ /\.ufraw$/i) {
@@ -103,7 +103,7 @@ sub develop
 		return;
 	}
 
-	say $cmd if dbg;
+	say $cmd  if dbg;
 
 	my $ppm = $file; $ppm =~ s/\.[^.]+$/\.ppm/;
 	my $M0 = -M $ppm;
@@ -117,20 +117,20 @@ sub develop
 		if ($M1 and (not $M0 or $M0 != $M1)) { # new .ppm was created
 			if (-s $jpg) { # jpg already exists
 				if (-w $jpg) { # if it's writeable, remove
-					unlink $jpg and say "removed \"$jpg\"";
+					unlink $jpg  and say "removed \"$jpg\"";
 				}
 				else { # if read-only, backup
 					my $bk = $jpg; $bk =~ s/jpg$/original.jpg/;
 					if (-s $bk and not -w $bk) { # backup already exists
-						unlink $jpg and say "\"$bk\" exists, \"$jpg\" removed";
+						unlink $jpg  and say "\"$bk\" exists, \"$jpg\" removed";
 					}
 					else { # create backup
-						unlink $bk and say "\"$bk\" removed"  if -e $bk;
-						rename $jpg, $bk and say "\"$jpg\" -> \"$bk\"";
+						unlink $bk  and say "\"$bk\" removed"  if -e $bk;
+						rename $jpg, $bk  and say "\"$jpg\" -> \"$bk\"";
 					}
 				}
 			}
-			-e $jpg and die "\"$jpg\" still exists";
+			-e $jpg  and die "\"$jpg\" still exists";
 			$cmd = "convert -sharpen 3x1 -quality 90 \"$ppm\" \"$jpg\" && exiftool -tagsFromFile \"$cr2\" \"$jpg\"";
 			my $base = $jpg; $base =~ s{/([^/]+)$}{$1};
 			$cmd = "notify-send sharpening...; $cmd && rm -v \"$ppm\" && notify-send \"$base\"";
@@ -149,7 +149,7 @@ sub develop_pics
 	}
 
 	my $cmd = 'darktable '.join(' ', map { '"'.$_.'"' } @raws).' &';
-	say $cmd if dbg;
+	say $cmd  if dbg;
 	system $cmd;
 	FileItr->dirty();
 }#
@@ -189,13 +189,13 @@ sub print
 sub delete
 {my ($self) = @_;
 
-	return if $args{nop};
+	return  if $args{nop};
 
 	my $afile = (keys %{$self->{files}})[0];
 	$afile =~ m{^(.*?)/[^/]+$}
 		or croak "Strange filename ($afile).";
 	my $trash = "$1/.bapho-trash";
-	-d $trash or print `mkdir -v "$trash"`;
+	-d $trash  or print `mkdir -v "$trash"`;
 	foreach (keys %{$self->{files}}) {
 		print `mv -v "$_" "$trash/"`;
 	}
@@ -208,12 +208,12 @@ sub is_pic_or_vid { is_pic(@_) or is_vid(@_) }
 
 sub pvt__is_pic_or_vid
 {my ($type, $self_or_path) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	my $x = $self_or_path;
 	my $path = ref $x ? $x->{sel} : $x;
 
-	$path =~ m{\.([^.]+)$} or die;
+	$path =~ m{\.([^.]+)$}  or die;
 	my $ext = lc $1;
 
 	defined Array::find($args{$type.'_extensions'}, $ext);

@@ -15,7 +15,7 @@ sub render_surf
 
 	pvt__folder_frame($surf, $b);
 
-	return $surf if $level > 1;
+	return $surf  if $level > 1;
 	++$level;
 
 	my @files = pvt__sample_files($path);
@@ -42,10 +42,10 @@ sub render_surf
 
 sub pvt__sample_files
 {my ($path) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	my $itr = PictureItr->new($path);
-	$itr->down or return ();
+	$itr->down  or return ();
 
 	#TODO: my %folder_tags; save for use in upper folders
 	my %sel2score = ();
@@ -57,7 +57,7 @@ caller eq __PACKAGE__ or croak;
 
 		$sel2score{$key} = 1000*$stars + scalar @tags;
 
-		$itr->seek('+1') or last;
+		$itr->seek('+1')  or last;
 	}
 
 	my @sorted = sort {
@@ -69,7 +69,7 @@ caller eq __PACKAGE__ or croak;
 
 sub pvt__folder_frame
 {my ($surf, $b) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	state $color = new SDL::Color ( -r => 220, -g => 180, -b => 100 );
 	my $tab2 = 4;

@@ -80,12 +80,12 @@ sub guess_path
 
 		print "Use file modification time ($basename)? [Y/n] ";
 		my $answer = <STDIN>; chomp $answer;
-		return undef unless $answer eq '' or lc $answer eq 'y';
+		return undef  unless $answer eq '' or lc $answer eq 'y';
 	}#
 
 	sub datetime2path
 	{my ($year, $mon, $mday, $hour, $min, $sec) = @_;
-		foreach (@_) { return undef unless defined }
+		foreach (@_) { return undef  unless defined }
 
 		my $dir = $args{basedir}.'/'.sprintf $args{dir_fmt}, $year, $mon, $mday;
 
@@ -139,7 +139,7 @@ sub get_target_path
 	}
 
 	foreach my $append_char ('a' .. 'z', undef) {
-		$append_char or die 'Duplicated timestamp overflow!';
+		$append_char  or die 'Duplicated timestamp overflow!';
 		my $file = "$dir/$basename$append_char.$ext";
 		return $file  unless -e $file;
 	}
@@ -148,7 +148,7 @@ sub get_target_path
 sub create_tags_file
 {my ($file) = @_;
 
-	return unless defined $file and $args{tags};
+	return  unless defined $file and $args{tags};
 
 	my $tags = Tags->new(
 		PictureItr::path2id($file)
@@ -164,7 +164,7 @@ sub import_file
 	my $target_file = get_target_path($source_file)
 		or return undef;
 
-	$target_file =~ m{^(.*)/[^/]+$} or die;
+	$target_file =~ m{^(.*)/[^/]+$}  or die;
 	my $dir = $1;
 
 	# move the file target_file to it's new place/name
@@ -178,7 +178,7 @@ sub import_file
 		say $cmd;
 	}
 	elsif (0 == system $cmd) {
-		-e $target_file or die;
+		-e $target_file  or die;
 	}
 
 	return $target_file;
@@ -208,7 +208,7 @@ sub import_files
 
 	# Mark .jpg as writeable if there's an equivalent raw file.
 	foreach my $path (keys %imported_files) {
-		$path =~ m{^(?<base>.+?)\.(?<ext>[^.]+)$} or next;
+		$path =~ m{^(?<base>.+?)\.(?<ext>[^.]+)$}  or next;
 		if ($+{ext} eq 'jpg') {
 			my $has_raw = 0;
 			foreach (qw/.cr2 .raf/) {

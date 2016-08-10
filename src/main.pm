@@ -198,7 +198,7 @@ sub enter_view_editor
 sub do_menu
 {my ($self, $command) = @_;
 
-	return 0 unless $self->{menu}->{action};
+	return 0  unless $self->{menu}->{action};
 
 	$self->{dirty} = $self->{menu}->do($command);
 	my $activated = $self->{menu}->{activated};
@@ -214,7 +214,7 @@ sub do_menu
 			}
 			elsif ($command eq 'e' and not $args{fullscreen}) {
 				my $filename = $self->view->pic->{id}.'.tags';
-				-e $filename or FileItr->dirty();
+				-e $filename  or FileItr->dirty();
 				system "\$EDITOR $filename";
 				$self->view->pic->add($filename, time);
 				$self->enter_tag_editor;
@@ -264,8 +264,8 @@ sub add_tag_to_actions
 sub do
 {my ($self, $command) = @_;
 
-	return unless defined $command;
-	return if $self->do_menu($command);
+	return  unless defined $command;
+	return  if $self->do_menu($command);
 
 	my $view = $self->view;
 	my %actions = (#{my
@@ -336,12 +336,12 @@ sub do
 			},
 			zoom_in => {
 				keys => [ 'z-i', '=', '[+]' ],
-				code => sub { $view->{zoom}++; $view->{zoom} =  1 if $view->{zoom} == -1; },
+				code => sub { $view->{zoom}++; $view->{zoom} =  1  if $view->{zoom} == -1; },
 				tags => [ 'pic' ],
 			},
 			zoom_out => {
 				keys => [ 'z-o', '-', '[-]' ],
-				code => sub { $view->{zoom}--; $view->{zoom} = -2 if $view->{zoom} ==  0; },
+				code => sub { $view->{zoom}--; $view->{zoom} = -2  if $view->{zoom} ==  0; },
 				tags => [ 'pic' ],
 			},
 			zoom_reset => {
@@ -371,7 +371,7 @@ sub do
 			},
 			view_last => {
 				keys => [ 'v-v' ],
-				code => sub { $self->view_set_cursor($self->{last_view}) if defined $self->{last_view} },
+				code => sub { $self->view_set_cursor($self->{last_view})  if defined $self->{last_view} },
 			},
 			view_1 => { keys => [ 'v-1', 'f1' ], code => sub { $self->view_set_cursor(0) } },
 			view_2 => { keys => [ 'v-2', 'f2' ], code => sub { $self->view_set_cursor(1) } },
@@ -536,6 +536,7 @@ sub handle_event
 		elsif ($sym =~ m{^(left|right)\ ctrl$})  { $control = 0 }
 	}
 	elsif ($event->type == SDL_MOUSEBUTTONDOWN()) {
+		say 'mouse button '.$event->button_button  if dbg 'event';
 		$self->do(
 			{
 				3 => 'info_toggle',
@@ -545,7 +546,7 @@ sub handle_event
 		);
 	}
 	elsif ($event->type == SDL_VIDEORESIZE()) {
-		say 'resizing to '.join('x',$event->resize_w,$event->resize_h) if dbg;
+		say 'resizing to '.join('x',$event->resize_w,$event->resize_h)  if dbg 'event', 'video';
 		$self->{app}->resize($event->resize_w, $event->resize_h);
 		$self->{dirty} = 1;
 	}
@@ -618,7 +619,7 @@ sub new
 			my $path = $view->pic->{sel};
 			say $path;
 			$view->seek('+1');
-			last if $path eq $view->pic->{sel};
+			last  if $path eq $view->pic->{sel};
 		}
 		exit(0);
 =cut

@@ -173,27 +173,27 @@ sub toggle_star
 	$dir //= 1;
 
 	my $n = $self->get_nstars;
-	say "was($n)" if dbg 'tags';
+	say "was($n)"  if dbg 'tags';
 	if ($dir > 0) {
 		$n = ($n<5) ? $n+1 : 0;
 	}
 	else {
 		$n = ($n>0) ? $n-1 : 5;
 	}
-	say "is($n)" if dbg 'tags';
+	say "is($n)"  if dbg 'tags';
 
 	foreach ("", 1 .. 5) {
 		my $tag = '_star'.$_;
 		my $i = $_ ? $_ : 1;
 		if ($i > $n) {
 			if (exists $self->{tags}->{$tag}) {
-				say "del($tag)" if dbg 'tags';
+				say "del($tag)"  if dbg 'tags';
 				delete $self->{tags}->{$tag};
 			}
 		}
 		else {
 			if ($tag ne '_star1') { # =='_star'
-				say "set($tag)" if dbg 'tags';
+				say "set($tag)"  if dbg 'tags';
 				$self->{tags}->{$tag} = 1;
 			}
 		}
@@ -204,7 +204,7 @@ sub toggle_star
 
 sub pvt__set_tag
 {my ($self, $tag, $time) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	say "Setting tag \"$tag\" to \"$self->{id}\"."  if dbg 'tags';
 	$self->{tags}->{$tag} = 1;
@@ -216,43 +216,47 @@ caller eq __PACKAGE__ or croak;
 
 sub pvt__save_pic_tags
 {my ($self) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	pvt__save_tags($self->{id}.'.tags', $self->{tags});
 }#
 
 sub pvt__save_tags
 {my ($filename, $tags) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
-	unless ($args{nop}) {
-
-		if (scalar keys %$tags > 0) {
-			-e $filename or FileItr->dirty();
-			if ($args{nop}) {
-				say "Saving \"$filename\"...";
-				foreach my $tag (sort keys %$tags) {
-					my $line = $tags->{$tag} ? "$tag=$tags->{$tag}" : $tag;
-					say "\t$line";
-				}
-				say "done.";
+	if (scalar keys %$tags > 0) {
+		if (!-e $filename) { FileItr->dirty() }
+		unless ($args{nop}) {
+			open F, '>', $filename  or die "$filename: $!";
+			say "Saving \"$filename\"."  if dbg 'tags,file';
+			foreach my $tag (sort keys %$tags) {
+				my $line = $tags->{$tag} ? "$tag=$tags->{$tag}" : $tag;
+				print F "$line\n";
 			}
-			else {
-				open F, '>', $filename  or die "$filename: $!";
-				say "Saving \"$filename\"."  if dbg 'tags,file';
-				foreach my $tag (sort keys %$tags) {
-					my $line = $tags->{$tag} ? "$tag=$tags->{$tag}" : $tag;
-					print F "$line\n";
-				}
-				close F;
-			}
+			close F;
 		}
 		else {
-			if ($args{nop}) {
-				say "Removing \"$filename\".";
+			say "(not) Saving \"$filename\"...";
+			foreach my $tag (sort keys %$tags) {
+				my $line = $tags->{$tag} ? "$tag=$tags->{$tag}" : $tag;
+				say "\t$line";
+			}
+			say "done.";
+		}
+	}
+	else {
+		if (-e $filename) {
+			unless ($args{nop}) {
+				if (unlink $filename) {
+					say "\"$filename\" removed."  if dbg 'tags,file';
+				}
+				else {
+					warn "unlink \"$filename\": $!\n";
+				}
 			}
 			else {
-				unlink $filename if -e $filename;
+				say "(not) Removing \"$filename\".";
 			}
 		}
 	}
@@ -260,15 +264,15 @@ caller eq __PACKAGE__ or croak;
 
 sub pvt__read_tags
 {my ($filename) = @_;
-caller eq __PACKAGE__ or croak;
+caller eq __PACKAGE__  or croak;
 
 	if (open F, $filename) {
 		say "reading $filename"  if dbg 'tags,file';
 		my %rc = ();
 		foreach my $line (<F>) {
 			$line =~ s/^\s*(.*?)\s*$/$1/;
-			next if $line =~ m/^#/;
-			next if $line eq '';
+			next  if $line =~ m/^#/;
+			next  if $line eq '';
 			my ($tag, $val) = ($line =~ m/^(.+)=(\d+)$/) ? ($1, $2) : ($line, 1);
 			$rc{$tag} = $val;
 		}

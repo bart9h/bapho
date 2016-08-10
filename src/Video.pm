@@ -43,11 +43,11 @@ sub load_sample_frame
 {my ($videofile) = @_;
 
 	my $tmpdir = $args{temp_dir}.'/bapho-videopreview';
-	-d $tmpdir or mkdir $tmpdir or die "$tmpdir: $!";
+	-d $tmpdir  or mkdir $tmpdir  or die "$tmpdir: $!";
 	my $framefile = "$tmpdir/00000001.jpg";
 
 	my $cmd = "mplayer -frames 1 -ss 00:00:01 -vo jpeg:maxfiles=1:outdir=\"$tmpdir\" -ao null \"$videofile\"";
-	say $cmd if dbg 'cmd,video,file';
+	say $cmd  if dbg 'cmd,video,file';
 	$cmd .= ' >/dev/null 2>/dev/null';
 	system $cmd;
 
@@ -56,7 +56,7 @@ sub load_sample_frame
 
 	system "rm -rf \"$tmpdir\"";
 
-	render_film_roll_frame($surf) if $surf;
+	render_film_roll_frame($surf)  if $surf;
 	$surf;
 }#
 
@@ -68,7 +68,7 @@ sub play
 		$args{fullscreen} ? ('-fs') : (),
 		"\"$videofile\"",
 		'&';
-	say $cmd if dbg;
+	say $cmd  if dbg;
 	system $cmd;
 }#
 

@@ -58,12 +58,12 @@ sub dbg
 {#
 	my ($tags) = @_;
 
-	return 0 unless defined $args{verbose};
-	return 1 unless $tags;
-	return 1 if $args{verbose} eq 'all';
+	return 0  unless defined $args{verbose};
+	return 1  unless $tags;
+	return 1  if $args{verbose} eq 'all';
 	foreach my $a (split /,/, $args{verbose}) {
 	foreach my $b (split /,/, $tags) {
-		return 1 if $a eq $b
+		return 1  if $a eq $b
 	}}
 	0;
 }#
@@ -74,13 +74,18 @@ sub config_filename { $ENV{HOME}.'/.baphorc' }
 sub read_args
 {# read ~/.baphorc, environment and cmdline parameters into %args
 
+	# for dbg to work here, before we process the args
+	$args{verbose} = ''  if grep { /^(-v|--verbose)$/ } @_;
+
 	sub add_arg
 	{#
+		say "add_arg($_[0])"  if dbg;
 		if ($_[0] =~ m/^(..*?)(=(.*))?$/) {
 			my ($arg, $has_val, $val) = ($1, $2, $3);
 			$arg =~ s/-/_/g;
 			if (exists $args{$arg}) {
 				$args{$arg} = $has_val ? $val : 1;
+				say "add_arg($arg,$args{$arg})"  if dbg;
 			}
 			else {
 				say STDERR "unknown arg ($_)";
@@ -92,10 +97,13 @@ sub read_args
 	{# ~/.baphorc
 
 		if (open F, '<', config_filename) {
+			say 'BEGIN('.config_filename.')'  if dbg;
 			while (<F>) {
+				chomp;
 				add_arg($_);
 			}
 			close F;
+			say 'END('.config_filename.')'  if dbg;
 		}
 		else {
 			printf STDERR "%s: $!\n", config_filename;
@@ -105,8 +113,10 @@ sub read_args
 	{# environment
 
 		foreach (keys %ENV) {
-			/^BAPHO_(\w+)$/i or next;
-			$args{lc $1} = $ENV{$_};
+			/^BAPHO_(\w+)$/i  or next;
+			my ($arg, $val) = (lc $1, $ENV{$_});
+			$args{$arg} = $val;
+			say "env($arg,$val)"  if dbg;
 		}
 	}#
 
@@ -137,7 +147,7 @@ sub read_args
 				say 'Arguments and their defaults (if any):';
 				foreach (sort keys %default_args) {
 					my $val = $default_args{$_};
-					next if ref $val;
+					next  if ref $val;
 					s/_/-/g;
 					say '--'.$_.(defined $val ? "=$val" : '');
 				}
@@ -191,7 +201,7 @@ sub save_state
 sub load_state
 {#
 	my $file = state_filename;
-	say "Loading state file $file." if dbg 'file';
+	say "Loading state file $file."  if dbg 'file';
 
 	unless (open F, $file) {
 		printf "%s: $!\n", $file;
@@ -200,7 +210,7 @@ sub load_state
 
 	while (<F>) {
 		chomp;
-		/^([^=]+)=(.*)$/ or die "Corrupt state file $file.";
+		/^([^=]+)=(.*)$/  or die "Corrupt state file $file.";
 		$args{$1} = $2;
 	}
 
