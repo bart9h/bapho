@@ -104,9 +104,9 @@ sub delete_current
 {my ($self) = @_;
 
 	my $pic = $self->{picitr}->{pic};
-	$self->{picitr}->seek(1) //
-	$self->{picitr}->seek(-1) //
-	$self->{picitr}->up; #TODO: definir melhor o q fazer nos extremos
+	$self->seek('+1') //
+	$self->seek('-1') //
+	$self->{picitr}->{itr}->pvt__up(); #TODO: definir melhor o q fazer nos extremos
 	$pic->delete;
 	FileItr->dirty();
 }#
