@@ -37,17 +37,17 @@ our %args = (
 		vid_extensions => [ qw/mpeg mpg avi mkv mp4 m4v mov flv 3gp/ ],
 		exif_tags => [
 		#{#
-			{ tag => 'DateTimeOriginal',     label => '   date/time' },
-			{ tag => 'Model',                label => '      camera' },
-			{ tag => 'LensID',               label => '        lens' },
-			{ tag => 'Aperture',             label => '    aperture' },
-			{ tag => 'ShutterSpeed',         label => '       speed' },
-			{ tag => 'ISO',                  label => '         iso' },
-			{ tag => 'FocalLength',          label => 'focal length' },
-			{ tag => 'ExposureProgram',      label => '    exposure' },
-			{ tag => 'ExposureCompensation', label => '          ev' },
-			{ tag => 'FocusMode',            label => '       focus' },
-			{ tag => 'Flash',                label => '       flash' },
+			{ tag => 'DateTimeOriginal',     label => '   date/time', em => 0 },
+			{ tag => 'Model',                label => '      camera', em => 1 },
+			{ tag => 'LensID',               label => '        lens', em => 1 },
+			{ tag => 'Aperture',             label => '    aperture', em => 1 },
+			{ tag => 'ShutterSpeed',         label => '       speed', em => 1 },
+			{ tag => 'ISO',                  label => '         iso', em => 1 },
+			{ tag => 'FocalLength',          label => 'focal length', em => 1 },
+			{ tag => 'ExposureProgram',      label => '    exposure', em => 0 },
+			{ tag => 'ExposureCompensation', label => '          ev', em => 0 },
+			{ tag => 'FocusMode',            label => '       focus', em => 0 },
+			{ tag => 'Flash',                label => '       flash', em => 0 },
 		#}#
 		],
 );

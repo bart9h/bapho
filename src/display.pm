@@ -173,8 +173,12 @@ sub display
 		$self->print(font=>1, text=>'exif:');
 		if (my $exif = $self->view->{cur_surf}->{exif}) {
 			$self->{text}->set_column;
-			$self->print(text => $_)
-				foreach map { "  $_->{label}: $exif->{$_->{tag}}" }
+			$self->print(
+					color => 'white',
+					text => "  $_->{label}: ",
+					color => $_->{em} ? 'green' : 'white',
+					text => $exif->{$_->{tag}},
+				) foreach
 				grep { my $t = $_->{tag}; defined $exif->{$t} and not $exif->{$t} =~ /^Unknown \(0\)$/ }
 				@{$args{exif_tags}};
 		}
