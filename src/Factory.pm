@@ -152,7 +152,7 @@ sub get
 			}
 
 			if ($exif) {
-				$item->{exif} = { map { $_ => $exif->{$_} } @{$args{exif_tags}} };
+				$item->{exif} = { map { $_ => $exif->{$_} } map { $_->{tag} } @{$args{exif_tags}} };
 				$item->{width}  //= $exif->{ExifImageWidth};
 				$item->{height} //= $exif->{ExifImageHeight};
 			}

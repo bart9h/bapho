@@ -174,8 +174,8 @@ sub display
 		if (my $exif = $self->view->{cur_surf}->{exif}) {
 			$self->{text}->set_column;
 			$self->print(text => $_)
-				foreach map { "  $_: $exif->{$_}" }
-				grep { defined $exif->{$_} and not $exif->{$_} =~ /^Unknown \(0\)$/ }
+				foreach map { "  $_->{label}: $exif->{$_->{tag}}" }
+				grep { my $t = $_->{tag}; defined $exif->{$t} and not $exif->{$t} =~ /^Unknown \(0\)$/ }
 				@{$args{exif_tags}};
 		}
 	}#

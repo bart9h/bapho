@@ -37,19 +37,17 @@ our %args = (
 		vid_extensions => [ qw/mpeg mpg avi mkv mp4 m4v mov flv 3gp/ ],
 		exif_tags => [
 		#{#
-			qw/
-				DateTimeOriginal
-				Model
-				LensID
-				Aperture
-				ShutterSpeed
-				ISO
-				FocalLength
-				ExposureProgram
-				ExposureCompensation
-				FocusMode
-				Flash
-			/
+			{ tag => 'DateTimeOriginal',     label => '   date/time' },
+			{ tag => 'Model',                label => '      camera' },
+			{ tag => 'LensID',               label => '        lens' },
+			{ tag => 'Aperture',             label => '    aperture' },
+			{ tag => 'ShutterSpeed',         label => '       speed' },
+			{ tag => 'ISO',                  label => '         iso' },
+			{ tag => 'FocalLength',          label => 'focal length' },
+			{ tag => 'ExposureProgram',      label => '    exposure' },
+			{ tag => 'ExposureCompensation', label => '          ev' },
+			{ tag => 'FocusMode',            label => '       focus' },
+			{ tag => 'Flash',                label => '       flash' },
 		#}#
 		],
 );
