@@ -143,11 +143,7 @@ sub develop
 sub develop_pics
 {my (@pics) = @_;
 
-	my @raws;
-	foreach my $pic (@pics) {
-		push @raws, $pic->guess_source('darktable');
-	}
-
+	my @raws = grep { $_ } map { $_->guess_source('darktable') } @pics;
 	my $cmd = 'darktable '.join(' ', map { '"'.$_.'"' } @raws).' &';
 	say $cmd  if dbg;
 	system $cmd;
@@ -196,9 +192,9 @@ sub delete
 		or croak "Strange filename ($afile).";
 	my $trash = "$1/.bapho-trash";
 	-d $trash  or print `mkdir -v "$trash"`;
-	foreach (keys %{$self->{files}}) {
-		print `mv -v "$_" "$trash/"`;
-	}
+	my $cmd = 'mv -v '.join(' ', map { "\"$_\"" } sort keys %{$self->{files}})." \"$trash/\"";
+	say $cmd;
+	print `$cmd`;
 }#
 
 sub is_raw { pvt__is_pic_or_vid('raw', @_) }

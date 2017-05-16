@@ -98,6 +98,7 @@ sub read_args
 			say 'BEGIN('.config_filename.')'  if dbg;
 			while (<F>) {
 				chomp;
+				next if /^\s*#/;  # skip comments
 				add_arg($_);
 			}
 			close F;
