@@ -109,7 +109,7 @@ sub get
 			my $item = {};
 			my $exif;
 
-			if ($path =~ m{\.cr2$}) {
+			if ($path =~ m{\.(cr2|raf)$}) {
 				($item->{surf}, $exif) = load_exif_preview($path, $width, $height);
 			}
 			elsif (Picture::is_vid($path)) {

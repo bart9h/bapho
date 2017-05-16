@@ -64,7 +64,7 @@ sub guess_source
 {my ($self, $app) = @_;
 
 	my %app_exts = (
-		darktable => [ 'cr2', 'raf' ],
+		darktable => [ 'cr2', 'raf', 'jpg' ],
 		ufraw => [ 'ufraw' ],
 		gimp  => [ 'xcf', 'ppm', 'tif', 'png', 'jpg' ],
 	);
@@ -93,7 +93,7 @@ sub develop
 	if ($file =~ /\.ufraw$/i) {
 		$cmd = "ufraw \"$file\" || gvim \"$file\"";
 	}
-	elsif ($file =~ /\.cr2$/i) {
+	elsif ($file =~ /\.(cr2|raf)$/i) {
 		$cmd = "darktable \"$file\"";
 	}
 	elsif (is_pic($file)) {
