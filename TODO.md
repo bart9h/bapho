@@ -12,7 +12,10 @@ Missing features
 - Cycle through multiple files of a picture.
   - Option to set selected one.
 
-- Zoom in (up to 1/1 pixels).
+- Picture size.
+  - Choose from three picture sizes: small (15cm), normal (30cm) and large (60cm).
+
+- Zoom in (1 pixel per pixel).
   - Pan.
 
 - Image rotation.
@@ -24,6 +27,8 @@ Missing features
 
 Enhancements
 ------------
+
+- Offline support.
 
 - Export images
   - Select resolution.
@@ -39,7 +44,7 @@ Enhancements
 
 - Option to import then run the gui showing only the just-imported pics.
 
-- Mouse support (GUI).
+- Mouse support.
 
 - Display image histogram.
 
@@ -61,6 +66,8 @@ Optimizations
   - Load directly from EXIF (in C?).
 
 - Read-ahead image loading.
+
+- Filesystem cache (keep database of pictures).
 
 
 ```VimL
