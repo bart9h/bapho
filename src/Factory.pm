@@ -158,7 +158,7 @@ sub get
 			}
 
 			if ($item->{surf}) {
-				if ($exif and $exif->{Orientation} =~ /^Rotate (\d+) CW$/) {
+				if ($exif and $exif->{Orientation} and $exif->{Orientation} =~ /^Rotate (\d+) CW$/) {
 					$item->{degrees_clockwise} = $1;
 					if(0 and "why this doesn't work?") {
 						my $num_clockwise_turns = int($item->{degrees_clockwise}/90);
