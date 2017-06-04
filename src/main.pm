@@ -662,7 +662,7 @@ sub main
 
 	use SDL::Event;
 	my $event = new SDL::Event;
-	SDL::Events::enable_key_repeat(200, 200);
+	SDL::Events::enable_key_repeat($args{key_repeat_start_delay}, $args{key_repeat_image_delay});
 
 	while(1) {
 

@@ -35,6 +35,9 @@ our %args = (
 		raw_extensions => [ @raw_extensions ],
 		pic_extensions => [ qw/jpeg jpg tiff tif png/, @raw_extensions ],
 		vid_extensions => [ qw/mpeg mpg avi mkv mp4 m4v mov flv 3gp/ ],
+		key_repeat_start_delay => 200,
+		key_repeat_menu_delay => 25,
+		key_repeat_image_delay => 200,
 		exif_tags => [
 		#{#
 			{ tag => 'DateTimeOriginal',     label => '   date/time', em => 0 },

@@ -7,6 +7,7 @@ use warnings;
 use 5.010;
 use Carp;
 use Data::Dumper;
+use args qw/%args/;
 
 #}#
 
@@ -35,7 +36,7 @@ sub enter
 
 		$self->{items} = [ map { @{$_->{items}} } @{$self->{groups}} ];
 
-		SDL::Events::enable_key_repeat(200, 25);
+		SDL::Events::enable_key_repeat($args{key_repeat_start_delay}, $args{key_repeat_menu_delay});
 	}
 
 }#
@@ -48,7 +49,7 @@ sub leave
 	$self->{activated} = undef;
 	$self->{groups}    = undef;
 	$self->{items}     = undef;
-	SDL::Events::enable_key_repeat(200, 200);
+	SDL::Events::enable_key_repeat($args{key_repeat_start_delay}, $args{key_repeat_image_delay});
 }#
 
 sub do
