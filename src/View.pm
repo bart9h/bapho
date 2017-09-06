@@ -14,16 +14,18 @@ use PictureItr;
 #}#
 
 sub new
-{my ($picitr, $ins, $outs, $file) = @_;
+{my ($picitr, $and, $or, $out, $file) = @_;
 	$picitr  or croak;
 
-	defined $ins   or $ins  = [];
-	defined $outs  or $outs = [ (split /,/, $args{exclude}) ];
+	defined $and or $and = [];
+	defined $or  or $or  = [];
+	defined $out or $out = [ (split /,/, $args{exclude}) ];
 
 	bless my $self = {
 		picitr      => $picitr->dup(),
-		ins         => { map { $_ => 1 } @$ins },
-		outs        => { map { $_ => 1 } @$outs },
+		and         => { map { $_ => 1 } @$and },
+		or          => { map { $_ => 1 } @$or  },
+		out         => { map { $_ => 1 } @$out },
 		rows        => 1,
 		cols        => 1,
 		zoom        => 1,
@@ -220,11 +222,17 @@ sub pvt__filter
 caller eq __PACKAGE__  or croak;
 
 	$pic //= $self->pic;
-	foreach (keys %{$self->{ins}}) {
+	foreach (keys %{$self->{and}}) {
 		return 0  unless $pic->{tags}->get($_);
 	}
-	foreach (keys %{$self->{outs}}) {
+	foreach (keys %{$self->{out}}) {
 		return 0  if     $pic->{tags}->get($_);
+	}
+	if (scalar keys %{$self->{or}}) {
+		foreach ($pic->{tags}->get()) {
+			return 1  if $self->{or}->{$_};
+		}
+		return 0;
 	}
 	1;
 }#

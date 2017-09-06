@@ -99,13 +99,14 @@ sub load_state
 	while (defined $args{"view_${i}_cursor"}) {
 		my $view = View::new(
 			PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
-			[ (split /,/, $args{"view_${i}_ins"}) ],
-			[ (split /,/, $args{"view_${i}_outs"}) ],
+			[ (split /,/, $args{"view_${i}_and"}) ],
+			[ (split /,/, $args{"view_${i}_or"})  ],
+			[ (split /,/, $args{"view_${i}_out"}) ],
 			$args{"view_${i}_cursor"},
 		);
 		push @{$self->{views}}, $view;
 
-		delete $args{"view_${i}_$_"}  foreach qw/cursor ins outs/;
+		delete $args{"view_${i}_$_"}  foreach qw/cursor and or out/;
 		++$i;
 	}
 	foreach (qw/current_view last_view/) {
@@ -116,7 +117,8 @@ sub load_state
 	if (scalar @{$self->{views}} == 0) {
 		push @{$self->{views}}, View::new(
 			PictureItr->new($args{startdir} // $args{basedir}, $self->{jaildir}),
-			[ (split /,/, $args{include}) ],
+			[ (split /,/, $args{and}) ],
+			[ (split /,/, $args{or}) ],
 			[ (split /,/, $args{exclude}) ]
 		);
 	}
@@ -136,8 +138,9 @@ sub save_state
 	foreach (@{$self->{views}}) {
 		my $k = "view_$view_idx";
 		$state{$k.'_cursor'} = $_->pic->{sel};
-		$state{$k.'_ins'   } = join ',', keys %{$_->{ins}};
-		$state{$k.'_outs'  } = join ',', keys %{$_->{outs}};
+		$state{$k.'_and'  } = join ',', keys %{$_->{and}};
+		$state{$k.'_or'   } = join ',', keys %{$_->{or}};
+		$state{$k.'_out'  } = join ',', keys %{$_->{out}};
 		++$view_idx;
 	}
 
@@ -227,15 +230,19 @@ sub do_menu
 	}
 	elsif ($self->{menu}->{action} eq 'view_editor') {
 		if (defined $activated) {
-			if ($self->view->{ins}->{$activated}) {
-				delete $self->view->{ins}->{$activated};
-				$self->view->{outs}->{$activated} = 1;
+			if ($self->view->{and}->{$activated}) {
+				delete $self->view->{and}->{$activated};
+				$self->view->{or}->{$activated} = 1;
 			}
-			elsif ($self->view->{outs}->{$activated}) {
-				delete $self->view->{outs}->{$activated};
+			elsif ($self->view->{or}->{$activated}) {
+				delete $self->view->{or}->{$activated};
+				$self->view->{out}->{$activated} = 1;
+			}
+			elsif ($self->view->{out}->{$activated}) {
+				delete $self->view->{out}->{$activated};
 			}
 			else {
-				$self->view->{ins}->{$activated} = 1;
+				$self->view->{and}->{$activated} = 1;
 			}
 		}
 	}

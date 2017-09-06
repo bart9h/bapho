@@ -27,8 +27,9 @@ sub new
 		fonts => [],
 		font => 0,
 		black  => SDL::Color->new(0, 0, 0),
-		green => SDL::Color->new(0, 255, 0),
-		red => SDL::Color->new(255, 0, 0),
+		green => SDL::Color->new(63, 255, 63),
+		blue => SDL::Color->new(127, 127, 255),
+		red => SDL::Color->new(255, 63, 63),
 		yellow => SDL::Color->new(255, 255, 0),
 		white  => SDL::Color->new(255, 255, 255),
 	};

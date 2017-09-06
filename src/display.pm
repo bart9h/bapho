@@ -226,11 +226,15 @@ sub display
 		foreach my $tag (@{$self->{menu}->{items}}) {
 			my @C = split //, $i==$self->{menu}->{cursor}? '[]':'  ';#cursor
 			my ($T, $color) = (' ', 'white');
-			if ($self->view->{ins}->{$tag}) {
-				$T = '+';
+			if ($self->view->{and}->{$tag}) {
+				$T = '*';
 				$color = 'green';
 			}
-			elsif ($self->view->{outs}->{$tag}) {
+			if ($self->view->{or}->{$tag}) {
+				$T = '+';
+				$color = 'blue';
+			}
+			elsif ($self->view->{out}->{$tag}) {
 				$T = '-';
 				$color = 'red'  unless $tag =~ m{^(_hidden|outra)$};
 			}
