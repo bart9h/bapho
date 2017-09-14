@@ -181,7 +181,6 @@ sub print
 	}
 }#
 
-
 sub delete
 {my ($self) = @_;
 
@@ -192,7 +191,9 @@ sub delete
 		or croak "Strange filename ($afile).";
 	my $trash = "$1/.bapho-trash";
 	-d $trash  or print `mkdir -v "$trash"`;
-	my $cmd = 'mv -v '.join(' ', map { "\"$_\"" } sort keys %{$self->{files}})." \"$trash/\"";
+	my $files = join(' ', map { "\"$_\"" } sort keys %{$self->{files}});
+	system "chmod +w $files";
+	my $cmd = "mv -v $files \"$trash/\"";
 	say $cmd;
 	print `$cmd`;
 }#
