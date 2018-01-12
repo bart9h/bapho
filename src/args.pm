@@ -17,6 +17,7 @@ my @raw_extensions = qw/cr2 raf/;
 our %args = (
 		baphorc => $ENV{HOME}.'/.baphorc', #TODO: xdg?
 		basedir => $ENV{HOME}.'/Pictures', #TODO: xdg?
+		readonly => 0,
 		editor => $ENV{EDITOR} // 'gedit',
 		temp_dir => '/tmp',
 		dir_fmt => '%04d/%02d/%02d',
@@ -186,6 +187,8 @@ sub read_args
 
 sub save_state
 {#
+	return if $args{readonly};
+
 	my ($h) = @_;
 
 	unless (open F, '>', state_filename) {

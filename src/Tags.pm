@@ -225,6 +225,8 @@ sub pvt__save_tags
 {my ($filename, $tags) = @_;
 caller eq __PACKAGE__  or croak;
 
+	return if $args{readonly};
+
 	if (scalar keys %$tags > 0) {
 		if (!-e $filename) { FileItr->dirty() }
 		unless ($args{nop}) {
