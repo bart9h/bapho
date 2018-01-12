@@ -167,7 +167,7 @@ sub print
 	else {
 		my @files_to_identify = ();
 		foreach (sort keys %{$self->{files}}) {
-			if (/\.(jpg|png|tif|ppm)$/) {
+			if (/\.(jpg|png|tif|ppm)$/ and defined $args{identify_cmd}) {
 				push @files_to_identify, '"'.$_.'"';
 			}
 			else {
@@ -175,7 +175,7 @@ sub print
 			}
 		}
 		if (@files_to_identify) {
-			my $cmd = 'identify '.join ' ', @files_to_identify;
+			my $cmd = join ' ', $args{identify_cmd}, @files_to_identify;
 			system $cmd;
 		}
 	}

@@ -39,6 +39,7 @@ our %args = (
 		key_repeat_start_delay => 200,
 		key_repeat_menu_delay => 25,
 		key_repeat_image_delay => 200,
+		identify_cmd => get_default_identify_command(),
 		exif_tags => [
 		#{#
 			{ tag => 'DateTimeOriginal',     label => '   date/time', em => 0 },
@@ -224,6 +225,26 @@ sub load_state
 
 sub min { $_[0] < $_[1] ? $_[0] : $_[1] }
 sub max { $_[0] > $_[1] ? $_[0] : $_[1] }
+
+sub get_default_identify_command
+{
+	foreach my $pair (
+		[ 'gm',    'gm identify' ],
+		[ 'identify', 'identify' ],
+	) {
+		my $bin = `which $pair->[0] 2>/dev/null`;
+		chomp $bin;
+
+		if (-x $bin) {
+			return $pair->[1];
+		}
+	}
+
+	say STDERR "Can't find command to identify image files.\n"
+		."Please install GraphicsMagick or ImageMagick.";
+
+	return undef;
+}
 
 1;
 # vim600:fdm=marker:fmr={#,}#:
