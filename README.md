@@ -21,7 +21,8 @@ But I also didn't want to commit to a specific layout
 for the folders, or a database for the metadata.
 What I really want, and fell it's the Right Thing To Do,
 it's to just use the filesystem.
-None did that, so I decided to create my own.
+None of the available photo managers did that (by the end of 2008),
+so I decided to create my own.
 
 
 Features
@@ -39,23 +40,25 @@ Features
     the data will still be useful even without BaPhO.
 
 - Simple on-screen-display, keyboard driven interface.
-  - [planned, currently only uses wheel to navigate] Mouse works too.
+  - [planned, currently only uses wheel to navigate: Mouse works too.]
 
 - Handles multiple files of the same photo.
-  - [planned] Pick which version to display
+  - [planned: Pick which version to display.]
     (currently it uses the most recently modified).
 
 - Import tool automatically copy (or move) photos to
   a folder structure based on EXIF date/time.
 
-- Use external tools for editing (UFRaw, GIMP).
-  - [planned] Built-in raw developing (using libRAW).
+- Use external tools for editing (Darktable, UFRaw, GIMP).
 
-- Handles video too (with MPlayer).
+- Handles video too (uses mpv or MPlayer to play,
+  and extract a frame for thumbnail).
 
 - Use tags, names, places, stars (rating).
-
-- Easily apply multiple tags to multiple photos.
+  - Key to repeat last tag edit (tags added, removed) to current photo.
+  - Easily apply multiple tags to multiple photos.
+  - [planned: Tags for folders.
+    Works like implicit tags for the photos inside.]
 
 - Multiple views (tab-like)
   - Built-in view editor.
@@ -64,13 +67,13 @@ Features
 
 - Use system memory to cache pictures on memory
   for super fast viewing.
-  - [planned] Read-ahead in background.
+  - [planned: Read-ahead in background.]
 
 - Keys to advance to next/prev day/month/year.
 
 - Thumbnail view.
 
-- [planned] Folder view.
+- [planned: Folder view.]
 
 - Display EXIF info.
 
@@ -98,20 +101,19 @@ System requirements
 Optional external tools
 -----------------------
 
-- UFRaw, to develop raw files
+- Darktable or UFRaw, to develop raw files
 
 - Gimp, to edit other image files
 
-- ImageMagick, to auto-apply sharpening when saving .ppm files
+- ImageMagick or GraphicsMagick, to auto-apply sharpening
+  when saving .ppm files from UFRaw
 
 - gphoto2, to import files directly from the camera
 
-- any text editor (defined by the EDITOR environment variable) to enter new tags
+- any text editor (defined by the EDITOR environment variable)
+  to enter new tags
 
-- MPlayer, to handle video
+- mpv or MPlayer, to handle video
+  https://mpv.io/
   http://mplayerhq.hu/
 
-
-```VimL
-vim:filetype=markdown:
-```
