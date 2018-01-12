@@ -61,6 +61,10 @@ sub guess_path
 			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?)\.(?:3gp|m4v|jpg)$}
 		) || (
 			$source_file =~
+#			"/home/doti/tmp/camera-do-celular/v/V_20170116_194451.mp4"
+			m{/(V_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d))(?:_LL)?\.(mp4)$}
+		) || (
+			$source_file =~
 			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.(jpg|cr2|raf)$}
 		)
 			or return undef;
