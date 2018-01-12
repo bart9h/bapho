@@ -275,7 +275,7 @@ caller eq __PACKAGE__  or croak;
 			$line =~ s/^\s*(.*?)\s*$/$1/;
 			next  if $line =~ m/^#/;
 			next  if $line eq '';
-			my ($tag, $val) = ($line =~ m/^(.+)=(\d+)$/) ? ($1, $2) : ($line, 1);
+			my ($tag, $val) = ($line =~ m/^([^=]+)=(.+)$/) ? ($1, $2) : ($line, 1);
 			$rc{$tag} = $val;
 		}
 		close F;
