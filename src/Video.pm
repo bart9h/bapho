@@ -8,6 +8,9 @@ use SDL::Surface;
 use args qw/%args dbg/;
 #}#
 
+sub play { player_command('play', $_[0]) }
+sub load_sample_frame { player_command('load_sample_frame', $_[0]) }
+
 sub render_film_roll_frame #FIXME nao funfa
 {my ($surf) = @_;
 
@@ -39,37 +42,57 @@ sub render_film_roll_frame #FIXME nao funfa
 	}
 }#
 
-sub load_sample_frame
-{my ($videofile) = @_;
+sub player_command
+{my ($command, $arg) = @_;
 
-	my $tmpdir = $args{temp_dir}.'/bapho-videopreview';
-	-d $tmpdir  or mkdir $tmpdir  or die "$tmpdir: $!";
-	my $framefile = "$tmpdir/00000001.jpg";
+	state $player;
+	unless (defined $player) {
+		foreach my $p ('mpv', 'mplayer') {
+			my $bin = `which $p 2>/dev/null`;
+			chomp $bin;
+			if (-x $bin) {
+				$player = $p;
+				last;
+			}
+		}
+		unless (defined $player) {
+			say STDERR "Can't find command to handle video files.\n"
+			."Please install mpv or mplayer.";
+			$player = '';
+		}
+	}
+	$player or return;
 
-	my $cmd = "mplayer -frames 1 -ss 00:00:01 -vo jpeg:maxfiles=1:outdir=\"$tmpdir\" -ao null \"$videofile\"";
-	say $cmd  if dbg 'cmd,video,file';
-	$cmd .= ' >/dev/null 2>/dev/null';
-	system $cmd;
+	if ($command eq 'play') {
+		my $cmdline = $player.(
+			$args{fullscreen} ?
+				$player eq 'mplayer' ? ' -fs'
+				: $player eq 'mpv' ? ' --fs'
+				: die
+				: ''
+		)." \"$arg\" &";
 
-	my $surf;
-	$surf = SDL::Image::load($framefile)  if -e $framefile;
+		say $cmdline  if dbg;
+		system $cmdline;
+	}
+	elsif ($command eq 'load_sample_frame') {
+		my $tmpdir = $args{temp_dir}.'/bapho-videopreview';
+		-d $tmpdir  or mkdir $tmpdir  or die "$tmpdir: $!";
+		my $framefile = "$tmpdir/00000001.jpg";
 
-	system "rm -rf \"$tmpdir\"";
+		my $cmd = "mplayer -frames 1 -ss 00:00:01 -vo jpeg:maxfiles=1:outdir=\"$tmpdir\" -ao null \"$arg\"";
+		say $cmd  if dbg 'cmd,video,file';
+		$cmd .= ' >/dev/null 2>/dev/null';
+		system $cmd;
 
-	render_film_roll_frame($surf)  if $surf;
-	$surf;
-}#
+		my $surf;
+		$surf = SDL::Image::load($framefile)  if -e $framefile;
 
-sub play
-{my ($videofile) = @_;
+		system "rm -rf \"$tmpdir\"";
 
-	my $cmd = join ' ',
-		'mplayer',
-		$args{fullscreen} ? ('-fs') : (),
-		"\"$videofile\"",
-		'&';
-	say $cmd  if dbg;
-	system $cmd;
+		render_film_roll_frame($surf)  if $surf;
+		return $surf;
+	}
 }#
 
 1;

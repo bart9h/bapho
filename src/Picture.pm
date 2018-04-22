@@ -154,7 +154,7 @@ sub play
 {my ($self) = @_;
 
 	if ($self->is_vid) {
-		Video::play($self->{sel});
+		Video::player_command('play', $self->{sel});
 	}
 }#
 
