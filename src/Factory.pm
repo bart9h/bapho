@@ -209,6 +209,8 @@ sub get
 		sub add_picture
 		{my ($self, $path, $picture) = @_;
 
+			foreach ($path, $picture, $picture->{surf}) { defined or confess }
+
 			my $res = res_key($picture->{surf}->w, $picture->{surf}->h);
 			$self->{items}->{$path}->{$res} = $picture;
 			$self->{bytes_used} += $picture->{surf}->pitch * $picture->{surf}->h;

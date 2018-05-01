@@ -433,7 +433,7 @@ sub do
 				keys => [ 'r-.' ],
 				code => sub { foreach($view->marked_pics) { $_->{tags}->repeat_last_edit } }
 			},
-			print_files => {
+			print_picture => {
 				keys => [ 'p-p' ],
 				code => sub { $view->pic->print }
 			},
@@ -442,7 +442,7 @@ sub do
 				code => sub { $_->print foreach($view->folder_pics) }
 			},
 			print_files_selected => {
-				keys => [ ';-p' ],
+				keys => [ 'p-s' ],
 				code => sub { $_->print foreach($view->selected_pics) }
 			},
 			develop_folder => {
