@@ -284,9 +284,8 @@ sub do
 				code => sub { $self->quit },
 			},
 			toggle_fullscreen => {
-				keys => [ 'f', 'f11' ],
+				keys => [ 'f11' ],
 				code => sub { $self->fullscreen_toggle },
-				tags => [ 'global' ],
 			},
 			info_toggle => {
 				keys => [ 'i' ],
@@ -489,6 +488,14 @@ sub do
 				keys => [ 'enter', 'return' ],
 				code => sub { $view->pic->play },
 			},
+			folder_reviewed => {
+				keys => [ 'f-r' ],
+				code => sub { $view->pic->folder_review },
+			},
+			folder_review_reset => {
+				keys => [ 'f-0' ],
+				code => sub { $view->pic->folder_review_reset },
+			},
 		}), #}#
 
 		add_tag_to_actions('menu',
@@ -529,7 +536,7 @@ sub handle_event
 			$key = "$self->{key_hold}-$key"; #FIXME: can't use - key
 			$self->{key_hold} = '';
 		}
-		if ($key =~ /^[gprvz;]$/) { #FIXME: compute the list of keys that a start a multi-key binding
+		if ($key =~ /^[fgprvz;]$/) { #FIXME: compute the list of keys that a start a multi-key binding
 			$self->{key_hold} = $key;
 		}
 		else {

@@ -198,6 +198,42 @@ sub delete
 	print `$cmd`;
 }#
 
+sub folder_review_file
+{my ($self) = @_;
+
+	if ($self->{sel} =~ m{^(.*)/[^/]+$}) {
+		return "$1/.bapho-folder-review";
+	}
+	else {
+		croak;
+		return undef;
+	}
+}#
+
+sub folder_review_reset
+{my ($self) = @_;
+
+	if (my $file = $self->folder_review_file) {
+		say "Removing \"$file\".\n";
+		unlink $file  or warn "unlink: $file: $!\n";
+	}
+}#
+
+sub folder_review
+{my ($self) = @_;
+
+	if (my $file = $self->folder_review_file) {
+		if (open F, '>', $file) {
+			say "Updating \"$file\".\n";
+			print F time, "\n";
+			close F;
+		}
+		else {
+			print STDERR "Couldn't open \"$file\" for writing.\n";
+		}
+	}
+}#
+
 sub is_raw { pvt__is_pic_or_vid('raw', @_) }
 sub is_pic { pvt__is_pic_or_vid('pic', @_) }
 sub is_vid { pvt__is_pic_or_vid('vid', @_) }
