@@ -118,6 +118,28 @@ sub display
 		}
 	}#
 
+	sub get_review_text
+	{my ($self) = @_;
+
+		my $review = $self->view->get_folder_review();
+		if ($review > 0) {
+			my $days = int((time - $review)/(24*60*60));
+			return 'reviewed '.(
+				$days == 0 ? 'today' :
+				$days == 1 ? 'yesterday' :
+				$days <= 25 ? "$days days ago" :
+				$days <= 40 ? 'a months ago' :
+				$days <= 150 ? 'some months ago' :
+				$days <= 480 ? 'a year ago' :
+				$days <= 900 ? 'some years ago' :
+				'years ago'
+			);
+		}
+		else {
+			return 'NEVER REVIEWED';
+		}
+	}#
+
 	sub render_title
 	{my ($self) = @_;
 
@@ -137,10 +159,11 @@ sub display
 		my $fileitr = $self->view->{picitr}->{itr};
 		$self->print(
 			font=>1,
-			text=>sprintf('%s [%d/%d]',
+			text=>sprintf('%s [%d/%d] %s',
 				($+{folder} // './'),
 				$fileitr->{cursor},
 				scalar @{$fileitr->{files}},
+				$self->get_review_text,
 			),
 		);
 

@@ -490,7 +490,7 @@ sub do
 			},
 			folder_reviewed => {
 				keys => [ 'f-r' ],
-				code => sub { $view->pic->folder_review },
+				code => sub { $view->pic->folder_review; $view->{folder_review}->{folder} = '' },
 			},
 			folder_review_reset => {
 				keys => [ 'f-0' ],

@@ -53,11 +53,18 @@ sub sel_compare
 	return -M $path > -M $self->{sel};
 }#
 
+sub get_folder
+{my ($self) = @_;
+
+	$self->{sel} =~ m{^(.*?/)[^/]+$}  or carp;
+	return $1;
+}#
+
 sub open_folder
 {my ($self) = @_;
 
 	$self->{sel} =~ m{^(.*?/)[^/]+$}  or die;
-	system "xdg-open \"$1\"";
+	system 'xdg-open "'.$self->get_folder().'"';
 }#
 
 sub guess_source
@@ -198,23 +205,30 @@ sub delete
 	print `$cmd`;
 }#
 
-sub folder_review_file
+sub pvt__folder_review_file  { $_[0]->get_folder().'/.bapho-folder-review' }
+
+sub folder_review_get
 {my ($self) = @_;
 
-	if ($self->{sel} =~ m{^(.*)/[^/]+$}) {
-		return "$1/.bapho-folder-review";
+	say "Picture::folder_review_get()"  if dbg 'trace';
+	if (my $file = $self->pvt__folder_review_file) {
+		if (open F, '<', $file) {
+			say "Reading \"$file\"."  if dbg 'file';
+			my $value = <F>;
+			close F;
+			chomp $value;
+			return $value;
+		}
 	}
-	else {
-		croak;
-		return undef;
-	}
+
+	return 0;
 }#
 
 sub folder_review_reset
 {my ($self) = @_;
 
-	if (my $file = $self->folder_review_file) {
-		say "Removing \"$file\".\n";
+	if (my $file = $self->pvt__folder_review_file) {
+		say "Removing \"$file\".\n"  if dbg 'file';
 		unlink $file  or warn "unlink: $file: $!\n";
 	}
 }#
@@ -222,9 +236,9 @@ sub folder_review_reset
 sub folder_review
 {my ($self) = @_;
 
-	if (my $file = $self->folder_review_file) {
+	if (my $file = $self->pvt__folder_review_file) {
 		if (open F, '>', $file) {
-			say "Updating \"$file\".\n";
+			say "Updating \"$file\".\n"  if dbg 'file';
 			print F time, "\n";
 			close F;
 		}

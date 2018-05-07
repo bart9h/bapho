@@ -32,6 +32,11 @@ sub new
 		page_cursor => 0,
 		selection   => {},
 		marks       => {},
+
+		folder_review => {
+			folder => '',
+			review => 0,
+		},
 	};
 
 	if (defined $file) {
@@ -215,6 +220,19 @@ sub folder_pics
 	$last->last();
 
 	return $self->pvt__pics_between_itrs($first, $last);
+}#
+
+sub get_folder_review
+{my ($self) = @_;
+
+	my $pic_folder = $self->pic->get_folder();
+
+	if ($pic_folder ne $self->{folder_review}->{folder}) {
+		$self->{folder_review}->{folder} = $pic_folder;
+		$self->{folder_review}->{review} = $self->pic->folder_review_get();
+	}
+
+	return $self->{folder_review}->{review};
 }#
 
 sub pvt__filter
