@@ -83,6 +83,47 @@ Features
 (check the [TODO file](TODO.md) for known bugs and more planned features)
 
 
+Installation
+------------
+
+- Check the system requirements bellow.
+
+- Download [zip](https://github.com/bart9h/bapho/archive/master.zip)
+  or use `git clone https://github.com/bart9h/bapho.git`.
+
+- Copy baphorc.example to ~/.baphorc and edit it.
+
+- You can symlink the `bapho` executable to somewhere in your path.
+
+
+Usage
+-----
+
+Arrow keys (or k/j) to move between pictures, +/- to zoom (for thumbnail mode).
+For the complete keybindings, refer to src/main.pm (search for "keybindings").
+
+| key | action                  |
+|-----|-------------------------|
+|  q  | quit                    |
+| f11 | toggle fullscreen       |
+|  i  | toggle info display     |
+|  e  | toggle exif display     |
+|  ve | edit view (filters)     |
+|  vc | create new view         |
+|  vd | delete current view     |
+| tab | switch to next view     |
+| d/D | skip to next/prev day   |
+| m/M | skip to next/prev month |
+| y/Y | skip to next/prev year  |
+|  t  | tag editor              |
+|  .  | repeat last tag edit    |
+| s/S | add/remove star         |
+| s/S | add/remove star         |
+|enter| play video              |
+|  fr | mark folder as reviewd  |
+|  f0 | reset folder review     |
+
+
 System requirements
 -------------------
 

@@ -1,0 +1,32 @@
+#
+# BaPhO example configuration. Copy this file to ~/.baphorc and edit it.
+#
+
+
+# Where your photos are. Defaults to ~/Pictures
+basedir=/home/me/Photos
+
+
+# Window size (when not in fullscreen).
+geometry=800x800
+
+
+# Maximum memory to use for image cache.
+# Defaults to the max between 1/4 of total memory,
+# or 1/2 of free memory at bapho startup.
+#cache-size-mb=500
+
+
+# Which editor to use to enter new tags. Defaults to the $EDITOR environment variable.
+editor=vim
+
+
+# You can toggle it with the [f] key.
+fullscreen
+
+
+# Use mv=1 to tell the importer to move (not copy) the files.
+mv=0
+
+
+# All options are listed in `bapho --help`.
