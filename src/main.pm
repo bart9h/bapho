@@ -277,6 +277,8 @@ sub do
 	my $view = $self->view;
 	my %actions = (#{my
 
+		# all keybindings are defined here:
+
 		add_tag_to_actions('global',
 		{#{my
 			quit => {

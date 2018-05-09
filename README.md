@@ -100,10 +100,11 @@ Usage
 -----
 
 Arrow keys (or k/j) to move between pictures, +/- to zoom (for thumbnail mode).
-For the complete keybindings, refer to src/main.pm (search for "keybindings").
+
+For the complete keybinding list, please refer to src/main.pm (search for "keybindings").
 
 | key | action                  |
-|-----|-------------------------|
+|:---:|-------------------------|
 |  q  | quit                    |
 | f11 | toggle fullscreen       |
 |  i  | toggle info display     |
