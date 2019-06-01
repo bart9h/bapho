@@ -69,7 +69,3 @@ Optimizations
 
 - Filesystem cache (keep database of pictures).
 
-
-```VimL
-vim:filetype=markdown:
-```

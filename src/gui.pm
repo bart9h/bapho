@@ -61,8 +61,8 @@ sub get_window_geometry
 	}
 	else {
 		($w, $h) = get_root_geometry;
-		$w /= 2;
-		$h /= 2;
+		$w *= 1/2;
+		$h *= 2/3;
 	}
 
 	return ($w, $h);
@@ -278,7 +278,7 @@ sub do
 				code => sub { $self->quit },
 			},
 			toggle_fullscreen => {
-				keys => [ 'f11' ],
+				keys => [ 'f-s', 'f11' ],
 				code => sub { $self->fullscreen_toggle },
 			},
 			info_toggle => {

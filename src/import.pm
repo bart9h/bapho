@@ -62,8 +62,14 @@ sub guess_path
 			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?)\.(?:3gp|m4v|jpg)$}
 		) || (
 			$source_file =~
+			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)\d*)\.mp4$}
+		) || (
+#			$source_file =~
+#			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_\d*)\.mp4$}
+#		) || (
+			$source_file =~
 #			"/home/doti/tmp/camera-do-celular/v/V_20170116_194451.mp4"
-			m{/(V_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d))(?:_LL)?\.(mp4)$}
+			m{/(V_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d))(?:_LL)?\.mp4$}
 		) || (
 			$source_file =~
 			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.(jpg|cr2|raf)$}
@@ -107,7 +113,7 @@ sub get_target_path
 	#FIXME: $args{quiet}
 
 	$source_file =~ m/$args{basedir}/
-		and die "Importing file $source_file from inside basedir $args{basedir}.\n";
+		and die "Importing file \"$source_file\" from inside basedir \"$args{basedir}\".\n";
 
 	my ($ext) = $source_file =~ /\.([^.]+)$/;
 	unless (defined $ext) {
@@ -132,7 +138,7 @@ sub get_target_path
 		return 0  unless (-s $_[0] == -s $_[1]);
 		if (0 == system "cmp \"$_[0]\" \"$_[1]\"") {
 			say "skipping \"$_[0]\" == \"$_[1]\""  unless $args{quiet};
-			system "rm \"$_[0]\"".($args{quiet}?'':' -v')  if $args{mv};
+			system "rm \"$_[0]\" -f".($args{quiet}?'':' -v')  if $args{mv};
 			return 1;
 		}
 	}

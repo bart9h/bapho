@@ -58,7 +58,7 @@ foreach my $arg (<STDIN>) {
 	foreach my $ext (sort { $exts{$a}->{priority} <=> $exts{$b}->{priority} } keys %exts) {
 
 		my $input_file = $arg;
-		$input_file =~ s/\.\w+$/\.$ext/;
+		$input_file =~ s{^(.*/[^/]+)\.[^/]+$}{$1\.$ext};
 		#say "\tTrying \"$input_file\".";
 		if (-e $input_file) {
 

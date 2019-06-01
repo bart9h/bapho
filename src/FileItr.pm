@@ -56,7 +56,7 @@ sub new
 		}
 	}
 	else {
-		confess "\"$path\" not found.";
+		Carp::cluck "\"$path\" not found.";
 		return undef;
 	}
 

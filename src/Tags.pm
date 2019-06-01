@@ -207,9 +207,9 @@ sub pvt__set_tag
 caller eq __PACKAGE__  or croak;
 
 	say "Setting tag \"$tag\" to \"$self->{id}\"."  if dbg 'tags';
-	$self->{tags}->{$tag} = 1;
+	$self->{tags}->{$tag} = $time//1;
 	if (not defined $singleton{all_tags}->{$tag} or $time) {
-		$singleton{all_tags}->{$tag} = $time;
+		$singleton{all_tags}->{$tag} = $time//1;
 		pvt__save_tags($singleton{all_path}, $singleton{all_tags});
 	}
 }#
