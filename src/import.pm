@@ -116,7 +116,7 @@ sub get_target_path
 	}
 	$ext = lc $ext;
 
-	unless (Picture::is_pic_or_vid($source_file)) {
+	unless (Picture::is_pic_or_vid($source_file) or $ext eq 'xmp') {
 		warn "ignoring \"$source_file\": unregistered extension.\n";
 		return undef;
 	}
@@ -211,9 +211,10 @@ sub import_files
 		@files
 	);
 
-	# Mark .jpg as writeable if there's an equivalent raw file.
 	foreach my $path (keys %imported_files) {
 		$path =~ m{^(?<base>.+?)\.(?<ext>[^.]+)$}  or next;
+
+		# Mark .jpg as writeable if there's an equivalent raw file.
 		if ($+{ext} eq 'jpg') {
 			my $has_raw = 0;
 			foreach (qw/.cr2 .raf/) {
@@ -223,6 +224,11 @@ sub import_files
 				}
 			}
 			chmod 0644, $path  if $has_raw;
+		}
+
+		# Mark all .xmp files as writeable.
+		if ($+{ext} eq 'xmp') {
+			chmod 0644, $path;
 		}
 	}
 
