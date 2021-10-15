@@ -57,26 +57,14 @@ sub guess_path
 	sub path2path
 	{my ($source_file) = @_;
 
-		my ($basename, $year, $mon, $mday, $hour, $min, $sec) = (
-			$source_file =~
-			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(?:-\d)?)\.(?:3gp|m4v|jpg)$}
-		) || (
-			$source_file =~
-			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)\d*)\.mp4$}
-		) || (
-#			$source_file =~
-#			m{/((?:IMG|VID)_(\d\d\d\d)(\d\d)(\d\d)_\d*)\.mp4$}
-#		) || (
-			$source_file =~
-#			"/home/doti/tmp/camera-do-celular/v/V_20170116_194451.mp4"
-			m{/(V_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d))(?:_LL)?\.mp4$}
-		) || (
-			$source_file =~
-			m{/((\d\d\d\d)(\d\d)(\d\d)-(\d\d)(\d\d)(\d\d))[a-z]\.(jpg|cr2|raf)$}
-		)
-			or return undef;
+		$source_file =~ m{/([^./]+)_(\d\d\d\d)(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)(-\d|\d*|_LL|[a-z]|_\d+)\.([^./]+)$}
+			or
+		$source_file =~ m{/([^./]+)-(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)\d*\.([^./]+)$}
+			or
+		return undef;
 
-		my ($dir, undef) = datetime2path($year, $mon, $mday, $hour, $min, $sec);
+		my $basename = $1;
+		my $dir = datetime2path($2, $3, $4, $5, $6, $7);
 		return ($dir, $basename);
 	}#
 
