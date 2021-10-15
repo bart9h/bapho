@@ -125,6 +125,31 @@ sub get_nstars
 	return $n;
 }#
 
+sub set_nstars
+{my ($self, $n) = @_;
+
+	foreach ("", 1 .. 5) {
+		my $tag = '_star'.$_;
+		my $i = $_ ? $_ : 1;
+		if ($i > $n) {
+			# delete all tags above $n
+			if (exists $self->{tags}->{$tag}) {
+				say "del($tag)"  if dbg 'tags';
+				delete $self->{tags}->{$tag};
+			}
+		}
+		else {
+			# set all tags equal or bellow $n
+			if ($tag ne '_star1') { # =='_star'
+				say "set($tag)"  if dbg 'tags';
+				$self->{tags}->{$tag} = 1;
+			}
+		}
+	}
+
+	$self->pvt__save_pic_tags;
+}#
+
 sub add
 {my ($self, $something, $time) = @_;
 
@@ -182,24 +207,7 @@ sub toggle_star
 	}
 	say "is($n)"  if dbg 'tags';
 
-	foreach ("", 1 .. 5) {
-		my $tag = '_star'.$_;
-		my $i = $_ ? $_ : 1;
-		if ($i > $n) {
-			if (exists $self->{tags}->{$tag}) {
-				say "del($tag)"  if dbg 'tags';
-				delete $self->{tags}->{$tag};
-			}
-		}
-		else {
-			if ($tag ne '_star1') { # =='_star'
-				say "set($tag)"  if dbg 'tags';
-				$self->{tags}->{$tag} = 1;
-			}
-		}
-	}
-
-	$self->pvt__save_pic_tags;
+	$self->set_nstars ($n);
 }#
 
 sub pvt__set_tag

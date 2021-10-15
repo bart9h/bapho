@@ -59,7 +59,7 @@ foreach my $arg (<STDIN>) {
 
 		my $input_file = $arg;
 		$input_file =~ s{^(.*/[^/]+)\.[^/]+$}{$1\.$ext};
-		#say "\tTrying \"$input_file\".";
+		say "\tTrying \"$input_file\".";
 		if (-e $input_file) {
 
 			my $cmd = $exts{$ext}->{command};
