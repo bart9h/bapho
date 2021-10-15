@@ -1,6 +1,12 @@
 Poor man's issue tracker
 ========================
 
+Bugs
+----
+
+- --readonly not fully implemented
+
+
 
 Missing features
 ----------------
