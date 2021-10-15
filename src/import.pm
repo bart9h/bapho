@@ -28,7 +28,7 @@ sub guess_path
 		my $exif = ImageInfo($source_file);
 
 		my $date_key;
-		foreach (qw/DateTimeOriginal FileModifyDate/) {
+		foreach (qw/DateTimeOriginal MediaCreateDate/) {
 			if (defined $exif->{$_}) {
 				$date_key = $_;
 				last;
