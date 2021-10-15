@@ -36,26 +36,14 @@ sub main
 	$args{basedir} = fixlink $args{basedir};
 	-d $args{basedir}  or die "$args{basedir} not found.\n";
 
-	if (exists $args{files}) {
-		die "only one startdir is currently supported\n"  if scalar @{$args{files}} != 1;
-		my $dir = $args{files}->[0];
-		unless ($dir =~ m{^/}) {
-			my $pwd = `pwd`; chomp $pwd;
-			$dir = $pwd."/$dir";
-		}
-		$args{startdir} = fixlink $dir;
-	}
-
-	my $jaildir = defined $args{startdir}
-		? $args{startdir} =~ m|^$args{basedir}/|
-			? $args{basedir}
-			: $args{startdir}
-		: $args{basedir};
-
-
+	# check for one of the cmline tools options (run and exit, no gui)
 	if ($args{import}) {
 		use import;
-		exit(import::import_any($args{files}) ? 0 : 1);
+		exit (import::import_any($args{files}) ? 0 : 1);
+	}
+	elsif ($args{xmp2tags}) {
+		use xmp2tags;
+		exit (xmp2tags::convert($args{files}) ? 0 : 1);
 	}
 	elsif ($args{print}) {
 		die "not implemented\n";
@@ -70,7 +58,24 @@ sub main
 		exit(0);
 =cut
 	}
-	else {
+	else { # start gui
+
+		if (exists $args{files}) {
+			die "only one startdir is currently supported\n"  if scalar @{$args{files}} != 1;
+			my $dir = $args{files}->[0];
+			unless ($dir =~ m{^/}) {
+				my $pwd = `pwd`; chomp $pwd;
+				$dir = $pwd."/$dir";
+			}
+			$args{startdir} = fixlink $dir;
+		}
+
+		my $jaildir = defined $args{startdir}
+			? $args{startdir} =~ m|^$args{basedir}/|
+				? $args{basedir}
+				: $args{startdir}
+			: $args{basedir};
+
 		require gui;
 		import gui;
 		gui::loop();

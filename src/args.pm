@@ -32,6 +32,7 @@ our %args = (
 		nop => undef,
 		import => undef,
 		ignore_extra_jpg => undef,
+		xml2tags => undef,
 		print => undef,
 		cache_size_mb => undef,
 		raw_extensions => [ @raw_extensions ],
