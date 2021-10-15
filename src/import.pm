@@ -122,7 +122,7 @@ sub get_target_path
 	}
 	$ext = lc $ext;
 
-	unless (Picture::is_pic_or_vid($source_file) or $ext eq 'xmp') {
+	unless (Picture::is_pic_or_vid($source_file) or $ext =~ m/^(xmp|tags)$/) {
 		warn "ignoring \"$source_file\": unregistered extension.\n";
 		return undef;
 	}
