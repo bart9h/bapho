@@ -176,9 +176,7 @@ sub display
 		);
 
 		my $n = $self->view->pic->{tags}->get_nstars;
-		if ($n > 0) {
-			$self->print(color=>'yellow', font=>2, text=>'(*)'x$n);
-		}
+		$self->print(color=>'yellow', font=>2, text=>($n>0 ? '(*)'x$n : ' '));
 	}#
 
 	sub render_tags
